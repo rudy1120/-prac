@@ -1,0 +1,60 @@
+@charset "UTF-8";
+@import url(http://fonts.googleapis.com/earlyaccess/notosanskr.css);
+
+body{background: url(../images/content/applyForm-bg.jpg)no-repeat;}
+.tit{text-align:center; font-size:1.5em; color:#fff;padding:50px 10px 0 0; font-weight:500;letter-spacing:-2px;}
+.all_wrap{position:relative; padding :30px 30px 150px; overflow:hidden;max-width:1200px; height:auto; margin:50px auto 100px; background:#fff url(../images/content/bkLogo.png)no-repeat; box-shadow:rgba(0,0,0,0.1) 0px 10px 30px; background-position: center 70%; background-attachment: fixed;}
+.bt_wrap{overflow:hidden;}
+.bod_maintain{border-spacing:0;width:100%;}
+.bod_maintain td{padding:10px 5px; border-bottom:1px solid #ddd; width:30px;}
+.bod_maintain td.first{border-top:3px solid #333;}
+.bod_maintain td.fTxt,label.fTxt{font-weight:bold;}
+.bod_maintain input{padding:10px 5px; border:1px solid #ddd;}
+.bod_maintain select{padding:10px 5px; border:1px solid #ddd;}
+a.bt:after{content:""; display:block;clear:both;}
+fieldset{border:none; margin:0; padding:0;}
+.ehiccolor {font-size: 0.9em;color: #7d7d7d;}
+.terms_overflow {max-height: 700px; padding: 10px 35px; line-height: 20px; overflow-y: auto; overflow-x: hidden; background-color: #fbfbfb; border: 1px solid #ddd; margin-top:10px;}
+/* label{padding:20px 0; display:block;} */
+a.bt{width:30%; height:25px; padding:10px; display:block; margin-bottom:20px; color:#000; border:1px solid #ddd; float:left; margin-right:10px; text-decoration:none; text-align:center; font-size:1em;}
+a.bt.on{background:#0098d4; color:#fff; border:none; font-size:1.1em; transition:all 0.5s; font-weight:700;}
+.btn_submit{width:150px; padding:15px; color:#fff; background:#00bcd4; border:none; font-size:1em; font-weight:700;}
+.btn_submit:hover{transition:all 1s; background:#059fb3;}
+
+/* 일광행복주택 임시 css */
+a.bt-il { width:calc(50% - 10px); height:25px; padding:10px 0; display:block; margin-bottom:20px; color:#000; border:1px solid #ddd; float:left; text-decoration:none; text-align:center; font-size:1em;}
+a.bt-il.on{background:#0098d4; color:#fff; border:none; font-size:1.0em; transition:all 0.5s; font-weight:700;}
+a.bt-il:first-of-type { margin-right: 18px }
+
+.area_box.box2 {padding: 10px 0 10px; border: 1px solid #dcdfe7;box-sizing: border-box; /* font-size:1.1em; */ line-height:1.6em; background:url(../images/content/apply2-icon01.png)no-repeat; background-position: 20px;}
+.area_box.box3 {padding: 10px 0 10px; border: 1px solid #dcdfe7;box-sizing: border-box; line-height:1.6em; background-position: 20px; background-color: #f1f1f1; }
+.area_box.box4 { padding: 10px 0 10px 10px; border: 1px solid #dcdfe7;box-sizing: border-box; line-height:1.6em; background-position: 20px; }
+.area_box {position: relative;width: 100%;margin: 30px auto;overflow: hidden;padding: 40px 55px;box-sizing: border-box;color: #333;/* font-weight: 300;font-size: 16px;line-height: 2em; */text-align: left;}
+.area_box p strong {font-size: 1.1em;}
+.box-comment{padding:10px 0 10px 160px;}
+.box-comment2{padding:0px 0px 0px 30px; position: relative; }
+p.box-comment2::before { content: '*'; position: absolute; top: 3px; left: 0; padding-left: 15px; }
+.blind{width: 1px; height: 1px; overflow: hidden;font-size: 1px; line-height: 1px;position: absolute;top: -9999px;}
+
+@media all and (max-width:1080px){
+	.area_box.box3 br{ display: none !important}
+}
+
+@media all and (max-width:960px){
+	a.bt{width:93%; margin-right:0;}
+	a.bt{margin-bottom:5px;}
+}
+@media all and (max-width:640px){
+	.bod_maintain td{display:block;width:100%;}
+	.bod_maintain td.sod{border-top:none;}
+	.bod_maintain .inp1{width:94%; display:block;}
+	.bod_maintain .inp2{margin:5px 0;}
+	.area_box.box2{background-position:center 25px;}
+	.box-comment{text-align: center;padding-top: 120px; padding-left:0;}
+
+}
+ @media all and (max-width:320px){
+	a.bt-il { width: calc(100% - 2px); }
+}
+ 
+ 

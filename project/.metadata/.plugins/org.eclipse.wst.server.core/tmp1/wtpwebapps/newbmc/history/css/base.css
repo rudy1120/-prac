@@ -1,0 +1,30 @@
+/* CSS 초기화 */
+* {margin:0; padding:0; box-sizing: border-box;}
+*:before, *:after {box-sizing: border-box;}
+html{overflow-x: hidden;font-size:16px; }
+body {font-size:1rem; line-height: 1; color:#333; font-family: "NotoSans"; letter-spacing: -0.5px;  -webkit-text-size-adjust:none; -webkit-print-color-adjust:exact; overflow-x:hidden!important;}
+
+header, main, footer, article, aside, nav {display: block;}
+
+a {text-decoration: none; color:inherit;}
+button {font-size:inherit; border:0; background:0; cursor: pointer; color:inherit;}
+ul:not(.list_style){list-style: none;}
+li:not(.list_style) {list-style: none;}
+ol:not(.list_style) {list-style: none;}
+input {border:0; background:#fff; color:#333;}
+select {-webkit-appearance: none; -moz-appearance: none; -ms-appearance: none; -o-appearance: none; appearance: none; padding:10px 60px 10px 15px; border:0; background-color:transparent; color: inherit;}
+select::-ms-expand{display: none;}
+textarea {resize:none;}
+img {max-width: 100%; vertical-align: top;}
+
+table {border:0; border-spacing:0; border-collapse:collapse;}
+legend {visibility:hidden; position:absolute; left:-5000px; font-size:0; line-height:0;}
+caption {display:none;}
+
+@media all and (max-width:1024px) {
+    body {font-size:14px;}
+}
+
+@media all and (max-width:768px){
+    body {font-size:12px;}
+}

@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<!-- 부가 사이트/단위 기능 등 확인용 -->
+	<definition name="portalEmpty" template="/portal/jsp/layouts/templateEmpty.jsp">
+	</definition>
+	<definition name="portalEmptyContent" template="/portal/jsp/layouts/templateEmptyContent.jsp">
+	</definition>
+
+	<!-- ======================== ADMINISTRATOR TEMPLATE ======================== -->
+
+	<!-- ADMINISTRATOR MAIN TEMPLATE -->
+	<definition name="sysEmpty" template="/sys/jsp/layouts/templateEmpty.jsp"></definition>
+
+	<definition name="sysEmptyLogin" template="/sys/jsp/layouts/templateAdminLogin.jsp"></definition>
+
+	<!-- ADMINISTRATOR SUB TEMPLATE -->
+	<definition name="sysMain" template="/sys/jsp/layouts/templateAdminMain.jsp">
+		<put-attribute name="title" value="포탈 관리자" />
+		<put-attribute name="footer" value="/sys/jsp/layouts/sysFooter.jsp" />
+	</definition>
+
+	<definition name="sysSub" template="/sys/jsp/layouts/templateAdminSub.jsp">
+		<put-attribute name="title" value="포탈 관리자" />
+		<put-attribute name="header" value="/sys/jsp/layouts/sysHeader.jsp" />
+		<put-attribute name="left" value="/sys/jsp/layouts/sysLeftMenu.jsp" />
+		<put-attribute name="footer" value="/sys/jsp/layouts/sysFooter.jsp" />
+	</definition>
+
+	<!-- ======================== USER TEMPLATE ======================== -->
+
+	<!-- ##### 대표포털 ##### -->
+	<definition name="portalMain" template="/portal/jsp/layouts/templateMain.jsp">
+		<put-attribute name="title" value="대표" />
+		<put-attribute name="header" value="/common/jsp/layouts/header.jsp" />
+		<put-attribute name="footer" value="/common/jsp/layouts/footer.jsp" />
+		<put-attribute name="menu" value="/common/jsp/layouts/component/m_menu.jsp" />
+	</definition>
+	<definition name="portalSub" template="/portal/jsp/layouts/templateSub.jsp">
+		<put-attribute name="title" value="대표" />
+		<put-attribute name="header" value="/common/jsp/layouts/header.jsp" />
+		<put-attribute name="left" value="/common/jsp/layouts/left.jsp" />
+		<put-attribute name="spot" value="/common/jsp/layouts/spot.jsp" />
+		<put-attribute name="tab" value="/common/jsp/layouts/tab.jsp" />
+		<put-attribute name="footer" value="/common/jsp/layouts/footer.jsp" />
+		<put-attribute name="research" value="/common/jsp/common/research.jsp" />
+		<put-attribute name="menu" value="/common/jsp/layouts/component/m_menu.jsp" />
+	</definition>
+	
+	<!-- bmc 대표포털 -->
+	<definition name="bmcMain" template="/bmc/jsp/layouts/templateMain.jsp">
+		<put-attribute name="title" value="대표" />
+		<put-attribute name="header" value="/bmc/jsp/layouts/header.jsp" />
+		<put-attribute name="footer" value="/bmc/jsp/layouts/footer.jsp" />
+	</definition>
+	<definition name="bmcSub" template="/bmc/jsp/layouts/templateSub.jsp">
+		<put-attribute name="title" value="대표" />
+		<put-attribute name="header" value="/bmc/jsp/layouts/header.jsp" />
+		<put-attribute name="subvisual" value="/bmc/jsp/layouts/subvisual.jsp" />
+		<put-attribute name="subpath" value="/bmc/jsp/layouts/subpath.jsp" />
+		<put-attribute name="footer" value="/bmc/jsp/layouts/footer.jsp" />
+	</definition>
+	
+	<!-- osiria -->
+	<definition name="osiriaMain" template="/osiria/jsp/layouts/templateMain.jsp">
+		<put-attribute name="title" value="오시리아" />
+		<put-attribute name="header" value="/osiria/jsp/layouts/header.jsp" />
+		<put-attribute name="footer" value="/osiria/jsp/layouts/footer.jsp" />
+	</definition>
+	<definition name="osiriaSub" template="/osiria/jsp/layouts/templateSub.jsp">
+		<put-attribute name="title" value="오시리아" />
+		<put-attribute name="header" value="/osiria/jsp/layouts/header.jsp" />
+		<put-attribute name="subvisual" value="/osiria/jsp/layouts/subvisual.jsp" />
+		<put-attribute name="subpath" value="/osiria/jsp/layouts/subpath.jsp" />
+		<put-attribute name="footer" value="/osiria/jsp/layouts/footer.jsp" />
+	</definition>
+	
+	<!-- history -->
+	<definition name="historyMain" template="/history/jsp/layouts/templateMain.jsp">
+		<put-attribute name="title" value="역사관" />
+		<put-attribute name="header" value="/history/jsp/layouts/header.jsp" />
+		<put-attribute name="footer" value="/history/jsp/layouts/footer.jsp" />
+	</definition>
+	<definition name="historySub" template="/history/jsp/layouts/templateSub.jsp">
+		<put-attribute name="title" value="역사관" />
+		<put-attribute name="header" value="/history/jsp/layouts/header.jsp" />
+		<put-attribute name="subvisual" value="/history/jsp/layouts/subvisual.jsp" />
+		<put-attribute name="subpath" value="/history/jsp/layouts/subpath.jsp" />
+		<put-attribute name="footer" value="/history/jsp/layouts/footer.jsp" />
+	</definition>
+
+	<!-- english homepage -->
+	<definition name="engMain" template="/eng/jsp/layouts/templateMain.jsp">
+		<put-attribute name="title" value="대표(영문)" />
+		<put-attribute name="header" value="/eng/jsp/layouts/header.jsp" />
+		<put-attribute name="footer" value="/eng/jsp/layouts/footer.jsp" />
+	</definition>
+	<definition name="engSub" template="/eng/jsp/layouts/templateSub.jsp">
+		<put-attribute name="title" value="대표(영문)" />
+		<put-attribute name="header" value="/eng/jsp/layouts/header.jsp" />
+		<put-attribute name="subvisual" value="/eng/jsp/layouts/subvisual.jsp" />
+		<put-attribute name="subpath" value="/eng/jsp/layouts/subpath.jsp" />
+		<put-attribute name="footer" value="/eng/jsp/layouts/footer.jsp" />
+	</definition>
+	
+</tiles-definitions>

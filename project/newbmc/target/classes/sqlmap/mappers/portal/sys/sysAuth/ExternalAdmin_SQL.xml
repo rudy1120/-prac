@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.sysAuth.mapper.ExternalAdminMngMapper">
+
+	<resultMap id="adminMap" type="egovframework.portal.sys.sysAuth.vo.AdminLoginVO">
+		<result property="id" column="id" />
+		<result property="adminId" column="id" />
+		<result property="name" column="name" />
+		<result property="adminName" column="name" />
+		<result property="pwd" column="pwd" />
+		<result property="adminTypeCode" column="admin_type_code" />
+		<result property="mids" column="mids" />
+		<result property="ptIdxs" column="pt_idxs" />
+		<result property="isDel" column="is_del" />
+		<result property="lastPwChangeDt" column="last_pw_change_dt" />
+		<result property="loginFailedCnt" column="login_failed_cnt" />
+		<result property="changePwTarget" column="change_pw_target" />
+		<result property="lastestLoginDt" column="lastest_login_dt" />
+	</resultMap>
+
+	<sql id="changePwTargetSelector">
+		(CASE WHEN NOW() > DATE_ADD(last_pw_change_dt, INTERVAL 3 MONTH) THEN 'Y' ELSE 'N' END) AS change_pw_target
+	</sql>
+
+	<select id="getAdmin" resultMap="adminMap">
+		SELECT p.*,
+			<include refid="changePwTargetSelector"/>
+		FROM admin_external p
+		WHERE admin_type_code = #{adminTypeCode}
+			AND id = #{adminId}
+			AND is_del = 'N'
+	</select>
+
+	<select id="getList" parameterType="egovframework.portal.sys.sysAuth.vo.AdminLoginVO" resultMap="adminMap">
+		SELECT RS2.*,
+			<include refid="changePwTargetSelector"/>
+		FROM (
+			SELECT RS.*, @rownum:=@rownum+1 AS rn FROM (
+				SELECT *
+				FROM admin_external
+				WHERE 1 = 1 AND is_del = 'N'
+					<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+						<if test="searchType.equals('admin_id')">
+							AND id LIKE CONCAT('%',#{searchTxt},'%')
+						</if>
+						<if test="searchType.equals('admin_name')">
+							AND name LIKE CONCAT('%',#{searchTxt},'%')
+						</if>
+					</if>
+					<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchAdminTypeCode)">
+						AND admin_type_code = #{searchAdminTypeCode}
+					</if>
+				ORDER BY idx DESC
+			) RS, (SELECT @rownum :=0) AS R
+		) RS2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<select id="getTotalCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM admin_external a
+		WHERE 1 = 1 AND is_del = 'N'
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+				<if test="searchType.equals('admin_id')">
+					AND id LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+				<if test="searchType.equals('admin_name')">
+					AND name LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+			</if>
+	</select>
+
+	<select id="getEntity" resultMap="adminMap">
+		SELECT RS.*,
+			<include refid="changePwTargetSelector"/>
+		FROM admin_external RS
+		WHERE id = #{id} AND admin_type_code = #{adminTypeCode}
+	</select>
+
+
+
+
+
+	<insert id="insert">
+		INSERT INTO admin_external (
+			id, name, pwd, admin_type_code, mids, pt_idxs
+		) VALUES (
+			#{adminId}, #{name}, #{encPasswd}, #{adminTypeCode}, #{mids}, #{ptIdxs}
+		)
+	</insert>
+
+	<update id="update">
+		UPDATE admin_external
+		SET
+			name = #{name},
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(encPasswd)">
+				pwd = #{encPasswd},
+			</if>
+			pt_idxs = #{ptIdxs},
+			mids = #{mids},
+			update_date = NOW()
+		WHERE id = #{id} AND admin_type_code = #{adminTypeCode}
+	</update>
+
+	<update id="delete">
+		UPDATE admin_external
+		SET is_del = 'Y',
+			delete_date = NOW()
+		WHERE id = #{id} AND admin_type_code = #{adminTypeCode}
+	</update>
+
+	<delete id="deleteAll">
+		DELETE FROM admin_external
+	</delete>
+
+</mapper>

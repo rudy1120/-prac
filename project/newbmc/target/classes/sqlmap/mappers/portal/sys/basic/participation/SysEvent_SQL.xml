@@ -1,0 +1,148 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.basic.event.mapper.SysEventMapper">
+
+	<resultMap id="eventcontentMap" type="egovframework.portal.sys.basic.event.vo.EventContentVO">
+		<result column="idx"         property="idx"/>
+		<result column="subject"     property="subject"/>
+		<result column="headcomment" property="headcomment"/>
+		<result column="content"     property="content"/>
+		<result column="proc_lvl"    property="procLvl"/>
+		<result column="attach_file" property="attachFile"/>
+		<result column="regdate"     property="regdate"/>
+		<result column="exedate"     property="exedate"/>
+		<result column="pubdate"     property="pubdate"/>
+		<result column="lim"         property="lim"/>
+		<result column="parCnt"      property="parCnt"/>
+		<result column="is_use"		 property="is_use"/>
+	</resultMap>
+	
+	<resultMap id="eventparticipantMap" type="egovframework.portal.sys.basic.event.vo.EventParticipantVO">
+		<result column="num"     property="num"/>
+		<result column="idx"     property="idx"/>
+		<result column="usernm"  property="usernm"/>
+		<result column="tel"     property="tel"/>
+		<result column="email"   property="email"/>
+		<result column="iswin"   property="iswin"/>
+		<result column="regdate" property="regdate"/>
+		<result column="attach_id" property="attachId"/>
+	</resultMap>
+	
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND t.subject LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM culture_content t
+			WHERE 1 = 1
+				<include refid="listSearcher"/>
+		) RES
+	</select>
+	
+	<select id="getList" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO" resultMap="eventcontentMap">
+		SELECT idx, subject, headcomment, content, proc_lvl
+		, attach_file, regdate, exedate, pubdate, lim, is_use
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.* 
+				FROM culture_content t
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY idx desc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="getEntity" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO" resultMap="eventcontentMap">
+		SELECT
+			idx
+			, subject
+			, headcomment
+			, content
+			, proc_lvl
+			, attach_file
+			, regdate
+			, exedate
+			, pubdate
+			, lim
+			, is_use
+		FROM culture_content
+		WHERE idx = #{idx}
+	</select>
+	
+	<insert id="insert" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO">
+		INSERT INTO culture_content (
+			subject, headcomment, content, attach_file, exedate, pubdate, lim ,gubun, is_use
+		) VALUES (
+			#{subject}, #{headcomment}, #{content}, #{attachFile}, #{exedate}, #{pubdate}, #{lim} ,#{gubun}, #{is_use}
+		)
+		<selectKey resultType="int" keyProperty="idx" order="AFTER">
+			select max(idx) as idx from culture_content
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO">
+		UPDATE culture_content
+		SET subject     = #{subject},
+			headcomment = #{headcomment},
+			content     = #{content},
+			exedate     = #{exedate},
+			pubdate     = #{pubdate},
+			attach_file	= #{attachFile},
+			gubun       = #{gubun}
+			is_use		= #{is_use}
+		WHERE idx = #{idx}
+	</update>
+	
+	<update id="delete" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO">
+		DELETE FROM culture_content
+		WHERE idx = #{idx}
+	</update>
+	
+	<select id="getContent" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO" resultMap="eventcontentMap">
+		SELECT t.*
+		, (select ifnull(count(*), 0) from culture_member 
+			where idx = #{idx}
+				and (iswin = #{iswin} or iswin = 1)
+			) as parCnt FROM culture_content t
+		WHERE idx = #{idx}
+	</select>
+	
+	<select id="getParList" parameterType="egovframework.portal.sys.basic.event.vo.EventParticipantVO" resultMap="eventparticipantMap">
+		SELECT *
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT * 
+				FROM culture_member
+				WHERE 1 = 1
+					and idx = #{idx}
+					and (iswin = #{iswin} or iswin = 1)
+				ORDER BY idx desc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+			
+	</select> 
+	
+	<update id="loc" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO">
+		update culture_member set iswin = 1 where (idx = #{idx} and iswin = 0) order by rand() limit #{lim}
+	</update>
+	
+	<update id="locEnd" parameterType="egovframework.portal.sys.basic.event.vo.EventContentVO">
+		update culture_content set proc_lvl = 2 where idx = #{idx}
+	</update>
+	 
+</mapper>

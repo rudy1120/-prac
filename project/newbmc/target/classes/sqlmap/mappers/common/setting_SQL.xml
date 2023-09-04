@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="s">
+
+	<sql id="topDeptId">'53800000000'</sql>
+	<sql id="mayorDeptId">'53800400000'</sql>
+	<sql id="subMayorDeptId">'53800410000'</sql>
+	<sql id="cityCode">'5380000'</sql>
+
+	<sql id="vars">
+		<bind name="topDeptId" value="'53800000000'" />
+	</sql>
+	<sql id="funcs">
+		<bind name="isBlank" value=":[@egovframework.portal.util.StringUtil@isBlank(#this)]" />
+		<bind name="isNotBlank" value=":[@egovframework.portal.util.StringUtil@isNotBlank(#this)]" />
+	</sql>
+
+</mapper>

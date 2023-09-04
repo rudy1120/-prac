@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.unit.bmc.moveRes.mapper.MoveAgreeMapper">
+	<resultMap id="moveAgreeMap" type="egovframework.portal.unit.bmc.moveRes.vo.MoveAgreeVO">
+			<result property="num"			column="num"/>
+			<result property="username"		column="username"/>
+			<result property="usertel"		column="usertel"/>
+			<result property="gbn"			column="gbn"/>
+			<result property="addr1"		column="addr1"/>
+			<result property="addr2"		column="addr2"/>
+			<result property="chk1"			column="chk1"/>
+			<result property="chk2"			column="chk2"/>
+			<result property="chk3"			column="chk3"/>
+			<result property="understand"	column="understand"/>
+			<result property="regdate"		column="regdate"/>
+			<result property="applyYN"		column="applyYN"/>
+	</resultMap>
+	
+	<select id="getCustInfo" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveAgreeVO" resultMap="moveAgreeMap">
+		<![CDATA[
+			SELECT num, username, usertel, gbn, addr1, addr2, applyYN
+			FROM happy_house_agreement
+			WHERE username = #{username} and usertel = #{usertel}
+		]]>
+	</select>
+	
+	<update id="upChk" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveAgreeVO">
+		<![CDATA[
+			UPDATE happy_house_agreement
+			SET chk1 = #{chk1},
+				chk2 = #{chk2},
+				chk3 = #{chk3},
+				understand = #{understand},
+				regdate = CURRENT_TIMESTAMP, 
+				applyYN = 'Y'
+			WHERE username = #{username} and usertel = #{usertel}
+		]]>
+	</update>
+
+</mapper>

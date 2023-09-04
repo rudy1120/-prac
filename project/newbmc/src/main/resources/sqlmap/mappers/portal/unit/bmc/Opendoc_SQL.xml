@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.opendoc.mapper.OpendocMapper">
+	
+	<resultMap id="opendocMap" type="egovframework.portal.unit.bmc.opendoc.vo.OpendocVO">
+		<result column="dept_nm"    	property="deptNm"/>
+		<result column="doc_no"	    	property="docNo"/>
+		<result column="doc_title"  	property="docTitle"/>
+		<result column="prod_year"  	property="prodYear"/>
+		<result column="serial_no"  	property="serialNo"/>
+		<result column="reg_date"   	property="regDate"/>
+		<result column="doc_mgr"       	property="docMgr"/>
+		<result column="open_yn" 		property="openYn"/>
+		<result column="doc_period"  	property="docPeriod"/>
+	</resultMap>
+	
+	<select id="getListCnt" parameterType="egovframework.portal.unit.bmc.opendoc.vo.OpendocVO" resultType="java.lang.Integer">
+		<![CDATA[
+		SELECT COUNT(doc_no)
+		FROM xf_opendoc
+		WHERE 1 = 1
+		]]>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTitle)">
+		<![CDATA[
+		AND doc_title LIKE CONCAT('%',#{searchTitle},'%')
+		]]>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchYear)">
+		<![CDATA[
+		AND prod_year = #{searchYear}
+		]]>
+		</if>
+	</select>
+	
+	<select id="getList" parameterType="egovframework.portal.unit.bmc.opendoc.vo.OpendocVO" resultMap="opendocMap">
+		<![CDATA[
+		SELECT 
+			rs2.dept_nm
+			, rs2.doc_no
+			, rs2.doc_title
+			, rs2.prod_year
+			, rs2.serial_no
+			, rs2.reg_date
+			, rs2.doc_mgr
+			, rs2.open_yn
+			, rs2.doc_period
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.*
+				FROM xf_opendoc t
+				WHERE 1 = 1
+		]]>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTitle)">
+		<![CDATA[
+				AND doc_title LIKE CONCAT('%',#{searchTitle},'%')
+		]]>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchYear)">
+		<![CDATA[
+				AND prod_year = #{searchYear}
+		]]>
+		</if>
+		<![CDATA[
+				ORDER BY reg_date desc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+		]]>
+	</select>
+	
+	<select id="getContent" parameterType="egovframework.portal.unit.bmc.opendoc.vo.OpendocVO" resultMap="opendocMap">
+		<![CDATA[
+		SELECT 
+			dept_nm
+			, doc_no
+			, doc_title
+			, prod_year
+			, serial_no
+			, reg_date
+			, doc_mgr
+			, open_yn
+			, doc_period
+		FROM xf_opendoc
+		where serial_no = #{serialNo}
+		and dept_nm = #{deptNm}
+		and prod_year = #{prodYear}
+		]]>
+	</select>
+	
+</mapper>

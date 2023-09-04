@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.report.mapper.ReportMapper">
+
+	<resultMap id="hrReportMap" type="egovframework.portal.unit.bmc.report.vo.ReportVO">
+		<result column="idx"         property="idx"/>
+		<result column="uname"       property="uname"/>
+		<result column="dupinfo"	 property="dupinfo"/>
+		<result column="tel"         property="tel"/>
+		<result column="email"   	 property="email"/>
+		<result column="title"       property="title"/>
+		<result column="cont"        property="cont"/>
+		<result column="attachId"    property="attachId"/>
+		<result column="creatDate"   property="creatDate"/>
+		<result column="orignl_file_nm" property="orignl_file_nm"/>
+	</resultMap>
+
+	<!-- 접수자 등록 -->
+	<insert id="insert" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO">
+		INSERT INTO hr_report 
+		(
+			uname, dupinfo, tel, email, title, cont, attachId
+		) 
+		VALUES 
+		(
+			#{uname}
+			, #{dupinfo}
+			, #{tel}
+			, #{email}
+			, #{title}
+			, #{cont}
+			, #{attachId}
+		)
+		<selectKey resultType="String" keyProperty="idx" order="AFTER">
+			select max(idx) as idx from hr_report
+		</selectKey>
+	</insert>
+	
+	<!-- 신고 접수자 조회 -->
+	<select id="getList" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultMap="hrReportMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.*
+				FROM hr_report t
+				WHERE 1 = 1
+				and t.dupinfo = #{dupinfo}
+				order by creatDate desc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<!-- 신고 접수자 상세글 조회 -->
+	<select id="getContent" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultMap="hrReportMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.*
+				FROM hr_report t
+				WHERE 1 = 1
+				and idx = #{idx}
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="getReporterCnt" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM hr_report t
+			WHERE 1 = 1
+			and t.tel = #{tel}
+			and t.uname = #{uname}
+		) RES
+	</select>
+	
+	<select id="getCheck" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultType="int">
+		select count(*) from hr_report 
+		where dupinfo = #{dupinfo} 
+	</select>
+	
+	<select id="getFileNm" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultType="String">
+		select rs.orignl_file_nm
+		from hr_report a, (
+			select c.atch_file_id, c.orignl_file_nm 
+			from comtnfile b, comtnfile_detail c
+			where b.atch_file_id = c.atch_file_id
+			and use_at = 'Y'
+		) rs 
+		where a.attachId = rs.atch_file_id
+		and a.idx = #{idx}
+	</select>
+	
+</mapper>

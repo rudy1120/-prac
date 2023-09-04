@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<definition name="cmm/fms/EgovFileList" template="/common/jsp/cmm/fms/EgovFileList.jsp" />
+
+	<definition name="cmm/fms/EgovFileListEtc" template="/common/jsp/cmm/fms/EgovFileListEtc.jsp" />
+
+	<definition name="cmm/fms/EgovFileViewer" template="/common/jsp/cmm/fms/EgovFileViewer.jsp" />
+
+	<definition name="cmm/fms/EgovFileMovie" template="/common/jsp/cmm/fms/EgovFileMovie.jsp" />
+
+	<definition name="cmm/fms/fileInfo" template="/common/jsp/cmm/fms/fileInfo.jsp" />
+	
+	<definition name="cmm/fms/ImgViewer" template="/common/jsp/cmm/fms/ImgViewer.jsp" />
+
+	<definition name="cmm/fms/fileOrder" extends="sysEmpty">
+		<put-attribute name="title" value="파일 순서 변경" type="string" />
+		<put-attribute name="body" value="/common/jsp/cmm/fms/fileOrder.jsp" />
+	</definition>
+
+</tiles-definitions>

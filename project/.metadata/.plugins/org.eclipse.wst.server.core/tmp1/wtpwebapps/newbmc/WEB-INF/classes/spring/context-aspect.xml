@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:p="http://www.springframework.org/schema/p" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+	http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop-2.5.xsd">
+
+	<aop:config>
+		<aop:pointcut id="serviceMethod"
+			expression="execution(* egovframework..impl.*Impl.*(..))" />
+
+		<aop:aspect ref="exceptionTransfer">
+			<aop:after-throwing throwing="exception"
+				pointcut-ref="serviceMethod" method="transfer" />
+		</aop:aspect>
+	</aop:config>
+
+	<bean id="exceptionTransfer" class="egovframework.rte.fdl.cmmn.aspect.ExceptionTransfer">
+		<property name="exceptionHandlerService">
+			<list>
+				<ref bean="defaultExceptionHandleManager" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="defaultExceptionHandleManager"
+		class="egovframework.rte.fdl.cmmn.exception.manager.DefaultExceptionHandleManager">
+		<property name="reqExpMatcher">
+			<ref bean="antPathMater" />
+		</property>
+		<property name="patterns">
+			<list>
+				<value>**service.impl.*</value>
+			</list>
+		</property>
+		<property name="handlers">
+			<list>
+				<ref bean="exceptionHandler" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="exceptionHandler" class="egovframework.portal.exception.CommonExceptionHandler" />
+
+	<!-- acegi-security URL filter setting -->
+	<bean id="filterChainProxy" class="org.acegisecurity.util.FilterChainProxy">
+		<property name="filterInvocationDefinitionSource">
+			<value>
+				CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON
+				PATTERN_TYPE_APACHE_ANT
+				/**=channelProcessingFilter
+				<!-- /**=httpSessionContextIntegrationFilter,formAuthenticationProcessingFilter,exceptionTranslationFilter,filterSecurityInterceptor -->
+			</value>
+		</property>
+	</bean>
+
+	<bean id="channelProcessingFilter" class="org.acegisecurity.securechannel.ChannelProcessingFilter">
+		<property name="channelDecisionManager">
+			<ref bean="channelDecisionManager" />
+		</property>
+		<property name="filterInvocationDefinitionSource">
+			<value>
+        <!-- CONVERT_URL_TO_LOWERCASE_BEFORE_COMPARISON -->
+				<!-- \A/secure.html\Z=REQUIRES_SECURE_CHANNEL \A/.*\Z=REQUIRES_INSECURE_CHANNEL -->
+				<!-- /sys/bbs/bbsmng/write*.*=REQUIRES_SECURE_CHANNEL /sys/bbs/bbsmng/modify*.*=REQUIRES_SECURE_CHANNEL
+					/sys/bbs/bbsmng/reply*.*=REQUIRES_SECURE_CHANNEL /yangsan/bbs/boardpwd*.*=REQUIRES_SECURE_CHANNEL
+					/yangsan/bbs/write*.*=REQUIRES_SECURE_CHANNEL /yangsan/bbs/modify*.*=REQUIRES_SECURE_CHANNEL
+					/yangsan/bbs/reply*.*=REQUIRES_SECURE_CHANNEL /health/bbs/boardpwd*.*=REQUIRES_SECURE_CHANNEL
+					/health/bbs/write*.*=REQUIRES_SECURE_CHANNEL /health/bbs/modify*.*=REQUIRES_SECURE_CHANNEL
+					/health/bbs/reply*.*=REQUIRES_SECURE_CHANNEL /wedu/bbs/boardpwd*.*=REQUIRES_SECURE_CHANNEL
+					/wedu/bbs/write*.*=REQUIRES_SECURE_CHANNEL /wedu/bbs/modify*.*=REQUIRES_SECURE_CHANNEL
+					/wedu/bbs/reply*.*=REQUIRES_SECURE_CHANNEL /mayor/bbs/boardpwd*.*=REQUIRES_SECURE_CHANNEL
+					/mayor/bbs/write*.*=REQUIRES_SECURE_CHANNEL /mayor/bbs/modify*.*=REQUIRES_SECURE_CHANNEL
+					/mayor/bbs/reply*.*=REQUIRES_SECURE_CHANNEL /hahoe/bbs/boardpwd*.*=REQUIRES_SECURE_CHANNEL
+					/hahoe/bbs/write*.*=REQUIRES_SECURE_CHANNEL /hahoe/bbs/modify*.*=REQUIRES_SECURE_CHANNEL
+					/hahoe/bbs/reply*.*=REQUIRES_SECURE_CHANNEL /ebook/bbs/boardpwd*.*=REQUIRES_SECURE_CHANNEL
+					/ebook/bbs/write*.*=REQUIRES_SECURE_CHANNEL /ebook/bbs/modify*.*=REQUIRES_SECURE_CHANNEL
+					/ebook/bbs/reply*.*=REQUIRES_SECURE_CHANNEL /ipcity/bbs/boardpwd*.*=REQUIRES_SECURE_CHANNEL
+					/ipcity/bbs/write*.*=REQUIRES_SECURE_CHANNEL /ipcity/bbs/modify*.*=REQUIRES_SECURE_CHANNEL
+					/ipcity/bbs/reply*.*=REQUIRES_SECURE_CHANNEL /yangsan/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/yangsan/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /health/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/health/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /wedu/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/wedu/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /mayor/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/mayor/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /hahoe/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/hahoe/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /ebook/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/ebook/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /ipcity/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/ipcity/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /csc/*/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/csc/*/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /dept/*/bbs/list*.*=REQUIRES_INSECURE_CHANNEL
+					/dept/*/bbs/view*.*=REQUIRES_INSECURE_CHANNEL /yangsan/*/*/*.do=REQUIRES_INSECURE_CHANNEL
+					/yangsan/*/*.do=REQUIRES_INSECURE_CHANNEL /yangsan/content*.*=REQUIRES_INSECURE_CHANNEL
+					/dept/*/*/*.do=REQUIRES_INSECURE_CHANNEL /dept/*/*.do=REQUIRES_INSECURE_CHANNEL
+					/dept/*/content*.*=REQUIRES_INSECURE_CHANNEL /csc/*/*/*.do=REQUIRES_INSECURE_CHANNEL
+					/csc/*/*.do=REQUIRES_INSECURE_CHANNEL /csc/*/content*.*=REQUIRES_INSECURE_CHANNEL -->
+
+          <!-- /*.*=REQUIRES_INSECURE_CHANNEL -->
+         <!--  /yangsan/bbs/*.*=REQUIRES_SECURE_CHANNEL
+          /mayor/bbs/*.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/contents*.*=REQUIRES_INSECURE_CHANNEL
+          /yangsan/placard/combine/*.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/placard/*.*=REQUIRES_SECURE_CHANNEL
+          /ite/myinfo/*.*=REQUIRES_SECURE_CHANNEL
+          /teen/myinfo/*.*=REQUIRES_SECURE_CHANNEL
+          /womenhall/myinfo/*.*=REQUIRES_SECURE_CHANNEL
+          /museum/inReal*.*=REQUIRES_SECURE_CHANNEL
+          /museum/takeFacilities/*.*=REQUIRES_SECURE_CHANNEL
+          /museum/service/*.*=REQUIRES_SECURE_CHANNEL
+          /museum/group/*.*=REQUIRES_SECURE_CHANNEL
+          /museum/edu/*.*=REQUIRES_SECURE_CHANNEL
+          /safe/inRealName.*=REQUIRES_SECURE_CHANNEL
+          /safe/reserve/*.*=REQUIRES_SECURE_CHANNEL
+          /edu/bbs/inRealName.*=REQUIRES_SECURE_CHANNEL
+
+          /yangsan/user/*.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/login.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/loginForm.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/logout.*=REQUIRES_INSECURE_CHANNEL
+          /yangsan/user/certification.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/chkPasswordProc.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/certificationProc.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/findAccount.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/findAccountProc.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/resetPasswordProc.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/modify.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/modifyProc.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/deleteAccount.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/deleteAccountProc.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/join/checkOverlapAccount.*=REQUIRES_SECURE_CHANNEL
+          /yangsan/user/join/*.*=REQUIRES_SECURE_CHANNEL -->
+			</value>
+		</property>
+	</bean>
+
+	<bean id="channelDecisionManager"
+		class="org.acegisecurity.securechannel.ChannelDecisionManagerImpl">
+		<property name="channelProcessors">
+			<list>
+				<ref bean="secureChannelProcessor" />
+				<ref bean="insecureChannelProcessor" />
+			</list>
+		</property>
+	</bean>
+
+	<bean id="secureChannelProcessor" class="org.acegisecurity.securechannel.SecureChannelProcessor" />
+	<bean id="insecureChannelProcessor"
+		class="org.acegisecurity.securechannel.InsecureChannelProcessor" />
+
+</beans>

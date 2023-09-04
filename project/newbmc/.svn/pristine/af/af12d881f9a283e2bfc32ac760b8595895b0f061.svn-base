@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.common.mapper.FileDownInfoMngMapper">
+
+	<!-- file download count 정보 insert OR update -->
+	<update id="incrementCnt" parameterType="egovframework.com.cmm.service.FileVO">
+		INSERT INTO comtnfile_stat (atch_file_id,file_sn,s_year,s_month,s_day)
+		VALUES(#{atchFileId},#{fileSn}, date_format(NOW(), '%Y'), date_format(NOW(), '%m'), date_format(NOW(), '%d'))
+		ON DUPLICATE KEY UPDATE
+		cnt = ifnull(cnt,1) + 1
+	</update>
+
+	<!-- 해당 파일의 다운로드 횟수를 조회합니다. -->
+	<select id="selectFileDownCount" parameterType="egovframework.com.cmm.service.FileVO" resultType="java.lang.Integer">
+		SELECT ifnull(SUM(CNT), 0)
+		FROM   comtnfile_stat
+		WHERE  ATCH_FILE_ID = #{atchFileId}
+		AND    FILE_SN      = #{fileSn}
+	</select>
+
+</mapper>

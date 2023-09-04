@@ -1,0 +1,297 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.receipt.mapper.ReceiptMapper">
+
+	<resultMap id="receiptContMap" type="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO">
+		<result column="idx"         property="idx"/>
+		<result column="title"       property="title"/>
+		<result column="cont"        property="cont"/>
+		<result column="thumbnail"   property="thumbnail"/>
+		<result column="sdate"       property="sdate"/>
+		<result column="edate"       property="edate"/>
+		<result column="cnt"         property="cnt"/>
+		<result column="gbn"         property="gbn"/>
+		<result column="is_del"      property="isDel"/>
+		<result column="create_date" property="createDate"/>
+		<result column="update_date" property="updateDate"/>
+		<result column="totcnt"      property="totcnt"/>
+		<result column="file_cnt"	 property="file_cnt"/>
+	</resultMap>
+	
+	<resultMap id="receiptMap" type="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO">
+		<result property="sttidx"			column="sttidx" />
+		<result property="idx"        		column="idx" />
+		<result property="school"     		column="school" />
+		<result property="tname"      		column="tname" />
+		<result property="tel"        		column="tel" />
+		<result property="resolution"  		column="resolution" />
+		<result property="recStatus"  		column="recStatus" />
+		<result property="createDate"    	column="createDate" />
+		<result property="updateDate"   	column="updateDate" />
+		
+		<result property="stsidx"			column="stsidx" />
+		<result property="sname"  			column="sname" />
+		<result property="attach1"  		column="attach1" />
+		<result property="attach2"    		column="attach2" />
+		<result property="attach3"	   		column="attach3" />
+		<result property="attach4" 			column="attach4" />
+		
+		<result property="title"      		column="title" />
+		<result property="gbn"        		column="gbn" />
+		<result property="edate"      		column="edate" />
+		<result property="stime"      		column="stime" />
+		<result property="etime"      		column="etime" />
+	</resultMap>
+	
+	<!-- 검색기능 sql -->
+	<sql id="listSearcher">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			AND ${searchType} LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+	</sql>
+	
+	<sql id="receptionistSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND t2.title LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<!-- 리스트 조회 -->
+	<select id="getList" resultMap="receiptContMap" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO">
+		select rs2.idx, rs2.title, rs2.cont, rs2.thumbnail
+			, sdate 
+			, edate
+			, rs2.cnt, rs2.gbn, rs2.is_del, rs2.create_date, rs2.update_date  
+		from
+			(SELECT rs.*, @rownum:=@rownum+1 AS rn
+		FROM (
+			SELECT t.*
+			FROM receipt_cont t
+		) rs, (SELECT @rownum :=0) AS R
+    		WHERE 1 = 1
+    		and is_del = 'N'
+    		<![CDATA[and sdate < now()]]>
+    			<include refid="listSearcher"/>
+    		ORDER BY IDX DESC
+    	) rs2
+    	WHERE 1 = 1
+		<choose>
+			<when test="begin > 0">
+				and rn between #{begin} and #{end}
+			</when>
+			<otherwise>
+				and rn between #{firstIndex} and #{lastIndex}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getTotalCnt" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM receipt_cont t
+			WHERE 1 = 1
+			and gbn = #{gbn}
+			and is_del = 'N'
+			<![CDATA[and sdate < now()]]>
+				<include refid="listSearcher"/>
+		) RES
+	</select>
+	
+	<!-- 상세보기 -->
+	<select id="getContent" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO" resultMap="receiptContMap">
+		SELECT idx, title, cont, thumbnail
+			, sdate, edate
+			, cnt, gbn, is_del, create_date, update_date
+			, (SELECT COUNT(*) FROM comtnfile_detail WHERE atch_file_id = thumbnail) AS file_cnt
+		FROM receipt_cont
+		WHERE idx = #{idx}
+	</select>
+	
+	<!-- 조회수 -->
+	<update id="setViewCount" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO">
+		UPDATE receipt_cont SET cnt = cnt + 1 WHERE IDX = #{idx}
+	</update>
+	
+	<!-- 접수자 등록 -->
+	<insert id="stInsert" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO">
+		INSERT INTO skilled_talent_t 
+		(
+			idx, school, tname, tel, resolution, recStatus
+		) 
+		VALUES 
+		(		
+			 #{idx}
+			, #{school}
+			, #{tname}
+			, #{tel}
+			, #{resolution}
+			, #{recStatus}
+		)
+		<selectKey resultType="string" keyProperty="sttidx" order="AFTER">
+			select max(sttidx) as sttidx from skilled_talent_t
+		</selectKey>
+	</insert>
+	
+	<select id="selectstt" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO" resultType="String">
+		SELECT sttidx
+		FROM skilled_talent_t
+		WHERE school = #{school} 
+		AND tname = #{tname}
+		AND tel = #{tel}
+	</select>
+	
+	<!-- 추천학생 등록 -->
+	<insert id="stsInsert" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO">
+		INSERT INTO skilled_talent_s
+		(
+			sttidx, sname, attach1, attach2, attach3, attach4
+		) 
+		VALUES 
+		(
+			#{sttidx}		
+			, #{sname}
+			, #{attach1}
+			, #{attach2}
+			, #{attach3}
+			, #{attach4}
+		)
+		<selectKey resultType="string" keyProperty="stsidx" order="AFTER">
+			select max(stsidx) as stsidx from skilled_talent_s
+		</selectKey>
+	</insert>
+	
+	<!-- 기간제직원 접수 등록 -->
+	<insert id="termInsert" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO">
+		INSERT INTO skilled_talent_t 
+		(
+			idx, tname, tel, attachId
+		) 
+		VALUES 
+		(		
+			 #{idx}
+			, #{tname}
+			, #{tel}
+			, #{attachId}
+		)
+		<selectKey resultType="string" keyProperty="sttidx" order="AFTER">
+			select max(sttidx) as sttidx from skilled_talent_t
+		</selectKey>
+	</insert>
+	
+	<select id="termChkIn" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO" resultType="int">
+		select count(*) as cnt
+		from skilled_talent_t
+		where tname = #{tname}
+		and tel = #{tel}
+		and idx = #{idx}
+	</select>
+	
+	<!-- 참가자 조회 -->
+	<select id="read" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO" resultMap="receiptMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.*, t2.title, t2.gbn, t2.edate
+				FROM skilled_talent_t t join receipt_cont t2 on t.idx = t2.idx
+				WHERE 1 = 1
+				and t.tel = #{tel}
+				and t.tname = #{tname}
+				and t2.gbn = 'B'
+				<include refid="receptionistSearcher"/>
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<select id="getReceptionistCnt" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM skilled_talent_t t join receipt_cont t2 on t.idx = t2.idx
+			WHERE 1 = 1
+			and t.tel = #{tel}
+			and t.tname = #{tname}
+			and t2.gbn = 'B'
+			<include refid="receptionistSearcher"/>
+		) RES
+	</select>
+	
+	<!-- 기간제직원 접수 수정정보 -->
+	<select id="getInfoB" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO" resultMap="receiptMap">
+		SELECT b.title, a.sttidx, a.tname, a.tel, a.attachId
+		FROM skilled_talent_t a, receipt_cont b
+		WHERE a.idx = b.idx
+		AND a.sttidx = #{sttidx}
+	</select>
+	
+	<update id="termUp" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO">
+		UPDATE skilled_talent_t
+		SET attachId = #{attachId},
+			updateDate = CURRENT_TIMESTAMP
+		WHERE sttidx = #{sttidx}
+	</update>
+	
+	<!-- 접수자 등록내역 삭제 -->
+	<delete id="deleteT" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO">
+		DELETE
+		FROM skilled_talent_t 
+		WHERE sttidx = #{sttidx}
+	</delete>
+	<!-- 기능인재 여부 확인 -->
+	<select id="chkSkillS" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO" resultType="int">
+		SELECT count(*) as cnt
+		FROM skilled_talent_s
+		WHERE sttidx = #{sttidx}
+	</select>
+	<!-- 추천학생 등록내역 삭제 -->
+	<delete id="deleteS" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptContVO">
+		DELETE
+		FROM skilled_talent_s
+		WHERE sttidx = #{sttidx}
+	</delete>
+	
+	<select id="getCheck" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO" resultType="int">
+		select count(*) from skilled_talent_t 
+		where idx = #{idx} 
+		and school = #{school}
+		and tname = #{tname}
+		and tel = #{tel}
+	</select>
+	
+	<select id="getGbn" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO" resultMap="receiptMap">
+		select gbn, idx, edate
+		from receipt_cont
+		where idx = #{idx}
+	</select>
+	
+	<select id="getReceptionistList" parameterType="egovframework.portal.unit.bmc.receipt.vo.ReceiptVO" resultMap="receiptMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.sttidx, t.idx, t.school, t.tname, t.tel, t.resolution, t.recStatus, t.attachId, t.createDate, t.updateDate
+					, (select count(*) cnt  from skilled_talent_s where sttidx = t.sttidx ) as tCnt
+					, s.stsidx, s.sname, s.attach1, s.attach2, s.attach3, s.attach4
+					, (select sdate from receipt_cont where idx = t.idx) as stime
+					, (select edate from receipt_cont where idx = t.idx) as etime
+				FROM skilled_talent_t t LEFT JOIN skilled_talent_s s
+				ON t.sttidx = s.sttidx
+				WHERE t.idx = #{idx}
+				and t.tel = #{tel}
+				and t.tname = #{tname}
+				<include refid="receptionistSearcher"/>
+				ORDER BY t.createDate DESC 
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	
+	
+</mapper>

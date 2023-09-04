@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<definition name="/unit/common/*/dynamic/list" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/unit/dynamic/list.jsp" />
+	</definition>
+	<definition name="/unit/common/*/dynamic/view" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/unit/dynamic/view.jsp" />
+	</definition>
+	<definition name="/unit/common/*/dynamic/map" extends="{1}EmptyContent">
+		<put-attribute name="body" value="/common/jsp/unit/dynamic/map.jsp" />
+	</definition>
+
+	<!-- 동적현황 커스텀뷰 -->
+	<definition name="/unit/common/*/dynamic/custom/list" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/unit/dynamic/custom/list.jsp" />
+	</definition>
+	<definition name="/unit/common/*/dynamic/custom/view" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/unit/dynamic/custom/view.jsp" />
+	</definition>
+
+</tiles-definitions>

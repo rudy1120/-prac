@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.unit.bmc.movetest.mapper.MoveTestMapper">
+<resultMap id="moveTestMap" type="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO">
+		<result property="cust_id"		column="cust_id"/>
+		<result property="name"			column="name"/>
+		<result property="tel"			column="tel"/>
+		<result property="addr1"		column="addr1"/>
+		<result property="addr2"		column="addr2"/>
+		<result property="use_yn"		column="use_yn"/>
+		
+		<result property="idx"			column="idx"/>
+		<result property="move_date"	column="move_date"/>
+		<result property="move_time"	column="move_time"/>
+		<result property="updt_yn"		column="updt_yn"/>
+</resultMap>
+
+<select id="getCustInfo" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultMap="moveTestMap">
+	<![CDATA[
+		SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn,
+			b.idx, b.move_date, b.move_time, b.regdate, b.uptdate, b.updt_yn
+		FROM ilgwang_happy_cust a 
+			LEFT OUTER JOIN ilgwang_happy_res b
+		ON a.cust_id = b.cust_id
+		WHERE a.name = #{name} and a.tel = #{tel}
+		and a.use_yn = 'Y'
+	]]>
+</select>
+
+<select id="chkCust" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultMap="moveTestMap">
+	<![CDATA[
+		SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn
+		FROM ilgwang_happy_cust a
+		WHERE a.name = #{name} and a.tel = #{tel}
+	]]>
+</select>
+
+<select id="getResInfo" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultMap="moveTestMap">
+	<![CDATA[
+		SELECT idx, cust_id, move_date, move_time, 
+			DATE_FORMAT(regdate, '%Y-%m-%d') AS regdate, 
+			DATE_FORMAT(uptdate, '%Y-%m-%d') AS uptdate, 
+			updt_yn
+		FROM ilgwang_happy_res
+	]]>
+</select>
+
+<select id="getChkCustInfo" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultMap="moveTestMap">
+	<![CDATA[
+		SELECT cust_id, name, tel, addr1, addr2
+		FROM ilgwang_happy_cust
+		WHERE name = #{name} AND tel = #{tel}
+		AND addr1 = #{addr1} AND addr2 = #{addr2}
+		AND use_yn = 'Y'
+	]]>
+</select>
+
+<select id="chkGbn" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultMap="moveTestMap">
+	<![CDATA[
+		SELECT cust_id, name, tel, addr1, addr2
+		FROM ilgwang_happy_cust
+		WHERE name = #{name} AND tel = #{tel}
+		AND addr1 = #{addr1} AND addr2 = #{addr2}
+		AND use_yn = 'Y'
+		AND gbn = 'N'
+	]]>
+</select>
+
+<select id="chkReserve" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultMap="moveTestMap">
+	<![CDATA[
+		SELECT a.idx, a.cust_id, a.move_date, a.move_time, a.updt_yn 
+		FROM ilgwang_happy_res a, (
+			SELECT cust_id
+			FROM ilgwang_happy_cust
+			WHERE name = #{name} AND tel = #{tel}
+			AND addr1 = #{addr1} AND addr2 = #{addr2}) b
+		WHERE a.cust_id = b.cust_id
+	]]>
+</select>
+
+<select id="chkRes" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultType="int">
+	<![CDATA[
+		select count(*) as cnt
+		from ilgwang_happy_cust a, ilgwang_happy_res b
+		where a.cust_id = b.cust_id
+		and a.addr1 = #{addr1}
+		and b.move_date = #{dateSel}
+		and b.move_time = #{timeSel}
+	]]>
+</select>
+
+<select id="chkResCust" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultType="int">
+	<![CDATA[
+		select count(*) as cntC
+		from ilgwang_happy_res
+		where cust_id = #{cust_id}
+	]]>
+</select>
+
+<select id="chkTime" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO" resultMap="moveTestMap">
+	<![CDATA[
+		SELECT DISTINCT b.move_date, b.move_time 
+		FROM ilgwang_happy_cust a, ilgwang_happy_res b
+		WHERE a.cust_id = b.cust_id
+		AND a.addr1 = #{addr1} and b.move_date = #{dateSel}
+		ORDER BY b.move_time ASC
+	]]> 
+</select>
+
+<insert id="reserve" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO">
+	<![CDATA[
+		INSERT INTO ilgwang_happy_res
+		(
+			idx,
+			cust_id,
+			move_date,
+			move_time
+		)
+		VALUES
+		(
+			(SELECT * FROM (SELECT IFNULL(MAX(IDX),0)+1 FROM ilgwang_happy_res) AS idx),
+			#{cust_id},
+			#{dateSel},
+			#{timeSel}
+		)
+	]]>
+</insert>
+
+<update id="resUp" parameterType="egovframework.portal.unit.bmc.movetest.vo.MoveTestVO">
+	<![CDATA[
+		UPDATE ilgwang_happy_res
+		SET move_date = #{dateSel},
+			move_time = #{timeSel},
+			uptdate = CURRENT_TIMESTAMP, 
+			updt_yn = 'N'
+		WHERE cust_id = #{cust_id}
+	]]>
+</update>
+
+</mapper>

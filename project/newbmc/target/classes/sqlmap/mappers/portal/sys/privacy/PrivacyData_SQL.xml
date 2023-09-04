@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.privacy.mapper.PrivacyDataMapper">
+
+	<resultMap id="privacyPrmDataHistoryMap" type="egovframework.portal.sys.privacy.vo.PrivacyDataHistoryVO">
+		<result property="idx"           column="idx"/>
+		<result property="prmIdx"        column="prm_idx"/>
+		<result property="prmName"       column="prm_name"/>
+		<result property="prmTableName"  column="prm_table_name"/>
+		<result property="prmPeriod"     column="prm_period"/>
+		<result property="prmInfo"       column="prm_info"/>
+		<result property="procCnt"       column="proc_cnt"/>
+		<result property="deleteDate"    column="delete_date"/>
+	</resultMap>
+
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(prmIdx)">
+			AND prm_idx = #{prmIdx}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('p_nm')">
+				AND prm_name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('period')">
+				AND prm_period = #{searchTxt}
+			</if>
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchSday)">
+			AND delete_date >= DATE_FORMAT(#{searchSday}, '%Y-%m-%d')
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchEday)">
+			AND DATE_FORMAT(CONCAT(#{searchEday} , '23:59:59'), '%Y-%m-%d%H:%i:%s') >= delete_date
+		</if>
+		AND delete_date >= DATE_ADD(NOW(), INTERVAL -12 MONTH)
+	</sql>
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmHistoryVO" resultType="int">
+		SELECT COUNT(*) AS cnt
+		FROM privacy_data_history c
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+	</select>
+	<select id="getList" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmHistoryVO" resultMap="privacyPrmDataHistoryMap">
+		SELECT *
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT *
+				FROM privacy_data_history
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY idx DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<select id="getTotalListAsMap" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmHistoryVO" resultType="HashMap">
+		SELECT prm_name,
+			prm_table_name,
+			CONCAT(prm_period , '년') AS prm_period,
+			CONCAT(proc_cnt , '건') AS proc_cnt,
+			date_format(delete_date, '%Y-%m-%d %H:%i') AS delete_date
+		FROM privacy_data_history
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+		ORDER BY idx DESC
+	</select>
+
+
+
+
+
+
+
+	<insert id="insertLog" parameterType="egovframework.portal.sys.privacy.vo.PrivacyDataHistoryVO">
+		INSERT INTO privacy_data_history (
+			prm_idx, prm_name, prm_table_name, prm_period,
+			prm_info, proc_cnt, host_ip
+		) VALUES (
+			#{prmIdx}, #{prmName}, #{prmTableName}, #{prmPeriod},
+			'${@net.arnx.jsonic.JSON@encode(prm, @java.lang.Boolean@TRUE)}', ${procCnt}, #{hostIp}
+		)
+	</insert>
+
+	<delete id="deleteExpiredPrivacyData" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmVO">
+		<include refid="s.funcs"/>
+
+		DELETE FROM ${prmTableName}
+		WHERE NOW() > DATE_ADD(${prmTriggerCol}, INTERVAL #{prmPeriod} MONTH)
+			<if test="#fn = isNotBlank, #fn(ptIdx)">
+				AND pt_idx = #{ptIdx}
+			</if>
+			<if test="#fn = isNotBlank, !#fn(ptIdx)">
+				<if test="#fn = isNotBlank, #fn(prmParamsMap)">
+					AND
+					<foreach index="key" item="value" collection="paramsMap.entrySet()" separator=" AND ">
+						${key} = #{value}
+					</foreach>
+				</if>
+			</if>
+	</delete>
+
+</mapper>

@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.log.mapper.LoggingHistoryMapper">
+
+	<resultMap id="loggingHistoryMap" type="egovframework.portal.sys.log.vo.LoggingHistoryVO">
+		<result property="idx" column="idx"/>
+		<result property="configIdx" column="config_idx"/>
+		<result property="logName" column="log_name"/>
+		<result property="delCnt" column="del_cnt"/>
+		<result property="adminId" column="admin_id"/>
+		<result property="adminName" column="admin_name"/>
+		<result property="deptName" column="dept_name"/>
+		<result property="hostIp" column="host_ip"/>
+		<result property="deleteDate" column="delete_date"/>
+	</resultMap>
+
+	<sql id="listSearcher">
+		AND delete_date >= DATE_ADD(NOW(), INTERVAL -12 MONTH)
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(configIdx)">
+			AND config_idx = #{configIdx}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('log_nm')">
+				AND log_name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('adm_id')">
+				AND admin_id LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('adm_nm')">
+				AND admin_name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('dept_nm')">
+				AND dept_name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('adm_ip')">
+				AND host_ip LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchDelType)">
+			<if test="searchDelType.equals('0')">
+				AND admin_id IS NULL
+			</if>
+			<if test="!searchDelType.equals('0')">
+				AND admin_id IS NOT NULL
+			</if>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchSday)">
+			AND delete_date >= DATE_FORMAT(#{searchSday}, '%Y-%m-%d')
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchEday)">
+			AND DATE_FORMAT(#{searchEday} || '23:59:59', '%Y-%m-%d%H:%i:%s') >= delete_date
+		</if>
+	</sql>
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.log.vo.LoggingHistoryVO" resultType="int">
+		SELECT COUNT(*)
+		FROM logging_history
+		WHERE 1 = 1
+			<include refid="listSearcher" />
+	</select>
+	<select id="getList" parameterType="egovframework.portal.sys.log.vo.LoggingHistoryVO" resultMap="loggingHistoryMap">
+		SELECT *
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT *
+				FROM logging_history
+				WHERE 1 = 1
+					<include refid="listSearcher" />
+				ORDER BY idx DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<select id="getTotalListAsMap" parameterType="egovframework.portal.sys.log.vo.LoggingHistoryVO" resultType="HashMap">
+		SELECT
+			idx, config_idx, log_name, (del_cnt || '건') AS del_cnt,
+			(CASE WHEN admin_id IS NULL THEN '자동' ELSE '수동' END) AS del_type,
+			admin_id, admin_name, dept_name, host_ip,
+			date_format(delete_date, '%Y-%m-%d %H:%i') AS delete_date
+		FROM logging_history
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+	</select>
+
+	<insert id="insert" parameterType="egovframework.portal.sys.log.vo.LoggingHistoryVO">
+		INSERT INTO logging_history (
+			config_idx, log_name, del_cnt, admin_id, admin_name, dept_name, host_ip
+		) VALUES (
+			#{configIdx}, #{logName}, #{delCnt}, #{adminId}, #{adminName}, #{deptName}, #{hostIp}
+		)
+	</insert>
+
+</mapper>

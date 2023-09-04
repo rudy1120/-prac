@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.log.mapper.AutoDelListMapper">
+
+<resultMap id="dellistMap" type="egovframework.portal.sys.log.vo.AutoDelListVO">
+		<result property="idx"			column="idx"/>
+		<result property="sale"			column="sale"/>
+		<result property="housing"		column="housing"/>
+		<result property="regdate"		column="regdate"/>
+		<result property="total"		column="total"/>
+</resultMap>
+	
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchGbn)">
+			AND date_format(regdate,'%Y') = #{searchGbn}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchType)">
+			AND date_format(regdate,'%c') = #{searchType}
+		</if>
+	</sql>
+	
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.log.vo.AutoDelListVO" resultType="int">
+		SELECT IFNULL(COUNT(*),0) as cnt
+		FROM sms_del_list
+	</select>
+	
+	<select id="getList" parameterType="egovframework.portal.sys.log.vo.AutoDelListVO" resultMap="dellistMap">
+		SELECT sale, housing, regdate, (sale + housing) as total
+		FROM sms_del_list
+		WHERE 1 = 1
+		<include refid="listSearcher"/>
+	</select>
+
+</mapper>

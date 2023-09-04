@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config xmlns="http://www.navercorp.com/lucy-xss-servlet">
+	<defenders>
+		<!-- XssPreventer 등록 -->
+		<defender>
+			<name>xssPreventerDefender</name>
+			<class>com.navercorp.lucy.security.xss.servletfilter.defender.XssPreventerDefender
+			</class>
+		</defender>
+
+		<!-- XssSaxFilter 등록 -->
+		<defender>
+			<name>xssSaxFilterDefender</name>
+			<class>com.navercorp.lucy.security.xss.servletfilter.defender.XssSaxFilterDefender
+			</class>
+			<init-param>
+				<param-value>lucy-xss-sax.xml</param-value>   <!-- lucy-xss-filter의 sax용 설정파일 -->
+				<param-value>true</param-value>        <!-- 필터링된 코멘트를 남길지 여부, 성능 효율상 false 추천 -->
+			</init-param>
+		</defender>
+
+	</defenders>
+
+	<!-- default defender 선언, 별다른 defender 선언이 없으면 default defender를 사용해 필터링
+		한다. -->
+	<default>
+		<defender>xssPreventerDefender</defender>
+	</default>
+
+	<!-- global 필터링 룰 선언 -->
+	<global>
+		<!-- 모든 url에서 들어오는 globalParameter 파라메터는 필터링 되지 않으며 또한 lobalPrefixParameter로
+			시작하는 파라메터도 필터링 되지 않는다. -->
+		<params>
+			<param name="globalParameter" useDefender="false" />
+			<param name="globalPrefixParameter" usePrefix="true" useDefender="false" />
+		</params>
+	</global>
+
+	<!-- url 별 필터링 룰 선언 -->
+	<url-rule-set>
+		<!-- =========================== 관리자 메뉴 목록/상세/등록/수정 =========================== -->
+		<url-rule>
+			<url>/sys/totalAdminMng/menuMng/menuList.do</url>
+			<params>
+				<param name="linkUrl" usePrefix="true" useDefender="false" />
+				<param name="programUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/totalAdminMng/menuMng/getEditMenuInfo.do</url>
+			<params>
+				<param name="linkUrl" usePrefix="true" useDefender="false" />
+				<param name="programUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/totalAdminMng/menuMng/writeMenuProc.do</url>
+			<params>
+				<param name="linkUrl" usePrefix="true" useDefender="false" />
+				<param name="programUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/totalAdminMng/menuMng/writeMenuProc.do</url>
+			<params>
+				<param name="linkUrl" usePrefix="true" useDefender="false" />
+				<param name="programUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/totalAdminMng/menuMng/modifyMenuProc.do</url>
+			<params>
+				<param name="linkUrl" usePrefix="true" useDefender="false" />
+				<param name="programUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 관리자 게시판 등록 =========================== -->
+		<url-rule>
+			<url>/sys/superMng/bbs/configMng/writeProc.do</url>
+			<params>
+				<param name="ptTitle" usePrefix="true" useDefender="false" />
+				<param name="ptTopText" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 관리자 게시판 수정 =========================== -->
+		<url-rule>
+			<url>/sys/superMng/bbs/configMng/modifyProc.do</url>
+			<params>
+				<param name="ptTitle" usePrefix="true" useDefender="false" />
+				<param name="ptTopText" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+
+		<!-- =========================== 관리자 게시글 등록 =========================== -->
+		<url-rule>
+			<url>/sys/superMng/bbs/bbsMng/writeProc.do</url>
+			<params>
+				<param name="bContent" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 관리자 게시글 수정 =========================== -->
+		<url-rule>
+			<url>/sys/superMng/bbs/bbsMng/modifyProc.do</url>
+			<params>
+				<param name="bContent" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 비주얼존 등록/수정 =========================== -->
+		<url-rule>
+			<url>/sys/visualzone/writeProc.do</url>
+			<params>
+				<param name="prmtUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/visualzone/modifyProc.do</url>
+			<params>
+				<param name="prmtUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 팝업존 등록/수정 =========================== -->
+		<url-rule>
+			<url>/sys/popupzone/writeProc.do</url>
+			<params>
+				<param name="prmtUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/popupzone/modifyProc.do</url>
+			<params>
+				<param name="prmtUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 배너 등록/수정 =========================== -->
+		<url-rule>
+			<url>/sys/banner/writeProc.do</url>
+			<params>
+				<param name="prmtUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/banner/modifyProc.do</url>
+			<params>
+				<param name="prmtUrl" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 주소 검색창 =========================== -->
+		<url-rule>
+			<url disable="true" useDefender="false">/common/jsp/unit/jusoPopup.jsp</url>
+		</url-rule>
+		<!-- =========================== 동적 현황 =========================== -->
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/list.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/write.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/writeProc.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/modify.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/modifyProc.do</url>
+		</url-rule>
+		<!-- =========================== YHDCALENDAR =========================== -->
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/yhCalendar/list.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/yhCalendar/write.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/yhCalendar/writeProc.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/yhCalendar/modify.do</url>
+		</url-rule>
+		<url-rule>
+			<url disable="true" useDefender="false">/sys/dataMng/yhCalendar/modifyProc.do</url>
+		</url-rule>
+		<!-- =========================== 이미지 변환 =========================== -->
+		<url-rule>
+			<url disable="true" useDefender="false">/common/imgView.do</url>
+		</url-rule>
+		<!-- =========================== 첨부파일 이미지 출력 =========================== -->
+		<url-rule>
+			<url>/cmm/fms/selectFileViewer.do</url>
+			<params>
+				<param name="openTag" useDefender="false" />
+				<param name="closeTag" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 개인정보취급메뉴관리 등록/수정 =========================== -->
+		<url-rule>
+			<url>/sys/privacy/prm/writeProc.do</url>
+			<params>
+				<param name="prmParamsMap" useDefender="false" />
+			</params>
+		</url-rule>
+		<url-rule>
+			<url>/sys/privacy/prm/modifyProc.do</url>
+			<params>
+				<param name="prmParamsMap" useDefender="false" />
+			</params>
+		</url-rule>
+		<!-- =========================== 게시글 변경이력 목록 =========================== -->
+		<url-rule>
+			<url>/sys/bbs/log/list.do</url>
+			<params>
+				<param name="searchPtTitle" usePrefix="true" useDefender="false" />
+				<param name="searchTxt" usePrefix="true" useDefender="false" />
+			</params>
+		</url-rule>
+
+	</url-rule-set>
+</config>

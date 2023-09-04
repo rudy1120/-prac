@@ -1,0 +1,126 @@
+<beans:beans xmlns="http://www.springframework.org/schema/security"
+		 xmlns:b="http://www.springframework.org/schema/beans"
+		 xmlns:beans="http://www.springframework.org/schema/beans"
+		 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		 xsi:schemaLocation="http://www.springframework.org/schema/beans
+		 	http://www.springframework.org/schema/beans/spring-beans.xsd
+			http://www.springframework.org/schema/security
+			http://www.springframework.org/schema/security/spring-security.xsd">
+
+	<!-- 사용자단 bean -->
+	<beans:bean id="portalUserService" class="egovframework.portal.security.user.UserDetailsServiceImpl" />
+	<beans:bean id="portalEntryPoint" class="egovframework.portal.security.user.AuthenticationEntryPointImpl" />
+	<beans:bean id="portalAccessDeniedHandler" class="egovframework.portal.security.user.AccessDeniedHandlerImpl" />
+	<beans:bean id="portalAuthenticationSuccessHandler" class="egovframework.portal.security.user.AuthenticationSuccessHandlerImpl" />
+	<beans:bean id="portalAutheniticationFailureHandler" class="egovframework.portal.security.user.AuthenticationFailureHandlerImpl" />
+	<beans:bean id="portalLogoutSuccessHandlerImpl" class="egovframework.portal.security.user.LogoutSuccessHandlerImpl" />
+	<beans:bean id="portalPasswordEncoder" class="egovframework.portal.security.user.PasswordEncoderImpl" />
+	<beans:bean id="customAuthenticationProvider" class="egovframework.portal.security.user.CustomAuthenticationProvider" />
+
+	<!-- 관리자단 bean -->
+	<beans:bean id="systemUserService" class="egovframework.portal.security.system.UserDetailsServiceImpl" />
+	<beans:bean id="systemEntryPoint" class="egovframework.portal.security.system.AuthenticationEntryPointImpl" />
+	<beans:bean id="systemPasswordEncoder" class="egovframework.portal.security.system.PasswordEncoderImpl" />
+	<beans:bean id="systemAuthenticationSuccessHandler" class="egovframework.portal.security.system.AuthenticationSuccessHandlerImpl" />
+	<beans:bean id="systemAutheniticationFailureHandler" class="egovframework.portal.security.system.AuthenticationFailureHandlerImpl" />
+
+	<!-- 관리자단 login rule
+	<http pattern="/sys/**" auto-config="true" entry-point-ref="systemEntryPoint" authentication-manager-ref="systemUserAuthentication">
+		<csrf disabled="true" />
+		<intercept-url pattern="/sys/login.do" access="permitAll" />
+		<intercept-url pattern="/sys/loginProc.do" access="permitAll" />
+		<intercept-url pattern="/sys/superLoginProc.do" access="permitAll" />
+		<intercept-url pattern="/sys/*.do" access="hasRole('ROLE_ADMIN')" />
+		<intercept-url pattern="/sys/*.jsp" access="hasRole('ROLE_ADMIN')" />
+		<intercept-url pattern="/sys/**/*.do" access="hasRole('ROLE_ADMIN')" />
+		<intercept-url pattern="/sys/**/*.jsp" access="hasRole('ROLE_ADMIN')" />
+		<session-management>
+			<concurrency-control max-sessions="1" expired-url="/sys/logout"/>
+		</session-management>
+		<form-login login-page="/sys/login.do"
+					login-processing-url="/sys/login"
+					username-parameter="adminId"
+					password-parameter="passwd"
+					authentication-success-handler-ref="systemAuthenticationSuccessHandler"
+					authentication-failure-handler-ref="systemAutheniticationFailureHandler"
+		/>
+		<logout logout-url="/sys/logout"
+			logout-success-url="/sys/login.do"
+			delete-cookies="JSESSIONID"
+			invalidate-session="true"
+		/>
+	</http>
+	 -->
+
+	<!-- 사용자단 login rule -->
+	<http pattern="/**" auto-config="true" use-expressions="true" entry-point-ref="portalEntryPoint" authentication-manager-ref="portalUserAuthentication">
+		<csrf disabled="true" />
+		<access-denied-handler ref="portalAccessDeniedHandler" />
+		<!-- <intercept-url pattern="/portal/user/certification.do" access="hasRole('ROLE_USER_NOT_VERIFIED')" />
+		<intercept-url pattern="/portal/user/certificationProc.do" access="hasRole('ROLE_USER_NOT_VERIFIED')" />
+		<intercept-url pattern="/portal/user/chkPasswordProc.do" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/portal/user/findAccountProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/portal/user/resetPasswordProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/portal/user/modify.do" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/portal/user/modifyProc.do" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/portal/user/deleteAccount.do" access="hasRole('ROLE_USER')" />
+		<intercept-url pattern="/portal/user/deleteAccountProc.do" access="hasRole('ROLE_USER')" />
+
+		<intercept-url pattern="/**/bbs/boardPwd.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/boardPwdProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/write.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/writeProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/modifyView.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/modifyProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/deleteProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/replyWrite.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/replyProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/replyModifyView.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/replyModifyProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/comment/writeProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/comment/modifyProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		<intercept-url pattern="/**/bbs/comment/deleteProc.do" access="hasAnyRole('ROLE_USER', 'ROLE_USER_TMP')" />
+		 -->
+		<session-management>
+			<concurrency-control max-sessions="1" expired-url="/logout"/>
+		</session-management>
+<!-- 		<form-login login-processing-url="/portal/login" -->
+<!-- 					username-parameter="userId" -->
+<!-- 					password-parameter="password" -->
+<!-- 					authentication-success-handler-ref="portalAuthenticationSuccessHandler" -->
+<!-- 					authentication-failure-handler-ref="portalAutheniticationFailureHandler" -->
+<!-- 		/> -->
+		<form-login login-processing-url="/bmc/login"
+					username-parameter="userId"
+					password-parameter="password"
+					authentication-success-handler-ref="portalAuthenticationSuccessHandler"
+					authentication-failure-handler-ref="portalAutheniticationFailureHandler"
+		/>
+<!-- 	로그아웃시 전체 세션을 지우려면 delete-cookies="JSESSIONID" 추가 -->
+		<logout logout-url="/logout"
+			invalidate-session="false"
+			success-handler-ref="portalLogoutSuccessHandlerImpl"
+		/>
+		<headers>
+			<cache-control disabled="true"/>
+		</headers>
+	</http>
+
+	<!-- 사용자단 Authentication -->
+	<authentication-manager id="portalUserAuthentication">
+		<authentication-provider ref="customAuthenticationProvider" />
+		<!-- AuthenticationProvider를 구현했으므로 service, passwordEncoder 속성은 주석처리 2017. 03. 13 권태성
+		<authentication-provider user-service-ref="portalUserService">
+			<password-encoder ref="portalPasswordEncoder" />
+		</authentication-provider>
+		 -->
+	</authentication-manager>
+
+	<!-- 관리자단 Authentication -->
+	<authentication-manager id="systemUserAuthentication">
+		<authentication-provider user-service-ref="systemUserService">
+			<password-encoder ref="systemPasswordEncoder" />
+		</authentication-provider>
+	</authentication-manager>
+
+</beans:beans>

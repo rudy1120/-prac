@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.unit.bmc.sub.mapper.SubscribeMapper">
+<resultMap id="subMap" type="egovframework.portal.unit.bmc.sub.vo.SubscribeVO">
+		<result property="idx"				column="idx"/>
+		<result property="name"			column="name"/>
+		<result property="email"			column="email"/>
+	
+</resultMap>
+
+<select id="getWebInfo" parameterType="egovframework.portal.unit.bmc.sub.vo.SubscribeVO" resultMap="subMap">
+	<![CDATA[
+		SELECT idx,name,email
+		FROM subscribe 
+		WHERE name = #{name} AND email = #{email}
+	
+	]]>
+</select>
+<select id="getUpWebInfo" parameterType="egovframework.portal.unit.bmc.sub.vo.SubscribeVO" resultMap="subMap">
+	<![CDATA[
+		SELECT idx,name,email
+		FROM subscribe 
+		WHERE name = #{upname} AND email = #{upemail}
+	
+	]]>
+</select>
+<select id="getDelWebInfo" parameterType="egovframework.portal.unit.bmc.sub.vo.SubscribeVO" resultMap="subMap">
+	<![CDATA[
+		SELECT idx,name,email
+		FROM subscribe 
+		WHERE name = #{delname} AND email = #{delemail}
+	
+	]]>
+</select>
+
+<insert id="subWebzine" parameterType="egovframework.portal.unit.bmc.sub.vo.SubscribeVO" >
+	<![CDATA[
+		INSERT INTO subscribe
+		(
+			idx,
+			name,
+			email
+		)
+		VALUES(
+			(SELECT * FROM (SELECT IFNULL(MAX(IDX),0)+1 FROM subscribe) AS idx ),
+			#{name},
+			#{email}
+		)
+	
+	]]>
+</insert>
+
+<update id="upWebzine" parameterType="egovframework.portal.unit.bmc.sub.vo.SubscribeVO">
+	<![CDATA[
+	
+		UPDATE subscribe SET email = #{upemail3}, uptdate = now()
+		WHERE idx = #{idx}
+	
+	]]>
+
+
+</update>
+
+<delete id="delWebzine" parameterType="egovframework.portal.unit.bmc.sub.vo.SubscribeVO">
+<![CDATA[
+	DELETE FROM subscribe 
+	WHERE name = #{delname} AND email = #{delemail}
+	]]>
+</delete>
+</mapper>

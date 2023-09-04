@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<!-- ================================== 로그 ================================== -->
+
+	<definition name="/sys/logging/config/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/logging/config/list.jsp" />
+	</definition>
+	<definition name="/sys/logging/config/history/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/logging/config/history/list.jsp" />
+	</definition>
+	<definition name="/sys/logging/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/logging/list.jsp" />
+	</definition>
+	<definition name="/sys/logging/history/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/logging/history/list.jsp" />
+	</definition>
+
+</tiles-definitions>

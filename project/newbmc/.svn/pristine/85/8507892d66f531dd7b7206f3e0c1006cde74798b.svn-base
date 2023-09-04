@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.common.mapper.MenuCommentMapper">
+
+	<resultMap id="menuCommentMap" type="egovframework.portal.unit.common.vo.MenuCommentVO">
+		<result property="idx" column="idx" />
+		<result property="upIdx" column="up_idx" />
+		<result property="sitecode" column="sitecode" />
+		<result property="mId" column="mid" />
+		<result property="userType" column="user_type" />
+		<result property="userId" column="user_id" />
+		<result property="userName" column="user_name" />
+		<result property="privatecode" column="privatecode" />
+		<result property="hostIp" column="host_ip" />
+		<result property="isDel" column="is_del" />
+		<result property="isPublic" column="is_public" />
+		<result property="cContent" column="c_content" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="deleteDate" column="delete_date" />
+	</resultMap>
+
+<!-- SELECT -->
+	<select id="getMenuCommentCnt" parameterType="egovframework.portal.unit.common.vo.MenuCommentVO" resultType="int">
+		SELECT COUNT(*)
+		FROM menu_comment o
+		WHERE sitecode = #{sitecode}
+			AND mid = #{mId}
+			AND (is_del = 'N' OR (
+				is_del = 'Y' AND (SELECT COUNT(*) FROM menu_comment WHERE up_idx = o.idx AND is_del = 'N') > 0)
+			)
+	</select>
+
+	<select id="getMenuCommentList" parameterType="egovframework.portal.unit.common.vo.MenuCommentVO" resultMap="menuCommentMap">
+		SELECT *
+		FROM (
+			SELECT @rownum:=@rownum+1 AS rnum, c.*
+			FROM (
+					WITH RECURSIVE  t AS
+							(
+								SELECT
+									cast(idx AS UNSIGNED) AS HIERARCHY,
+									o.idx, o.up_idx, o.sitecode, o.mid, o.user_type, o.user_id, o.privatecode, o.host_ip, o.is_del, o.is_public, o.c_content, o.create_date, o.update_date, o.delete_date, o.user_name
+								FROM menu_comment o
+								WHERE
+										o.sitecode = #{sitecode}
+										AND o.mid = #{mId}
+										AND (o.is_del = 'N' OR (
+											o.is_del = 'Y' AND (SELECT COUNT(*) FROM menu_comment o2 WHERE o2.up_idx = o.idx AND o2.is_del = 'N') > 0)
+										)
+									AND o.up_idx IS NULL
+								UNION ALL
+								SELECT
+									concat(t.HIERARCHY,',', cast(o.idx AS UNSIGNED)) AS HIERARCHY,
+									o.idx, o.up_idx, o.sitecode, o.mid, o.user_type, o.user_id, o.privatecode, o.host_ip, o.is_del, o.is_public, o.c_content, o.create_date, o.update_date, o.delete_date, o.user_name
+								FROM menu_comment o, t
+								WHERE o.up_idx = t.idx
+										AND o.sitecode = #{sitecode}
+										AND o.mid = #{mId}
+										AND (o.is_del = 'N' OR (
+											o.is_del = 'Y' AND (SELECT COUNT(*) FROM menu_comment o2 WHERE o2.up_idx = o.idx AND o2.is_del = 'N') > 0)
+										)
+							) SELECT
+								idx, up_idx, sitecode, mid, user_type, user_id, privatecode, host_ip, is_del, is_public, c_content, create_date, update_date, delete_date, user_name
+							FROM t
+							ORDER BY HIERARCHY
+			) c, (SELECT @rownum :=0) AS R
+		) AS RES
+		WHERE rnum BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<select id="getMenuComment" parameterType="egovframework.portal.unit.common.vo.MenuCommentVO"  resultMap="menuCommentMap">
+		SELECT *
+		FROM menu_comment
+		WHERE idx = #{idx} AND is_del = 'N'
+	</select>
+
+
+
+<!-- INSERT -->
+	<insert id="insertMenuComment" parameterType="egovframework.portal.unit.common.vo.MenuCommentVO">
+		INSERT INTO menu_comment (
+			up_idx, sitecode, mid, user_type, user_id, user_name, privatecode, host_ip, c_content
+		)
+		VALUES (
+			#{upIdx}, #{sitecode}, #{mId}, #{userType}, #{userId}, #{userName}, #{privatecode}, #{hostIp}, #{cContent}
+		)
+	</insert>
+
+
+
+<!-- UPDATE -->
+	<update id="updateMenuComment" parameterType="egovframework.portal.unit.common.vo.MenuCommentVO">
+		UPDATE menu_comment
+		SET
+			c_content = #{cContent},
+			host_ip = #{hostIp},
+			update_date = NOW()
+		WHERE idx = #{idx} AND is_del = 'N'
+	</update>
+
+
+
+<!-- DELETE -->
+	<update id="deleteMenuComment" parameterType="egovframework.portal.unit.common.vo.MenuCommentVO">
+		UPDATE menu_comment
+		SET
+			host_ip = #{hostIp},
+			is_del = 'Y',
+			delete_date = NOW()
+		WHERE idx = #{idx} AND is_del = 'N'
+	</update>
+
+
+</mapper>

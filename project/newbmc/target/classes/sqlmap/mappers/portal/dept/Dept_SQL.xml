@@ -1,0 +1,178 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.dept.mapper.DeptMapper">
+
+	<resultMap id="deptCategory" type="egovframework.portal.dept.vo.DeptVO">
+		<result property="deptId" column="DEPT_ID"/>
+		<result property="deptName" column="DEPT_NAME"/>
+		<result property="fullChildPath" column="FULL_CHILD_PATH"/>
+	</resultMap>
+
+	<resultMap id="parentDeptCategory" type="egovframework.portal.dept.vo.DeptVO">
+		<result property="deptId" column="DEPT_ID" />
+		<result property="deptName" column="DEPT_NAME" />
+		<result property="parentDeptId" column="PARENT_DEPT_ID" />
+	</resultMap>
+
+	<resultMap id="deptLevelCode" type="egovframework.portal.dept.vo.DeptVO">
+		<result property="deptLevel" column="DEPT_LEVEL"/>
+		<result property="deptId" column="DEPT_ID"/>
+		<result property="parentDeptId" column="PARENT_DEPT_ID"/>
+	</resultMap>
+
+	<select id="getAllOpenDataDepthList" resultMap="parentDeptCategory">
+		SELECT DEP_CODE AS dept_id,
+			DEP_CODE_NM AS dept_name,
+			UPR_DEPT_CODE AS PARENT_DEPT_ID,
+			LEVEL,
+			dept_type-1 AS dept_order,
+			cast(DEPT_RANK AS UNSIGNED) AS DEPT_RANK
+		FROM pt_v_dept_main
+		WHERE dept_type != '1'
+			${searchQuery}
+	</select>
+
+	<select id="getSubDeptIdList" parameterType="String" resultType="String">
+		SELECT dept_id
+		FROM pt_v_dept
+		WHERE dept_id != #{deptId}
+		START WITH dept_id = #{deptId}
+		CONNECT BY PRIOR dept_id = parent_dept_id
+		ORDER SIBLINGS BY DEPT_ORDER
+	</select>
+
+	<select id="getDeptCategoryList" resultMap="deptCategory" parameterType="String">
+		SELECT
+			dept_id, dept_name3 AS dept_name, (
+				SELECT DEPT_NAME FROM pt_v_dept parent WHERE parent.DEPT_ID = child.PARENT_DEPT_ID
+			) AS PARENT_DEPT_NAME,
+			parent_dept_id,
+			FULL_CHILD_PATH
+		FROM
+			pt_v_dept child
+		WHERE
+			1 = 1
+			AND DEPT_ID NOT IN (
+				<include refid="s.mayorDeptId"/>,
+				<include refid="s.subMayorDeptId"/>
+			)
+			AND disp_yn = 'Y'
+			and not dept_name like '%상위%'
+			order by dept_name
+		
+	</select>
+
+	<select id="getDeptDongList" resultMap="deptCategory">
+		SELECT
+				DEPT_ID,
+				DEPT_NAME3 AS DEPT_NAME,
+				FULL_CHILD_PATH
+		FROM
+				pt_v_dept
+		WHERE
+			dept_name LIKE '%읍'
+			OR dept_name LIKE '%동'
+			OR dept_name LIKE '%면'
+		ORDER BY cast(DEPT_ORDER AS UNSIGNED) ASC
+	</select>
+
+	<select id="getDeptListForDeptType" parameterType="java.lang.String" resultMap="parentDeptCategory">
+		SELECT
+				DEPT_ID,
+				DEPT_NAME,
+				PARENT_DEPT_ID
+		FROM
+				pt_v_dept
+		WHERE
+			    DEPT_TYPE = #{deptType}
+		ORDER BY cast(DEPT_ORDER AS UNSIGNED) ASC
+	</select>
+
+
+	<select id="getDeptCodeLevel" resultMap="deptLevelCode" parameterType="String">
+		SELECT DEPT_LEVEL, DEPT_ID, PARENT_DEPT_ID FROM pt_v_dept WHERE DEPT_ID = #{deptCode}
+	</select>
+
+
+	<select id="getDeptCodeBbsQueryList" resultMap="deptCategory" parameterType="String">
+		SELECT
+				DEPT_ID,
+				DEPT_NAME3 AS DEPT_NAME,
+				FULL_CHILD_PATH
+		FROM
+				pt_v_dept
+		WHERE ( DEPT_ID = #{deptCode} OR PARENT_DEPT_ID = #{deptCode})
+			and not dept_name like '%상위%'
+			order by dept_name
+	</select>
+
+
+	<select id="getDeptName" resultMap="deptCategory" parameterType="String">
+		SELECT
+				DEPT_ID,
+				DEPT_NAME3 AS DEPT_NAME,
+				FULL_CHILD_PATH
+		FROM
+				pt_v_dept
+				where 1 = 1
+			and not dept_name like '%상위%'
+			order by dept_name
+	</select>
+
+
+
+	<select id="getDeptGubunList" resultMap="deptCategory" >
+		SELECT
+		        DEPT_ID,
+		        DEPT_NAME3 AS DEPT_NAME,
+		        FULL_CHILD_PATH
+		FROM
+		        pt_v_top_dept
+		WHERE   DEPT_GUBUN = #{deptGubun}
+		and not dept_name like '%상위%'
+		order by dept_name
+	</select>
+
+
+	<select id="getDeptGubunDetailList" resultMap="deptCategory" >
+		SELECT
+		        DEPT_ID,
+		        DEPT_NAME3 AS DEPT_NAME,
+		        FULL_CHILD_PATH
+		FROM 	pt_v_dept
+		<if test="deptGubun.equals('1')">
+		WHERE 	PARENT_DEPT_ID IN (
+        			SELECT DEPT_ID FROM pt_v_top_dept WHERE   DEPT_GUBUN = #{deptGubun}
+        		)
+		</if>
+		<if test="!deptGubun.equals('1')">
+		WHERE 	DEPT_ID IN (
+        			SELECT DEPT_ID FROM pt_v_top_dept WHERE   DEPT_GUBUN = #{deptGubun}
+        		)
+		</if>
+		and not dept_name like '%상위%'
+		order by dept_name
+	</select>
+
+
+	<select id="selectDeptInfo" resultType="egovframework.portal.dept.vo.DeptVO">
+		SELECT
+			 DEPT_NAME as deptName
+			,DEPT_ID as deptId
+			,PARENT_DEPT_ID as parentDeptId
+			,DEPT_LEVEL as deptLevel
+		FROM pt_v_dept
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchKeyword)">
+			WHERE DEPT_NAME LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(byDeptCode)">
+			WHERE DEPT_ID=#{deptId}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(deptCode)">
+			WHERE DEPT_ID=#{deptId}
+		</if>
+		order by DEPT_NAME asc
+	</select>
+
+</mapper>

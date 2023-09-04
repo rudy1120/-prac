@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.unit.bmc.sabo.mapper.SaboSubscribeMapper">
+<resultMap id="saboSubMap" type="egovframework.portal.unit.bmc.sabo.vo.SaboSubscribeVO">
+		<result property="idx"				column="idx"/>
+		<result property="name"			column="name"/>
+		<result property="address"			column="address"/>
+</resultMap>
+
+<select id="getSaboInfo" parameterType="egovframework.portal.unit.bmc.sabo.vo.SaboSubscribeVO" resultMap="saboSubMap">
+	<![CDATA[
+		SELECT idx, name, address
+		FROM subscribe_sabo
+		WHERE name = #{name} AND address = #{address}
+	]]>
+</select>
+<select id="getUpSaboInfo" parameterType="egovframework.portal.unit.bmc.sabo.vo.SaboSubscribeVO" resultMap="saboSubMap">
+	<![CDATA[
+		SELECT idx, name, address
+		FROM subscribe_sabo
+		WHERE name = #{upname} AND address = #{upaddress}
+	]]>
+</select>
+<select id="getDelSaboInfo" parameterType="egovframework.portal.unit.bmc.sabo.vo.SaboSubscribeVO" resultMap="saboSubMap">
+	<![CDATA[
+		SELECT idx, name, address
+		FROM subscribe_sabo
+		WHERE name = #{delname} AND address = #{deladdress}
+	]]>
+</select>
+
+<insert id="subSabo" parameterType="egovframework.portal.unit.bmc.sabo.vo.SaboSubscribeVO" >
+	<![CDATA[
+		INSERT INTO subscribe_sabo
+		(
+			idx,
+			name,
+			address
+		)
+		VALUES(
+			(SELECT * FROM (SELECT IFNULL(MAX(IDX),0)+1 FROM subscribe_sabo) AS idx ),
+			#{name},
+			#{address}
+		)
+	]]>
+</insert>
+
+<update id="upSabo" parameterType="egovframework.portal.unit.bmc.sabo.vo.SaboSubscribeVO">
+	<![CDATA[
+		UPDATE subscribe_sabo SET address = #{upaddress3}, uptdate = now()
+		WHERE idx = #{idx}
+	]]>
+</update>
+
+<delete id="delSabo" parameterType="egovframework.portal.unit.bmc.sabo.vo.SaboSubscribeVO">
+	<![CDATA[
+		DELETE FROM subscribe_sabo
+		WHERE name = #{delname} AND address = #{deladdress}
+	]]>
+</delete>
+</mapper>

@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.staff.mapper.StaffMapper">
+
+	<resultMap id="staffList" type="egovframework.portal.staff.vo.StaffVO">
+		<result property="usrId" column="USR_ID"/>
+		<result property="logonId" column="LOGON_ID"/>
+		<result property="usrNm" column="USR_NM"/>
+		<result property="usrWorkStateCode" column="USR_WORK_STATE_CODE"/>
+		<result property="usrWorkStateCodeNm" column="USR_WORK_STATE_CODE_NM"/>
+		<result property="engmSe" column="ENGM_SE"/>
+		<result property="orgCodeNm" column="ORG_CODE_NM"/>
+		<result property="realUseDepCode" column="REAL_USE_DEP_CODE"/>
+		<result property="realUseDepNm" column="REAL_USE_DEP_NM"/>
+		<result property="orginBlgDepDode" column="ORGIN_BLG_DEP_CODE"/>
+		<result property="orginBlgDepNm" column="ORGIN_BLG_DEP_NM"/>
+		<result property="clssNm" column="CLSS_NM"/>
+		<result property="positNm" column="POSIT_NM"/>
+		<result property="emailAddr" column="EMAIL_ADDR"/>
+		<result property="telno" column="TELNO"/>
+		<result property="adiInfo7" column="ADI_INFO7"/>
+		<result property="useYn" column="USE_YN"/>
+		<result property="rdutyName" column="RDUTY_NAME"/>
+		<result property="usrRank" column="USR_RANK"/>
+		<result property="blgTeamNm" column="BLG_TEAM_NM"/>
+		<result property="dtUpdate" column="DT_UPDATE"/>
+	</resultMap>
+
+	<sql id="listSearcher">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(deptCode)">
+			INSTR(FULL_PATH, #{deptCode}) > 0
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			<if test="searchType.equals('usr_nm')">
+				AND usr_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('real_use_dep_nm')">
+				AND real_use_dep_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('adi_info7')">
+				AND adi_info7 LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('telno')">
+				AND telno LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('all')">
+				AND (usr_nm LIKE CONCAT('%',#{searchTxt},'%') OR real_use_dep_nm LIKE CONCAT('%',#{searchTxt},'%') OR adi_info7 LIKE CONCAT('%',#{searchTxt},'%') OR telno LIKE CONCAT('%',#{searchTxt},'%'))
+			</if>
+		</if>
+	</sql>
+
+	<select id="getStaffCnt" parameterType="egovframework.portal.staff.vo.StaffVO" resultType="int">
+		SELECT	COUNT(*) CNT
+		FROM	user_info A
+		WHERE	((USR_WORK_STATE_CODE_NM = '재직') OR (REAL_USE_DEP_NM != '총무과' AND USR_WORK_STATE_CODE_NM LIKE '%재직%'))
+			AND	USR_RANK IS NOT NULL
+			<include refid="listSearcher" />
+	</select>
+
+	<select id="getStaffList" parameterType="egovframework.portal.staff.vo.StaffVO" resultMap="staffList">
+		SELECT * FROM ( SELECT MA.*, @rownum:=@rownum+1 RNUM FROM (
+			SELECT	USR_ID, LOGON_ID, USR_NM, USR_WORK_STATE_CODE, USR_WORK_STATE_CODE_NM, ENGM_SE, ORG_CODE_NM,
+					REAL_USE_DEP_CODE, REAL_USE_DEP_NM,
+					CASE WHEN ORGIN_BLG_DEP_CODE IS NULL THEN REAL_USE_DEP_CODE ELSE ORGIN_BLG_DEP_CODE END AS ORGIN_BLG_DEP_CODE,
+					ORGIN_BLG_DEP_NM, CLSS_NM, POSIT_NM,
+					EMAIL_ADDR, TELNO, ADI_INFO7, USE_YN, RDUTY_NAME, USR_RANK, BLG_TEAM_NM,
+					CASE WHEN ORGIN_BLG_DEP_CODE IS NULL THEN (SELECT DEPT_RANK FROM (SELECT DEPT_ID, DISP_ORDER AS DEPT_RANK  FROM pt_v_dept) D WHERE D.DEPT_ID = A.REAL_USE_DEP_CODE)
+					ELSE (SELECT DEPT_RANK FROM (SELECT DEPT_ID, DISP_ORDER AS DEPT_RANK  FROM pt_v_dept) D WHERE D.DEPT_ID = A.ORGIN_BLG_DEP_CODE) END AS DEPT_RANK,DT_UPDATE
+			FROM 	user_info A
+			WHERE	((USR_WORK_STATE_CODE_NM = '재직') OR (REAL_USE_DEP_NM != '총무과' AND USR_WORK_STATE_CODE_NM LIKE '%재직%'))
+				AND	USR_RANK IS NOT NULL
+				<include refid="listSearcher" />
+			ORDER BY cast(DEPT_RANK AS UNSIGNED), ORGIN_BLG_DEP_CODE, cast(USR_RANK AS UNSIGNED)
+		) MA, (SELECT @rownum :=0) AS R ) RES WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<select id="getStaffMngCnt" parameterType="egovframework.portal.staff.vo.StaffVO" resultType="int">
+		SELECT	COUNT(*) CNT
+		FROM	user_info
+		WHERE	USR_WORK_STATE_CODE = 'AAA'
+			AND	USR_RANK IS NOT NULL
+			AND	(POSIT_NM IS NULL OR POSIT_NM NOT IN ('시장', '부시장'))
+			${searchQuery}
+	</select>
+
+	<select id="getStaffMngList" parameterType="egovframework.portal.staff.vo.StaffVO" resultMap="staffList">
+		SELECT * FROM ( SELECT MA.*, @rownum:=@rownum+1 RNUM FROM (
+			SELECT	USR_ID, LOGON_ID, USR_NM, USR_WORK_STATE_CODE, USR_WORK_STATE_CODE_NM, ENGM_SE, ORG_CODE_NM,
+					REAL_USE_DEP_CODE, REAL_USE_DEP_NM, ORGIN_BLG_DEP_CODE, ORGIN_BLG_DEP_NM, CLSS_NM, POSIT_NM,
+					EMAIL_ADDR, TELNO, ADI_INFO7, USE_YN, RDUTY_NAME, USR_RANK, BLG_TEAM_NM,
+					(SELECT DEPT_RANK FROM (SELECT DEPT_ID, @rownum:=@rownum+1 AS DEPT_RANK FROM pt_v_dept, (SELECT @rownum :=0) AS R) D WHERE D.DEPT_ID = A.REAL_USE_DEP_CODE) AS DEPT_RANK,DT_UPDATE
+			FROM 	user_info A
+			WHERE	USR_WORK_STATE_CODE = 'AAA'
+				AND	USR_RANK IS NOT NULL
+				AND	(POSIT_NM IS NULL OR POSIT_NM NOT IN ('시장', '부시장'))
+					${searchQuery}
+			ORDER BY cast(DEPT_RANK AS UNSIGNED), cast(USR_RANK AS UNSIGNED)
+		) MA, (SELECT @rownum :=0) AS R ) RES WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+
+	<select id="selectDeptCodetoStaffInfo" parameterType="HashMap" resultMap="staffList">
+		SELECT	USR_ID, LOGON_ID, USR_NM, USR_WORK_STATE_CODE, USR_WORK_STATE_CODE_NM, ENGM_SE, ORG_CODE_NM,
+				REAL_USE_DEP_CODE, REAL_USE_DEP_NM, ORGIN_BLG_DEP_CODE, ORGIN_BLG_DEP_NM, CLSS_NM, POSIT_NM,
+				EMAIL_ADDR, TELNO, ADI_INFO7, USE_YN, RDUTY_NAME, USR_RANK, BLG_TEAM_NM,
+				(SELECT DEPT_RANK FROM (SELECT DEPT_ID, @rownum:=@rownum+1 AS DEPT_RANK  FROM pt_v_dept, (SELECT @rownum :=0) AS R) D WHERE D.DEPT_ID = A.REAL_USE_DEP_CODE) AS DEPT_RANK,DT_UPDATE
+		FROM 	user_info A
+		WHERE	USR_WORK_STATE_CODE = 'AAA'
+			AND USR_RANK IS NOT NULL
+			AND REAL_USE_DEP_CODE = #{searchKeyword}
+		ORDER BY cast(DEPT_RANK AS UNSIGNED), cast(USR_RANK AS UNSIGNED)
+	</select>
+
+	<select id="allStaffList" parameterType="java.util.HashMap" resultMap="staffList">
+		SELECT	USR_ID, LOGON_ID, USR_NM, USR_WORK_STATE_CODE, USR_WORK_STATE_CODE_NM, ENGM_SE, ORG_CODE_NM,
+				REAL_USE_DEP_CODE, REAL_USE_DEP_NM, ORGIN_BLG_DEP_CODE, ORGIN_BLG_DEP_NM, CLSS_NM, POSIT_NM,
+				EMAIL_ADDR, TELNO, ADI_INFO7, USE_YN, RDUTY_NAME, USR_RANK, BLG_TEAM_NM,
+				(SELECT DEPT_RANK FROM (SELECT DEPT_ID, @rownum:=@rownum+1 AS DEPT_RANK FROM pt_v_dept, (SELECT @rownum :=0) AS R) D WHERE D.DEPT_ID = A.REAL_USE_DEP_CODE) AS DEPT_RANK,DT_UPDATE
+		FROM 	user_info A
+		WHERE	USR_WORK_STATE_CODE = 'AAA'
+		AND USR_RANK IS NOT NULL
+		<if test="searchCondition.equals('1'.toString())">
+			AND USR_NM LIKE CONCAT('%',#{searchKeyword},'%')
+		</if>
+		<if test="searchCondition.equals('2'.toString())">
+			AND REAL_USE_DEP_CODE = #{searchKeyword}
+		</if>
+	</select>
+</mapper>

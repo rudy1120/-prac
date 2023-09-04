@@ -1,0 +1,142 @@
+@charset "utf-8";
+
+/* 공공데이터 */
+.box_scroll490{
+	height:490px;
+	overflow:auto;
+	border:1px solid #24313d;
+	}
+span[class^="service_icon"]{
+	width:17px;
+	height:19px;
+	display:inline-block;
+	margin-bottom: -5px;
+	text-indent:-9999em;
+	}
+	
+.board_head span[class^="service_icon"]{
+	margin-right:5px;
+	}
+	
+.service_icon01{
+	background:url(../images/pubc/common.png) no-repeat -356px 0;
+	}
+.service_icon02{
+	background:url(../images/pubc/common.png) no-repeat -381px 0;
+	}
+.service_icon03{
+	background:url(../images/pubc/common.png) no-repeat -407px 0;
+	}
+.service_icon04{
+	background:url(../images/pubc/common.png) no-repeat -433px 0;
+	}
+.service_icon05{
+	background:url(../images/pubc/common.png) no-repeat -457px 0;
+	}
+	
+.bul_sheet{
+	background:url(../images/pubc/common.png) no-repeat -357px -22px;
+	}
+.bul_file{
+	background:url(../images/pubc/common.png) no-repeat -382px -22px;
+	}
+.bul_map{
+	background:url(../images/pubc/common.png) no-repeat -407px -22px;
+	}
+.bul_api{
+	background:url(../images/pubc/common.png) no-repeat -433px -22px;
+	}
+.bul_link{
+	background:url(../images/pubc/common.png) no-repeat -458px -22px;
+	}
+.bul_chart{
+	background:url(../images/pubc/common.png) no-repeat -483px -22px;
+	}
+	
+.board_sub{
+	border-top:1px solid #c6c6c6;
+	border-bottom:1px solid #c6c6c6;
+	}
+.board_sub thead tr:first-child th,
+.board_sub thead tr:first-child td{
+	border-top:1px solid #24313d;
+	}
+.board_sub tbody tr:first-child th,
+.board_sub tbody tr:first-child td{
+	border-top:0px;
+	}
+.board_sub thead th{
+	background:#384b5d;
+	color:#ffffff;
+	text-align:center;
+	padding:5px 3px;
+	border-left:1px solid #24313d;
+	line-height:16px;
+	}
+.board_sub thead th:first-child{
+	border-left:0px;
+	}
+.board_sub tbody th{
+	background:#f5f5f5;
+	border-top:1px solid #dcdcdc;
+	padding:3px 10px;
+	text-align:left;
+	font-weight:bold;
+	}
+.board_sub tbody td{
+	border-top:1px dotted #b3b3b3;
+	line-height:16px;
+	color:#666666;
+	padding:6px 3px;
+	}
+
+.box_scroll490 .board_sub{
+	white-space: nowrap;
+	}
+.box_scroll490 .board_sub td{
+	border-left:1px dotted #b3b3b3;
+	}
+.box_scroll490 .board_sub tr td:first-child{
+	border-left:0px;
+	}
+
+.area_tabletop{
+	position:relative;
+	padding:0px 10px 10px 10px;
+	}
+.area_tabletop .page_text{
+	float:right;
+	}	
+.page_text{
+	text-align:right;
+	}
+.page_text span{
+	margin-right:3px;
+	margin-left:3px;
+	font-weight:bold;
+	}
+.page_text span + span + span + span{
+	margin-left:10px;
+	}
+.page_text span + span + span + span + span{
+	margin-left:3px;
+	}
+	
+.box_chart{
+	margin-top:20px;
+	text-align:center;
+	}
+
+
+.board_head{
+	padding: 10px;
+	background: #f9f9f9;
+	border-top: 1px dashed #cdcdcd;
+	border-bottom: 1px dashed #cdcdcd;
+	margin-bottom: 10px;
+	margin-top: 20px;
+	}
+.board_head > h3{
+	background: url(../images/common/bul_gray.png) no-repeat 0px 1px;
+	padding: 0px 10px 10px 20px;
+	}

@@ -1,0 +1,133 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.qrcode.mapper.QrcodeServiceMapper">
+
+	<resultMap id="qrcodeResult" type="egovframework.portal.sys.qrcode.vo.QrcodeVO">
+		<result property="qrcIdx" 			column="QRC_IDX" />
+		<result property="qrcTitle" 		column="QRC_TITLE" />
+		<result property="qrcName" 			column="QRC_NAME" />
+		<result property="qrcCompany" 		column="QRC_COMPANY" />
+		<result property="qrcTel" 			column="QRC_TEL" />
+		<result property="qrcEmail" 		column="QRC_EMAIL" />
+		<result property="qrcAddress" 		column="QRC_ADDRESS" />
+		<result property="qrcLink" 			column="QRC_LINK" />
+		<result property="qrcMemo" 			column="QRC_MEMO" />
+		<result property="qrcSize" 			column="QRC_SIZE" />
+		<result property="qrcWebFileName" 	column="QRC_WEB_FILENAME" />
+		<result property="qrcPrintFileName" column="QRC_PRINT_FILENAME" />
+		<result property="qrcType" 			column="QRC_TYPE"/>
+		<result property="regDt" 			column="QRC_REG_DT" />
+	</resultMap>
+
+	<select id="selectQrcodeDataCnt" resultType="java.lang.Integer">
+		SELECT
+				COUNT(*) AS QRCODECNT
+		FROM
+				qrcode
+	</select>
+
+	<select id="selectQrcodeDataList" resultMap="qrcodeResult">
+		SELECT
+				QRC_IDX,
+				QRC_TITLE,
+				QRC_NAME,
+				QRC_COMPANY,
+				QRC_TEL,
+				QRC_EMAIL,
+				QRC_ADDRESS,
+				QRC_LINK,
+				QRC_MEMO,
+				QRC_SIZE,
+				QRC_WEB_FILENAME,
+				QRC_PRINT_FILENAME,
+				QRC_TYPE,
+				QRC_REG_DT
+		FROM
+				qrcode
+		ORDER BY QRC_IDX
+	</select>
+
+	<select id="selectQrcodeDataDetail" parameterType="java.lang.Integer" resultMap="qrcodeResult">
+		SELECT
+				QRC_IDX,
+				QRC_TITLE,
+				QRC_NAME,
+				QRC_COMPANY,
+				QRC_TEL,
+				QRC_EMAIL,
+				QRC_ADDRESS,
+				QRC_LINK,
+				QRC_MEMO,
+				QRC_SIZE,
+				QRC_WEB_FILENAME,
+				QRC_PRINT_FILENAME,
+				QRC_TYPE,
+				QRC_REG_DT
+		FROM
+				qrcode
+		WHERE
+				QRC_IDX = #{qrcIdx}
+	</select>
+
+	<insert id="insertQrcodeDataProc" parameterType="egovframework.portal.sys.qrcode.vo.QrcodeVO">
+		INSERT INTO qrcode(
+				QRC_TITLE,
+				QRC_NAME,
+				QRC_COMPANY,
+				QRC_TEL,
+				QRC_EMAIL,
+				QRC_ADDRESS,
+				QRC_LINK,
+				QRC_MEMO,
+				QRC_SIZE,
+				QRC_WEB_FILENAME,
+				QRC_PRINT_FILENAME,
+				QRC_TYPE,
+				QRC_REG_DT
+		)VALUES(
+				#{qrcTitle},
+				#{qrcName},
+				#{qrcCompany},
+				#{qrcTel},
+				#{qrcEmail},
+				#{qrcAddress},
+				#{qrcLink},
+				#{qrcMemo},
+				#{qrcSize},
+				#{qrcWebFileName},
+				#{qrcPrintFileName},
+				#{qrcType},
+				(SELECT NOW() FROM DUAL)
+		)
+	</insert>
+
+	<update id="updateQrcodeDataProc" parameterType="egovframework.portal.sys.qrcode.vo.QrcodeVO">
+		UPDATE
+				qrcode
+		SET
+				QRC_TITLE = #{qrcTitle},
+				QRC_NAME = #{qrcName},
+				QRC_COMPANY = #{qrcCompany},
+				QRC_TEL = #{qrcTel},
+				QRC_EMAIL = #{qrcEmail},
+				QRC_ADDRESS = #{qrcAddress},
+				QRC_LINK = #{qrcLink},
+				QRC_MEMO = #{qrcMemo},
+				QRC_SIZE = #{qrcSize},
+				QRC_WEB_FILENAME = #{qrcWebFileName},
+				QRC_PRINT_FILENAME = #{qrcPrintFileName},
+				QRC_TYPE = #{qrcType}
+		WHERE
+				QRC_IDX = #{qrcIdx}
+	</update>
+
+	<delete id="deleteQrcodeDataProc" parameterType="egovframework.portal.sys.qrcode.vo.QrcodeVO">
+		DELETE
+		FROM
+				qrcode
+		WHERE
+				QRC_IDX = #{qrcIdx}
+	</delete>
+
+</mapper>

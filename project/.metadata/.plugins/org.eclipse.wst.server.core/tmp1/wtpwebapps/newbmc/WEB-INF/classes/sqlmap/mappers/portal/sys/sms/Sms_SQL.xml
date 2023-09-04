@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.sms.mapper.SmsMapper">
+
+	<resultMap id="smsMap" type="egovframework.portal.sys.smsService.vo.SmsServiceVO">
+		<result property="idx"				column="idx"/>
+		<result property="usescode"			column="usescode"/>
+		<result property="phone"			column="phone"/>
+		<result property="name"				column="name"/>
+		<result property="housingtype"		column="housingtype"/>
+	</resultMap>
+	
+	<select id="getList3" parameterType="String" resultMap="smsMap">
+	<![CDATA[
+		select idx, name, phone from sms_sale a where usescode = #{value}
+		union
+		select idx, name, phone from sms_housing b where housingtype = #{value}
+	]]>
+	</select>
+	
+	
+	<!-- ##### 해당 분양 선택옵션 신청자 번호 리스트 ##### -->
+	<select id="getList" parameterType="String" resultMap="smsMap">
+		<![CDATA[
+		SELECT 
+				idx
+		,		name
+		,		phone
+		FROM	sms_sale a
+		WHERE 	usescode = #{usescode}
+		]]>
+	</select>
+	
+	<!-- ##### 해당 임대주택 선택옵션 신청자 번호 리스트 ##### -->
+	<select id="getList2" parameterType="String" resultMap="smsMap">
+		<![CDATA[
+		SELECT 
+				idx
+		,		name
+		,		phone
+		FROM	sms_housing a
+		WHERE 	housingtype = #{housingtype}
+		]]>
+	</select>
+	
+	<!-- ##### MMS_MSG 테이블 삽입 ##### -->
+	<insert id="insertSmsQueue" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" >
+		<![CDATA[
+		INSERT 
+		INTO MMS_MSG
+		(
+			REQDATE
+		,	SUBJECT
+		,	PHONE
+		,	CALLBACK
+		,	MSG
+		,	ETC1
+		)
+		VALUES
+		(
+		]]>
+		<choose>
+			<when test="bTermSdate == ''">
+				NOW()
+			</when>
+			<otherwise>
+				DATE_ADD(#{bTermSdate}, INTERVAL #{checkIndex} MINUTE)
+			</otherwise>
+		</choose>
+		<![CDATA[
+		,	#{smsSubject}
+		,	#{trPhone}
+		,	#{trCallback}
+		,	CONCAT(#{smsSubject}, '\n', #{smsMsg})
+		,	#{bIdx}
+		)
+		]]>
+	</insert>
+	
+	<!-- ##### MMS_MSG 존재하는지 확인 ##### -->
+	<select id="getSmsQueue" parameterType="String" resultType="String">
+		<![CDATA[
+		SELECT
+				count(*) as cnt
+		FROM 
+				MMS_MSG
+		WHERE 	ETC1 = #{bIdx}
+		]]>
+	</select>
+	
+	<delete id="deleteSmsQueue" parameterType="String">
+		<![CDATA[	
+		DELETE
+		FROM	MMS_MSG
+		WHERE	ETC1	= #{bIdx}
+		]]>
+	</delete>
+</mapper>

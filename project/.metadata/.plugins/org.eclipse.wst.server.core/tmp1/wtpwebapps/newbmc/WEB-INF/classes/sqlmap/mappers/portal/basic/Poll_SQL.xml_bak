@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.basic.poll.mapper.PollMapper">
+
+	<resultMap id="PLConfigVO_map" type="egovframework.portal.basic.poll.vo.PLConfigVO">
+		<result property="cfgCode" column="CFG_CODE" />
+		<result property="cfgTitle" column="CFG_TITLE" />
+		<result property="cfgSitecode" column="CFG_SITECODE" />
+		<result property="cfgStartdate" column="CFG_STARTDATE" />
+		<result property="cfgEnddate" column="CFG_ENDDATE" />
+		<result property="cfgDivision" column="CFG_DIVISION" />
+		<result property="cfgManager" column="CFG_MANAGER" />
+		<result property="cfgHeader" column="CFG_HEADER" />
+		<result property="cfgFooter" column="CFG_FOOTER" />
+		<result property="cfgState" column="CFG_STATE" />
+		<result property="cfgRespondentinfo" column="CFG_RESPONDENTINFO" />
+		<result property="cfgIp" column="CFG_IP" />
+		<result property="cfgCookies" column="CFG_COOKIES" />
+		<result property="cfgRealname" column="CFG_REALNAME" />
+		<result property="cfgResultview" column="CFG_RESULTVIEW" />
+		<result property="cfgSubjective" column="CFG_SUBJECTIVE" />
+		<result property="cfgDate" column="CFG_DATE" />
+		<result property="rnum" column="RNUM" />
+		<result property="cntAnswer" column="CNT_ANSWER"  />
+	</resultMap>
+	<resultMap id="PLConfigVO_map2" type="egovframework.portal.basic.poll.vo.PLConfigVO">
+		<result property="cfgCode" column="CFG_CODE" />
+		<result property="cfgTitle" column="CFG_TITLE" />
+		<result property="cfgSitecode" column="CFG_SITECODE" />
+		<result property="cfgStartdate" column="CFG_STARTDATE" />
+		<result property="cfgEnddate" column="CFG_ENDDATE" />
+		<result property="cfgDivision" column="CFG_DIVISION" />
+		<result property="cfgManager" column="CFG_MANAGER" />
+		<result property="cfgHeader" column="CFG_HEADER" />
+		<result property="cfgFooter" column="CFG_FOOTER" />
+		<result property="cfgState" column="CFG_STATE" />
+		<result property="cfgRespondentinfo" column="CFG_RESPONDENTINFO" />
+		<result property="cfgIp" column="CFG_IP" />
+		<result property="cfgCookies" column="CFG_COOKIES" />
+		<result property="cfgRealname" column="CFG_REALNAME" />
+		<result property="cfgResultview" column="CFG_RESULTVIEW" />
+		<result property="cfgSubjective" column="CFG_SUBJECTIVE" />
+		<result property="cfgDate" column="CFG_DATE" />
+		<result property="cntAnswer" column="CNT_ANSWER"  />
+	</resultMap>
+	<resultMap id="PLGroupVO_map" type="egovframework.portal.basic.poll.vo.PLGroupVO">
+		<result property="grpCode" column="GRP_CODE" />
+		<result property="cfgCode" column="CFG_CODE" />
+		<result property="grpTitle" column="GRP_TITLE" />
+		<result property="grpOrder" column="GRP_ORDER" />
+	</resultMap>
+	<resultMap id="PLQuestionVO_map" type="egovframework.portal.basic.poll.vo.PLQuestionVO">
+		<result property="queCode" column="QUE_CODE" />
+		<result property="grpCode" column="GRP_CODE" />
+		<result property="cfgCode" column="CFG_CODE" />
+		<result property="queKind" column="QUE_KIND" />
+		<result property="queTitle" column="QUE_TITLE" />
+		<result property="queCheck" column="QUE_CHECK" />
+		<result property="queExplain" column="QUE_EXPLAIN" />
+		<result property="quePoint" column="QUE_POINT" />
+	</resultMap>
+	<resultMap id="PLAnswerVO_map" type="egovframework.portal.basic.poll.vo.PLAnswerVO">
+		<result property="itmCode" column="itm_code" />
+		<result property="itmCount" column="itm_count" />
+		<result property="sumPoint" column="sum_point" />
+	</resultMap>
+	<resultMap id="PLItemVO_map" type="egovframework.portal.basic.poll.vo.PLItemVO">
+		<result property="itmCode" column="ITM_CODE" />
+		<result property="queCode" column="QUE_CODE" />
+		<result property="cfgCode" column="CFG_CODE" />
+		<result property="itmKind" column="ITM_KIND" />
+		<result property="itmTitle" column="ITM_TITLE" />
+		<result property="itmLine" column="ITM_LINE" />
+		<result property="itmSubjective" column="ITM_SUBJECTIVE" />
+	</resultMap>
+
+	<!-- 설문조사 카운트 -->
+	<select id="getPollConfigCnt" parameterType="egovframework.portal.basic.poll.vo.PLConfigVO" resultType="int">
+		SELECT COUNT(*) AS cnt
+		FROM PT_POLL_Config
+		WHERE 1 = 1
+			AND CFG_SITECODE = #{siteCode}
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+				<if test="searchType.equals('cfg_title')">
+					AND CFG_TITLE LIKE '%' || #{searchTxt} || '%'
+				</if>
+			</if>
+	</select>
+	<!-- 설문조사 정보 리스트 -->
+	<select id="getPollConfigList" parameterType="egovframework.portal.basic.poll.vo.PLConfigVO" resultMap="PLConfigVO_map">
+		SELECT * FROM ( SELECT data.*, ROWNUM RNUM FROM (
+			SELECT
+			0 AS CNT_ANSWER, con.*
+			FROM PT_POLL_CONFIG con
+			WHERE 1 = 1
+				AND CFG_SITECODE = #{siteCode}
+				<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+					<if test="searchType.equals('cfg_title')">
+						AND CFG_TITLE LIKE '%' || #{searchTxt} || '%'
+					</if>
+				</if>
+			ORDER BY con.CFG_CODE DESC
+		) data ) WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- 설문조사 정보 -->
+	<select id="getPollConfig" parameterType="egovframework.portal.basic.poll.vo.PLConfigVO" resultMap="PLConfigVO_map2">
+		SELECT
+			con.*,
+			(SELECT MAX(ROWNUM) FROM (SELECT COUNT(ANS_CODE) FROM PT_POLL_ANSWER ans WHERE #{cfgCode} = ans.CFG_CODE GROUP BY RED_CODE)) as CNT_ANSWER
+		FROM PT_POLL_CONFIG con
+		WHERE 1 = 1 AND con.CFG_CODE = #{cfgCode}
+	</select>
+	<!-- 설문조사 그룹정보 리스트 --><!-- check -->
+	<select id="getPollGroupList" resultMap="PLGroupVO_map">
+		SELECT * FROM PT_POLL_GROUP
+		WHERE 1 = 1 AND CFG_CODE = #{cfgCode}
+		ORDER BY GRP_ORDER ASC
+	</select>
+	<!-- 설문조사 질문정보 리스트 --><!-- check -->
+	<select id="getPollQuestionList" resultMap="PLQuestionVO_map">
+		SELECT * FROM PT_POLL_QUESTION
+		WHERE 1 = 1
+			AND CFG_CODE = #{cfgCode}
+			AND GRP_CODE = #{grpCode}
+		ORDER BY QUE_CODE ASC
+	</select>
+	<!-- 설문조사 답변정보 리스트 --><!-- check -->
+	<select id="getPollAnswerResultList" resultMap="PLAnswerVO_map">
+		SELECT ITM_CODE, count(ITM_CODE) as ITM_COUNT, sum(ANS_POINT) as SUM_POINT
+		FROM PT_POLL_ANSWER
+		WHERE 1 = 1
+		AND CFG_CODE = #{cfgCode}
+		AND QUE_CODE = #{queCode}
+		GROUP By ITM_CODE Order BY SUM_POINT DESC
+	</select>
+	<!-- 설문조사 질문정보에따른 아이템정보 리스트 -->
+	<select id="getPollItemListByAnswer" resultMap="PLItemVO_map">
+		SELECT *
+		FROM PT_POLL_ITEM
+		WHERE 1 = 1 AND ITM_CODE = #{itmCode}
+	</select>
+	<!-- 설문조사 아이템정보 리스트 -->
+	<select id="getPollItemList" resultMap="PLItemVO_map">
+		SELECT * FROM PT_POLL_ITEM
+		WHERE 1 = 1
+		AND QUE_CODE = #{queCode}
+		ORDER BY QUE_CODE ASC
+	</select>
+	<!-- 설문조사 응답카운트 -->
+	<select id="getPollAnswerCnt" resultType="int">
+		SELECT COUNT(*) AS CNT
+		FROM PT_POLL_ANSWER
+		WHERE 1 = 1
+		AND CFG_CODE = #{cfgCode}
+		AND QUE_CODE = #{queCode}
+	</select>
+	<!-- 설문조사 응답카운트 -->
+	<select id="getPollAnswerCntByItem" resultType="int">
+		SELECT COUNT(*) AS CNT
+		FROM PT_POLL_ANSWER
+		WHERE 1 = 1
+		AND CFG_CODE = #{cfgCode}
+		AND QUE_CODE = #{queCode}
+		AND ITM_CODE = #{itmCode}
+	</select>
+	<!-- 설문조사 응답중복 카운트 -->
+	<select id="getPollDupCheck" resultType="int">
+		SELECT COUNT(*) AS CNT
+		FROM PT_POLL_RESPONDENT
+		WHERE 1 = 1
+		AND CFG_CODE = #{cfgCode}
+		AND RED_IP = #{redIp}
+	</select>
+	<!-- 설문조사 응답중복 카운트 -->
+	<select id="getPollRedCode" resultType="int">
+		SELECT SEQ_PT_POLL_RESPONDENT.nextval FROM dual
+	</select>
+	<!-- 설문조사 카운트 -->
+	<select id="getRealPollAnswerCnt" parameterType="int" resultType="int">
+		SELECT NVL(MAX(ROWNUM), 0) FROM (SELECT COUNT(ans_code) AS cnt FROM PT_POLL_ANSWER WHERE 1 = 1 AND CFG_CODE = #{cfgCode} GROUP BY RED_CODE)
+	</select>
+
+	<!-- 설문조사 응답자 정보 입력 -->
+	<insert id="pollResponProc" parameterType="egovframework.portal.basic.poll.vo.PLRespondentVO">
+		INSERT INTO PT_POLL_RESPONDENT (
+			RED_CODE, CFG_CODE, RED_NAME, RED_MDNUMBER, RED_PHONE, RED_MOBILE, RED_ZIPCODE, RED_ADDRESS, RED_EMAIL, RED_REALNAME, RED_IP
+		) VALUES (
+			#{redCode}, #{cfgCode}, #{redName}, #{redMdnumber}, #{redPhone}, #{redMobile}, #{redZipcode}, #{redAddress}, #{redEmail}, #{redRealname}, #{redIp}
+		)
+	</insert>
+	<!-- 문조사 응답결과 정보 입력 -->
+	<insert id="pollAnswerProc" parameterType="egovframework.portal.basic.poll.vo.PLAnswerVO">
+		INSERT INTO PT_POLL_ANSWER (
+			ANS_CODE, ITM_CODE, QUE_CODE, RED_CODE, CFG_CODE, ANS_RESULT, ANS_SUBJECTIVE, ANS_POINT
+		) VALUES (
+			SEQ_PT_POLL_ANSWER.nextval, #{itmCode}, #{queCode}, #{redCode}, #{cfgCode}, #{ansResult}, #{ansSubjective}, #{ansPoint}
+		)
+	</insert>
+
+</mapper>

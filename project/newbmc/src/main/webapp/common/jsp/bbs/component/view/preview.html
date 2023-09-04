@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+	<meta charset="UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>미리보기 | 부산도시공사</title>
+	<link rel="stylesheet" type="text/css" href="/bmc/font/font.css">
+	<!-- 사이트 기본 베이스 -->
+	<link rel="stylesheet" type="text/css" href="/bmc/css/base.css?v=1">
+	<!-- 메인/서브 공통 스타일시트 -->
+	<link rel="stylesheet" type="text/css" href="/bmc/css/common.css">
+	<!-- 메인페이지 스타일시트 -->
+	<link rel="stylesheet" type="text/css" href="/bmc/css/main.css">
+	<link rel="stylesheet" type="text/css" href="/bmc/css/main_new.css">
+	<!-- 서브페이지 스타일시트 -->
+	<link rel="stylesheet" type="text/css" href="/bmc/css/content.css">
+	<link rel="stylesheet" type="text/css" href="/bmc/css/layout.css">
+	<!-- 포탈 스타일시트 -->
+	<link rel="stylesheet" type="text/css" href="/bmc/css/common2.css?v=2">
+	<link rel="stylesheet" type="text/css" href="/bmc/css/board2.css"> 
+	<!-- 이미지 갤러리 -->
+	<link rel="stylesheet" type="text/css" href="/bmc/css/elastislide.css">
+	<!-- jQuery -->
+	<script src="/bmc/js/jquery-3.1.1.min.js"></script> 
+	<!-- slick slider plug-in -->
+	<link rel="stylesheet" type="text/css" href="/bmc/plug/slick/slick.css">
+	<script src="/bmc/plug/slick/slick.js"></script>
+	<!-- 커스터마이징 스크립트 -->
+	<script src="/bmc/js/common.js"></script>
+	<script src="/bmc/js/content.js"></script>
+	</head>
+	
+	<body>
+		<div class="skipToNav">
+			<a href="#subContents">본문 바로가기</a>
+		</div>
+		<header id="header">
+			<div class="headerTop">
+				<div class="headerInnr">
+				</div>
+			</div>
+	<!-- headerBody 영역 BREAD CRUMBS -->
+	<div class="headerBody">
+		<div class="headerInnr" id="headerInnrDiv">
+			<div class="gnb_wrap">
+				
+			</div>
+		</div>
+	</div>
+	<div class="topNavBack"></div>
+</header>
+	<div id="container">
+		<div class="subPageVisual sub1">
+			<h2 class="tit"><strong>게시판 미리보기</strong></h2>
+		</div>
+		<div class="path-wrap">
+			<div class="path-box">
+				<div class="path">
+					<div class="path-depth-wrap">
+					</div>
+				</div>
+			</div>
+		</div>
+		
+		<div id="subContents">
+			<h3 class="tit"><strong>미리보기</strong></h3> 
+			<div class="gap20"></div>
+			<div class="gap40"></div>
+		<div id="contents">
+			<div class="content">
+			<h4 class="blind">미리보기</h4>
+	
+			<style>
+				.mT10 li {float:none;color:#333;margin-left:30px;}
+				@media all and (max-width:960px) {
+					.mobileTable {overflow-x:scroll;white-space:nowrap;}
+				}
+				@media all and (max-width:900px) {
+					.mT10 p {padding-left:40px!important;}
+					.mT10 li {margin-left:5px;}
+				}
+				
+				@media all and (max-width:640px) {
+					.mT10 h1 {line-height:1;}
+				}
+			</style>
+		<div class="bod_wrap">
+			<div class="bod_view">
+				<h4>미리보기</h4>
+				<div class="view_info">
+					<ul class="clFix">
+						<li class="view_write">
+							<span>작성자</span> : 000
+						</li>
+						<li class="view_date"><span>등록일</span> : 0000-00-00</li>
+						<li class="view_hit"><span>조회</span> : 0</li>
+					</ul>
+				</div>
+
+				<div class="view_cont">
+					<div class="mT10">
+						미리보기
+					</div>
+				</div>
+				<dl class="view_file clFix">
+					<dt><span>첨부 파일</span></dt>
+					<dd>
+						첨부파일은 미리보기를 지원하지 않습니다.
+					</dd>
+				</dl>
+			</div>
+
+			<div class="bod_foot">
+				<div class="btn_wrap taR mT20">
+					<a href="#" onclick="window.close()" title="닫기">닫기</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+</div>
+</div>
+<div class="gray"></div><div class="modal"></div></body></html>
+
+<script>
+
+$(function (){
+	$('.bod_view h4').text($(opener.document).find('#bTitle').val());
+	//tinymce 버전 - $('.mT10').html($(opener.document).find('#bContent_ifr').contents().find('#tinymce').html());
+	$('.mT10').html($(opener.document).find('iframe').contents().find('#se2_iframe').contents().find('#editorBody').html());
+	$('.mT10 table').wrap('<div class="mobileTable" />');
+	$('.mT10 ul').addClass('list_style');
+	$('.mT10 ol').addClass('list_style');
+	$('.mT10 li').addClass('list_style');
+});
+
+</script>

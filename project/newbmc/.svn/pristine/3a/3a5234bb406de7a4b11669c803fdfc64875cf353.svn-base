@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.bbs.mapper.BbsLogMngMapper">
+
+	<resultMap id="bbsLogMngMap" type="egovframework.portal.sys.bbs.vo.BbsLogMngVO">
+		<result property="siteName" column="site_name"/>
+		<result property="ptIdx" column="pt_idx"/>
+		<result property="bIdx" column="b_idx"/>
+		<result property="ptTitle" column="pt_title"/>
+		<result property="ptTypeNm" column="pt_type_nm"/>
+		<result property="bTitle" column="b_title"/>
+		<result property="bWrite" column="b_write"/>
+		<result property="bProc" column="b_proc"/>
+		<result property="operatorIp" column="operator_ip"/>
+		<result property="operatorId" column="operator_id"/>
+		<result property="operateDate" column="operate_date"/>
+	</resultMap>
+
+	<!-- ##### 검색 조건 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<!-- 사이트 검색 조건 -->
+		<if test="#fn = isNotBlank, #fn(searchSiteCode)">
+			AND (c.pt_sitecode = #{searchSiteCode} OR c.pt_sitecode = 'common')
+		</if>
+		<!-- 게시판명 검색 -->
+		<if test="#fn = isNotBlank, #fn(searchPtTitle)">
+			AND REPLACE(c.pt_title, ' ', '') LIKE CONCAT('%',REPLACE(#{searchPtTitle}, ' ', ''),'%')
+		</if>
+		<!-- 게시글명 검색 -->
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			AND b.b_title LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+		<!-- 처리 종류 검색 -->
+		<if test="#fn = isNotBlank, #fn(searchProc)">
+			AND l.pt_state = #{searchProc}
+		</if>
+		<!-- 기간 검색 조건 -->
+		<if test="searchPeriodType.equals('yyyy')">
+			AND date_format(l.pt_date, '%Y') = #{searchYear}
+		</if>
+		<if test="searchPeriodType.equals('month')">
+			AND date_format(l.pt_date, '%Y%m') = #{searchYear} || #{searchMonth}
+		</if>
+		<if test="searchPeriodType.equals('range')">
+			<if test="#fn = isNotBlank, #fn(searchSday)">
+				AND l.pt_date >= DATE_FORMAT(CONCAT(#{searchSday} , ' 00:00:00', '%Y-%m-%d %H:%i:%s'))
+			</if>
+			<if test="#fn = isNotBlank, #fn(searchEday)">
+				AND DATE_FORMAT(CONCAT(#{searchEday} , ' 23:59:59', '%Y-%m-%d %H:%i:%s')) >= l.pt_date
+			</if>
+		</if>
+	</sql>
+	<!-- ##### 전체 처리 이력 건수 ##### -->
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsLogMngVO" resultType="int">
+		SELECT COUNT(l.pt_idx) AS cnt
+		FROM bbs_log l
+		LEFT JOIN bbs_config c ON c.pt_idx = l.pt_ptidx
+		LEFT JOIN bbs_board b ON  b.b_idx = l.pt_bidx
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+	</select>
+	<!-- ##### 처리 이력 목록 ##### -->
+	<select id="getList" parameterType="egovframework.portal.sys.bbs.vo.BbsLogMngVO" resultMap="bbsLogMngMap">
+		SELECT rs.*,
+			(CASE rs.pt_sitecode WHEN 'common' THEN '공통' ELSE s.site_name END) AS site_name,
+			cc.code_nm AS pt_type_nm
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT
+					c.pt_idx,
+					c.pt_sitecode,
+					c.pt_title,
+					c.pt_type,
+					b.b_idx,
+					b.b_title,
+					b.b_write,
+					l.pt_state AS b_proc,
+					l.pt_hostip AS operator_ip,
+					l.pt_writer_id AS operator_id,
+					l.pt_date AS operate_date
+				FROM bbs_log l
+				LEFT JOIN bbs_config c ON c.pt_idx = l.pt_ptidx
+				LEFT JOIN bbs_board b ON  b.b_idx = l.pt_bidx
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY l.pt_date DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs
+		LEFT JOIN site_mapping s ON s.site_code = rs.pt_sitecode
+		LEFT JOIN comm_code cc ON cc.code_id = rs.pt_type
+		WHERE rs.rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- ##### 처리 이력 전체 목록 #####  -->
+	<select id="getTotalListAsMap" parameterType="egovframework.portal.sys.bbs.vo.BbsLogMngVO" resultType="HashMap">
+		SELECT
+			c.pt_idx,
+			(CASE c.pt_sitecode WHEN 'common' THEN '공통' ELSE s.site_name END) AS site_name,
+			c.pt_sitecode,
+			c.pt_title,
+			cc.code_nm AS pt_type_nm,
+			b.b_idx,
+			b.b_title,
+			b.b_write,
+			(
+				CASE l.pt_state WHEN 'modIn' THEN '등록'
+				WHEN 'modUp' THEN '수정'
+				WHEN 'modDe' THEN '삭제'
+				WHEN 'modReIn' THEN '답글 등록'
+				WHEN 'modReDe' THEN '복원'
+				WHEN 'modMovIn' THEN '게시글 이동'
+				ELSE 'unknown' END
+			) AS b_proc,
+			l.pt_hostip AS operator_ip,
+			l.pt_writer_id AS operator_id,
+			date_format(l.pt_date, '%Y-%m-%d %H:%i') AS operate_date
+		FROM bbs_log l
+		LEFT JOIN bbs_config c ON c.pt_idx = l.pt_ptidx
+		LEFT JOIN bbs_board b ON  b.b_idx = l.pt_bidx
+		LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode
+		LEFT JOIN comm_code cc ON cc.code_id = c.pt_type
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+		ORDER BY l.pt_date DESC
+	</select>
+
+
+	<!-- ##### 게시글 변경 이력 등록 ##### -->
+	<insert id="insertBbsLog" parameterType="egovframework.portal.sys.log.vo.BbsLog">
+		INSERT INTO bbs_log (
+			PT_PTIDX, PT_BIDX, PT_WRITER, PT_TITLE, PT_STATE, PT_HOSTIP, PT_DATE, PT_WRITER_ID
+		) VALUES (
+			#{ptPtIdx}, #{ptBidx}, #{ptWriter}, #{ptTitle}, #{ptState}, #{ptHostIp}, NOW(), #{ptWriterId}
+		)
+	</insert>
+
+</mapper>

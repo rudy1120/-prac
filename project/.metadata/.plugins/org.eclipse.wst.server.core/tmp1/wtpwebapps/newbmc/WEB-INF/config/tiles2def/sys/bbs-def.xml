@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<!-- ================================== 게시판 & 게시글 관리 ================================== -->
+
+		<!-- 게시판 관리 -->
+		<definition name="/sys/bbs/configMng/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/bbs/configMng/list.jsp" />
+		</definition>
+		<definition name="/sys/bbs/configMng/write" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/bbs/configMng/write.jsp" />
+		</definition>
+		<definition name="/sys/bbs/configMng/modify" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/bbs/configMng/modify.jsp" />
+		</definition>
+		<definition name="/sys/bbs/configMng/auth/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/bbs/configMng/authlist.jsp" />
+		</definition>
+		<!-- 게시판 로그 관리 -->
+		<definition name="/sys/bbs/bbsConfigLog/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/bbs/bbsConfigLog/list.jsp" />
+		</definition>
+		<!-- 게시글 관리 -->
+		<definition name="/sys/bbs/bbsMng/*" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/bbs/bbsMng/{1}.jsp" />
+		</definition>
+		<!-- 게시글 로그 관리 -->
+		<definition name="/sys/bbs/log/list/" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/bbs/log/list.jsp" />
+		</definition>
+		<!-- 부서관리 -->
+		<definition name="/sys/totalAdminMng/deptMng/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/deptMng/list.jsp" />
+		</definition>
+
+</tiles-definitions>

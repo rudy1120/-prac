@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.dynamic.mapper.DataMngCreatorMapper">
+
+	<resultMap id="dataMngCreatorMap" type="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		<result property="idx" column="idx" />
+		<result property="tableDesc" column="table_desc" />
+		<result property="tableName" column="table_name" />
+		<result property="useFile" column="use_file" />
+		<result property="fileCnt" column="file_cnt" />
+		<result property="linkType" column="link_type" />
+		<result property="linkColName" column="link_col_name" />
+		<result property="categoryDefs" column="category_defs" />
+		<result property="deptCode" column="dept_code" />
+		<result property="deptName" column="dept_name" />
+		<result property="deptTel1" column="dept_tel1" />
+		<result property="deptTel2" column="dept_tel2" />
+		<result property="deptTel3" column="dept_tel3" />
+		<result property="headerContent" column="header_content" />
+		<result property="columnDefs" column="column_defs" />
+		<result property="isDel" column="is_del" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="deleteDate" column="delete_date" />
+		<result property="imageOnly" column="image_only" />
+		<result property="urlName" column="url_name" />
+		<result property="viewPath" column="view_path" />
+		<result property="listPath" column="list_path" />
+		<result property="listCnt" column="list_cnt" />
+		<result property="sysListPath" column="sys_list_path" />
+		<result property="useSecret" column="use_secret" />
+		<result property="fileDownYn" column="file_down_yn" />
+		<result property="orderType" column="ORDER_TYPE" />
+		<result property="numYn" column="NUM_YN" />
+		<result property="orderColName" column="order_col_name" />
+		<result property="searchYn" column="search_yn" />
+		<result property="headerModifyYn" column="header_modify_yn" />
+	</resultMap>
+
+	<!-- 테이블명 카운팅 -->
+	<select id="getTotalCntUsingName" parameterType="String" resultType="int">
+		SELECT COUNT(*)
+		FROM dynamic_table_def
+		WHERE table_name = #{tableName}
+	</select>
+	<!-- 현황관리 목록 카운팅 -->
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO" resultType="int">
+		SELECT COUNT(*)
+		FROM dynamic_table_def
+		WHERE 1 = 1
+			AND is_del = 'N'
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+				<if test="searchType.equals('table_desc')">
+					AND table_desc LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+				<if test="searchType.equals('table_name')">
+					AND LOWER(table_name) LIKE CONCAT('%',LOWER(#{searchTxt}),'%')
+				</if>
+			</if>
+	</select>
+	<!-- 현황관리 목록 -->
+	<select id="getList" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO" resultMap="dataMngCreatorMap">
+		SELECT *
+		FROM (
+			SELECT MA.*, @rownum:=@rownum+1 AS RNUM
+			FROM (
+				SELECT *
+				FROM dynamic_table_def
+				WHERE 1 = 1
+					AND is_del = 'N'
+					<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+						<if test="searchType.equals('table_desc')">
+							AND table_desc LIKE CONCAT('%',#{searchTxt},'%')
+						</if>
+						<if test="searchType.equals('table_name')">
+							AND LOWER(table_name) LIKE '%' + LOWER(#{searchTxt}) + '%'
+						</if>
+					</if>
+				ORDER BY idx DESC
+				) MA, (SELECT @rownum :=0) AS R
+			) MB
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- PK 현황관리 -->
+	<select id="getEntity" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO" resultMap="dataMngCreatorMap">
+		SELECT *
+		FROM dynamic_table_def
+		WHERE 1 = 1
+			AND is_del = 'N'
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(idx)">
+				AND idx = #{idx}
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(tableName)">
+				AND table_name = #{tableName}
+			</if>
+	</select>
+
+
+
+	<!-- INSERT -->
+	<insert id="insert" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		INSERT INTO dynamic_table_def (
+			table_desc, table_name, use_file, file_cnt, link_type, link_col_name, category_defs, header_content,
+			dept_code, dept_name, dept_tel1, dept_tel2, dept_tel3, column_defs, image_only, url_name,
+			view_path, list_path, list_cnt, sys_list_path, use_secret, file_down_yn, order_type, num_yn, search_yn
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(orderColName)">
+				, order_col_name
+			</if>
+		) VALUES (
+			#{tableDesc}, #{tableName}, #{useFile}, #{fileCnt}, #{linkType}, #{linkColName}, #{categoryDefs}, #{headerContent},
+			#{deptCode}, #{deptName}, #{deptTel1}, #{deptTel2}, #{deptTel3}, #{columnDefs}, #{imageOnly}, #{urlName},
+			#{viewPath}, #{listPath}, #{listCnt}, #{sysListPath}, #{useSecret}, #{fileDownYn}, #{orderType}, #{numYn}, #{searchYn}
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(orderColName)">
+				, #{orderColName}
+			</if>
+		)
+	</insert>
+	<update id="createDynamicTable" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		CREATE TABLE dmt_${tableName} (
+			IDX bigint(20) NOT NULL  AUTO_INCREMENT COMMENT 'PK Key',
+			<foreach item="columnDef" index="index" collection="columnDefList" separator=",">
+				COL_${columnDef.name}
+				<if test="columnDef.type.equals('varchar2')">
+					 VARCHAR(
+					 	<if test="@egovframework.portal.util.StringUtil@isBlank(columnDef.size)">500</if>
+					 	<if test="@egovframework.portal.util.StringUtil@isNotBlank(columnDef.size)">${columnDef.size}</if>
+					)
+				</if>
+				<if test="columnDef.type.equals('clob')">
+					 LONGTEXT
+				</if>
+				<if test="columnDef.type.equals('date')">
+					 CHAR(10)
+				</if>
+				<if test="columnDef.type.equals('time')">
+					 CHAR(5)
+				</if>
+				<if test="columnDef.type.equals('number')">
+					 VARCHAR(22)
+				</if>
+				<if test="columnDef.type.equals('file')">
+					 VARCHAR(20)
+				</if>
+				COMMENT '${columnDef.description}'
+			</foreach>
+			, ATTACH_ID VARCHAR(20) COMMENT '파일관리 아이디'
+			, COL_LAT VARCHAR(20) COMMENT '위도'
+			, COL_LNG VARCHAR(20) COMMENT '경도'
+			, COL_HP_URL VARCHAR(100) COMMENT '링크URL'
+			, CATEGORY VARCHAR(100) COMMENT '카테고리'
+			, CATEGORY2 VARCHAR(100) COMMENT '카테고리2'
+			, IS_SECRET CHAR(1) DEFAULT 'N' NOT NULL COMMENT '비공개여부'
+			, IS_DEL CHAR(1) DEFAULT 'N' NOT NULL COMMENT '삭제여부'
+			, CREATE_DATE datetime DEFAULT CURRENT_TIMESTAMP NOT NULL COMMENT '등록일'
+			, UPDATE_DATE datetime COMMENT '수정일'
+			, DELETE_DATE datetime COMMENT '삭제일'
+			, PRIMARY KEY(IDX)
+		)
+	</update>
+	<update id="alterAddPrimaryKey" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		ALTER TABLE dmt_${tableName} ADD CONSTRAINT pk_dmt_${tableName} PRIMARY KEY (idx)
+	</update>
+
+
+
+	<!-- UPDATE -->
+	<update id="update" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		UPDATE dynamic_table_def
+		SET table_desc = #{tableDesc},
+			table_name = #{tableName},
+			use_file = #{useFile},
+			file_cnt = #{fileCnt},
+			category_defs = #{categoryDefs},
+			header_content = #{headerContent},
+			dept_code = #{deptCode},
+			dept_name = #{deptName},
+			dept_tel1 = #{deptTel1},
+			dept_tel2 = #{deptTel2},
+			dept_tel3 = #{deptTel3},
+			column_defs = #{columnDefs},
+			image_only = #{imageOnly},
+			view_path = #{viewPath},
+			list_path = #{listPath},
+			list_cnt = #{listCnt},
+			sys_list_path = #{sysListPath},
+			use_secret = #{useSecret},
+			file_down_yn = #{fileDownYn},
+			order_type = #{orderType},
+			num_yn = #{numYn},
+			search_yn = #{searchYn},
+			update_date = NOW()
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(orderColName)">
+				, order_col_name = #{orderColName}
+			</if>
+		WHERE idx = #{idx} AND is_del = 'N'
+	</update>
+	<update id="addDynamicColumns" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		ALTER TABLE dmt_${tableName} ADD (
+			<foreach item="columnDef" index="index" collection="columnDefList" separator=",">
+				col_${columnDef.name}
+				<if test="columnDef.type.equals('varchar2')">
+					 ${columnDef.type}(${columnDef.size})
+				</if>
+				<if test="columnDef.type.equals('file')">
+					 VARCHAR(20)
+				</if>
+				<if test="columnDef.type.equals('date')">
+					 CHAR(10)
+				</if>
+				<if test="columnDef.type.equals('time')">
+					 CHAR(5)
+				</if>
+				<if test="columnDef.type.equals('number')">
+					 VARCHAR(22)
+				</if>
+				<if test="columnDef.type.equals('clob')">
+					 LONGTEXT
+				</if>
+				COMMENT '${columnDef.description}'
+			</foreach>
+		)
+	</update>
+	<update id="dropDynamicColumns" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		ALTER TABLE dmt_${tableName} DROP (
+			<foreach item="columnDef" index="index" collection="columnDefList" separator=",">
+				col_${columnDef.name}
+			</foreach>
+		)
+	</update>
+	<update id="createTableComment" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		ALTER TABLE dmt_${tableName} COMMENT='${tableDesc}'
+	</update>
+	<update id="updateHeader">
+		UPDATE dynamic_table_def
+		SET header_content = #{headerContent}
+		WHERE idx = #{idx}
+	</update>
+
+
+
+	<!-- DELETE -->
+	<update id="delete" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO">
+		UPDATE dynamic_table_def
+		SET is_del = 'Y',
+			delete_date = NOW()
+		WHERE idx = #{idx} AND is_del = 'N'
+	</update>
+
+	<!-- urlName으로 tableName을 조회합니다. -->
+	<select id="getTableName" parameterType="java.lang.String" resultType="java.lang.String">
+		SELECT TABLE_NAME FROM dynamic_table_def WHERE URL_NAME = #{urlName}
+	</select>
+
+	<!-- 카테고리 데이터 등록 -->
+	<insert id="insertCategory" parameterType="egovframework.portal.sys.dynamic.vo.CategoryVO">
+		INSERT INTO dynamic_category_def (
+			TABLE_NAME, CATEGORY_KEY, CATEGORY_VALUE, USE_YN, CREATE_DATE, CATEGORY_ORDER, CATEGORY_IDX
+		) VALUES (
+			#{tableName}, #{categoryKey}, #{categoryValue}, #{useYn}, NOW(), #{categoryOrder}, #{categoryIdx}
+		)
+	</insert>
+	<!-- 카테고리 데이터 삭제 -->
+	<delete id="deleteCategory" parameterType="egovframework.portal.sys.dynamic.vo.CategoryVO">
+		DELETE FROM dynamic_category_def WHERE TABLE_NAME = #{tableName} AND CATEGORY_IDX = #{categoryIdx}
+	</delete>
+
+	<!-- 카테고리 목록 resultMap -->
+	<resultMap id="categoryListResult" type="egovframework.portal.sys.dynamic.vo.CategoryVO">
+		<result property="categoryKey" 		column="CATEGORY_KEY" />
+		<result property="categoryValue" 	column="CATEGORY_VALUE" />
+		<result property="useYn" 			column="USE_YN" />
+		<result property="categoryOrder" 	column="CATEGORY_ORDER" />
+	</resultMap>
+
+	<!-- 카테고리 목록 조회 -->
+	<select id="getCategoryList" parameterType="egovframework.portal.sys.dynamic.vo.CategoryVO" resultMap="categoryListResult">
+		SELECT
+			CATEGORY_KEY, CATEGORY_VALUE, USE_YN, CATEGORY_ORDER
+		FROM
+			dynamic_category_def
+		WHERE
+			TABLE_NAME = #{tableName}
+		AND
+			CATEGORY_IDX = #{categoryIdx}
+		ORDER BY CATEGORY_ORDER ASC
+	</select>
+
+</mapper>

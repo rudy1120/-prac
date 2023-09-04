@@ -1,0 +1,105 @@
+@charset "UTF-8";
+
+/* 전체 페이지 스타일 */
+body {
+    font-family: 'Helvetica Neue', sans-serif;
+    background-color: #f2f2f2;
+    margin: 0;
+    padding: 0;
+}
+
+/* 로그인 박스 스타일 */
+.loginbox {
+    width: 400px;
+    background-color: #fff;
+    margin: 100px auto;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.loginbox h2 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #333;
+}
+
+.loginbox label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+.loginbox input[type="text"],
+.loginbox input[type="password"] {
+    width: 90%;
+    padding: 10px;
+    margin-bottom: 15px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+}
+
+.loginbox ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.loginbox ul li {
+    display: inline-block;
+    margin-right: 10px;
+}
+
+.loginbox ul li a {
+    text-decoration: none;
+    color: #666;
+}
+
+.loginbox button[type="submit"] {
+    display: block;
+    width: 100%;
+    padding: 10px;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+.loginbox button[type="submit"]:hover {
+    background-color: #0056b3;
+}
+
+/* 간편 로그인 버튼 스타일 */
+.wrap {
+    margin-top: 20px;
+    text-align: center;
+}
+
+.kakao {
+    display: inline-block;
+    text-decoration: none;
+    background-color: #f7e600;
+    color: #000;
+    padding: 10px 20px;
+    border-radius: 5px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    transition: background-color 0.3s;
+}
+
+.kakao .kakao_i {
+    display: inline-block;
+    vertical-align: middle;
+    width: 90%;
+    height: 20px;
+    background-image: url('kakao_icon.png'); /* 아이콘 이미지 경로 */
+    background-size: cover;
+    margin-right: 5px;
+}
+
+.kakao .kakao_txt {
+    display: inline-block;
+    vertical-align: middle;
+}

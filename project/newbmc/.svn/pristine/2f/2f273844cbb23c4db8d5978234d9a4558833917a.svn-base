@@ -1,0 +1,278 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.bbs.mapper.BbsStatMapper">
+
+	<resultMap id="operationMap" type="egovframework.portal.sys.bbs.vo.BbsOperationStatVO">
+		<result property="siteCode" column="site_code"/>
+		<result property="siteName" column="site_name"/>
+		<result property="ptIdx" column="pt_idx"/>
+		<result property="bbsTypeName" column="bbs_type_name"/>
+		<result property="configName" column="config_name"/>
+		<result property="createCnt" column="create_cnt"/>
+		<result property="deleteCnt" column="delete_cnt"/>
+		<result property="adminDeleteCnt" column="admin_delete_cnt"/>
+		<result property="userDeleteCnt" column="user_delete_cnt"/>
+		<result property="autoDeleteCnt" column="auto_delete_cnt"/>
+		<result property="updateCnt" column="update_cnt"/>
+		<result property="hitCnt" column="hit_cnt"/>
+	</resultMap>
+	<resultMap id="fileDownMap" type="egovframework.portal.sys.bbs.vo.BbsFileDownStatVO">
+		<result property="siteCode" column="site_code"/>
+		<result property="siteName" column="site_name"/>
+		<result property="bbsTypeName" column="bbs_type_name"/>
+		<result property="ptIdx" column="pt_idx"/>
+		<result property="configName" column="config_name"/>
+		<result property="downCnt" column="down_cnt"/>
+	</resultMap>
+
+	<!-- ##### 게시판 검색 쿼리 ##### -->
+	<sql id="configSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchSiteCode)">
+			AND (c.pt_sitecode = #{searchSiteCode} OR c.pt_sitecode = 'common')
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchBbsType)">
+			AND c.pt_type = #{searchBbsType}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			AND c.pt_title LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+	</sql>
+	<!-- ##### 기간 검색 쿼리 ##### -->
+	<sql id="periodSearcher">
+		<include refid="s.funcs"/>
+		<if test="searchPeriodType.equals('year')">
+			AND date_format(b.dt, '%Y') = #{searchYear}
+		</if>
+		<if test="searchPeriodType.equals('month')">
+			AND date_format(b.dt, '%Y%m') = CONCAT(#{searchYear} , #{searchMonth})
+		</if>
+		<if test="searchPeriodType.equals('range')">
+			<if test="#fn = isNotBlank, #fn(searchSday)">
+				AND b.dt >= DATE_FORMAT(CONCAT(#{searchSday} , ' 00:00:00', '%Y-%m-%d %H:%i:%s'))
+			</if>
+			<if test="#fn = isNotBlank, #fn(searchEday)">
+				AND DATE_FORMAT(CONCAT(#{searchEday} , ' 23:59:59', '%Y-%m-%d %H:%i:%s')) >= b.dt
+			</if>
+		</if>
+		
+	</sql>
+
+
+	<!-- ==================================== 게시글 등록/삭제/수정/조회 ==================================== -->
+	<!-- ##### 게시판 통계 조회 쿼리 ##### -->
+	<sql id="operationList">
+		SELECT
+			s.site_code AS site_code,
+			s.site_name AS org_site_name,
+			cc.code_nm AS bbs_type_name,
+			c.*
+		FROM (
+			SELECT c.pt_idx, c.pt_sitecode, c.pt_type, c.pt_title
+			FROM bbs_config c
+			WHERE 1 = 1
+				<include refid="configSearcher"/>
+		) c
+		LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode
+		LEFT JOIN comm_code cc ON cc.code_id = c.pt_type
+		ORDER BY cast(c.pt_idx AS UNSIGNED) DESC
+	</sql>
+	<!-- ##### 게시글 처리 이력 중 최근 로그 목록 ##### -->
+	<sql id="lastestLogList">
+		(
+			SELECT l.pt_idx AS idx, l.pt_ptidx AS l_ptidx, l.pt_bidx AS l_bidx, l.pt_state AS l_state, l.pt_writer_id AS l_operator
+			FROM bbs_log l
+			INNER JOIN (
+				SELECT pt_bidx AS bidx, MAX(pt_idx) AS idx
+				FROM bbs_log
+				GROUP BY pt_bidx
+			) pk ON pk.idx = l.pt_idx
+		) l
+	</sql>
+	<!-- ##### 사이트명,게시판명,등록/삭제/수정/조회 SELECTOR ##### -->
+	<sql id="operationStatSelector">
+		(CASE WHEN rs.org_site_name IS NULL THEN '공통' ELSE rs.org_site_name END) AS site_name,
+		rs.pt_title AS config_name,
+		(
+			SELECT COUNT(b_idx) FROM (SELECT b_idx, pt_idx, create_date AS dt, is_del FROM bbs_board) b
+			WHERE 1 = 1
+				AND b.pt_idx = rs.pt_idx
+				<include refid="periodSearcher"/>
+		) AS create_cnt,
+		(
+			SELECT COUNT(b_idx) FROM (SELECT b_idx, pt_idx, delete_date AS dt, is_del FROM bbs_board b WHERE b.is_del = 'Y') b
+			WHERE 1 = 1 AND b.pt_idx = rs.pt_idx
+				<include refid="periodSearcher"/>
+		) AS delete_cnt,
+		(
+			SELECT COUNT(b_idx) FROM (
+				SELECT b_idx, pt_idx, delete_date AS dt, is_del
+				FROM bbs_board b
+				LEFT JOIN <include refid="lastestLogList"/> ON l.l_bidx = b.b_idx
+				WHERE b.is_del = 'Y' AND (l.l_operator IS NOT NULL)
+			) b
+			WHERE 1 = 1 AND b.pt_idx = rs.pt_idx
+				<include refid="periodSearcher"/>
+		) AS admin_delete_cnt,
+		(
+			SELECT COUNT(b_idx) FROM (
+				SELECT b_idx, pt_idx, delete_date AS dt, is_del
+				FROM bbs_board b
+				LEFT JOIN <include refid="lastestLogList"/> ON l.l_bidx = b.b_idx
+				WHERE b.is_del = 'Y' AND (l.l_operator IS NULL)
+			) b
+			WHERE 1 = 1 AND b.pt_idx = rs.pt_idx
+				<include refid="periodSearcher"/>
+		) AS user_delete_cnt,
+		(
+			SELECT ifnull(SUM(proc_cnt), 0)
+			FROM (SELECT h.prm_idx, h.proc_cnt, h.delete_date AS dt, 'N' as is_del FROM privacy_data_history h) b
+			WHERE b.prm_idx = (
+				SELECT idx FROM privacy_prm prm WHERE prm.pt_idx = rs.pt_idx
+			)
+			<include refid="periodSearcher"/>
+		) AS auto_delete_cnt,
+		(
+			SELECT COUNT(b_idx) FROM (SELECT b_idx, pt_idx, update_date AS dt, is_del FROM bbs_board) b
+			WHERE 1 = 1
+				AND b.pt_idx = rs.pt_idx
+				<include refid="periodSearcher"/>
+		) AS update_cnt,
+		(
+			SELECT ifnull(SUM(cnt), 0)
+			FROM (
+				SELECT b.pt_idx, s.cnt, DATE_FORMAT(CONCAT(s.s_year , '-' , s.s_month , '-' , s.s_day , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AS dt, is_del
+				FROM bbs_board b
+				INNER JOIN bbs_view_stat s ON s.b_idx = b.B_IDX
+			) b
+			WHERE 1 = 1 AND b.pt_idx = rs.pt_idx
+				<include refid="periodSearcher"/>
+		) AS hit_cnt
+	</sql>
+	<!-- ##### 전체 게시판 건수 ##### -->
+	<select id="getOperationStatTotalCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsOperationStatVO" resultType="int">
+		SELECT COUNT(c.pt_idx)
+		FROM (
+			SELECT c.pt_idx, c.pt_sitecode, c.pt_type, c.pt_title
+			FROM bbs_config c
+			WHERE 1 = 1
+				<include refid="configSearcher"/>
+		) c
+		LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode
+		LEFT JOIN comm_code cc ON cc.code_id = c.pt_type
+	</select>
+	<!-- ##### 게시글 등록/삭제/수정/조회 통계 목록 ##### -->
+	<select id="getOperationStatList" parameterType="egovframework.portal.sys.bbs.vo.BbsOperationStatVO" resultMap="operationMap">
+		SELECT rs.*, <include refid="operationStatSelector"/>
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				<include refid="operationList"/>
+			) rs, (SELECT @rownum :=0) AS R
+		) rs
+		WHERE rs.rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- ##### 게시글 등록/삭제/수정/조회 통계 전체 합계 ##### -->
+	<select id="getOperationStatSnippet" parameterType="egovframework.portal.sys.bbs.vo.BbsOperationStatVO" resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		SELECT ifnull(SUM(create_cnt), 0) AS sum_create_cnt,
+			ifnull(SUM(delete_cnt), 0) AS sum_delete_cnt,
+			ifnull(SUM(admin_delete_cnt), 0) AS sum_admin_delete_cnt,
+			ifnull(SUM(user_delete_cnt), 0) AS sum_user_delete_cnt,
+			ifnull(SUM(auto_delete_cnt), 0) AS sum_auto_delete_cnt,
+			ifnull(SUM(update_cnt), 0) AS sum_update_cnt,
+			ifnull(SUM(hit_cnt), 0) AS sum_hit_cnt
+		FROM (
+			SELECT rs.*, <include refid="operationStatSelector"/>
+			FROM (
+				<include refid="operationList"/>
+			) rs
+		) rs
+	</select>
+	<!-- ##### 게시글 등록/삭제/수정/조회 통계 전체 목록 ##### -->
+	<select id="getOperationStatListAsMap" parameterType="egovframework.portal.sys.bbs.vo.BbsOperationStatVO" resultType="HashMap">
+		SELECT rs.*, rs.delete_cnt + rs.auto_delete_cnt AS total_delete_cnt
+		FROM (
+			SELECT rs.*, <include refid="operationStatSelector"/>
+			FROM (
+				<include refid="operationList"/>
+			) rs
+		) rs
+	</select>
+
+
+	<!-- ==================================== 첨부파일 다운로드 ==================================== -->
+	<!-- ##### 첨부파일 다운로드 통계 조회 쿼리 ##### -->
+	<sql id="fileDownList">
+		SELECT
+			s.site_code,
+			s.site_name AS org_site_name,
+			cc.code_nm AS bbs_type_name,
+			c.*
+		FROM (
+			SELECT c.pt_idx, c.pt_sitecode, c.pt_type, c.pt_title
+			FROM bbs_config c
+			WHERE 1 = 1
+				<include refid="configSearcher"/>
+		) c
+		LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode
+		LEFT JOIN comm_code cc ON cc.code_id = c.pt_type
+		ORDER BY cast(c.pt_idx AS UNSIGNED) DESC
+	</sql>
+	<sql id="fileDownStatSelector">
+		(CASE WHEN rs.org_site_name IS NULL THEN '공통' ELSE rs.org_site_name END) AS site_name,
+		rs.pt_title AS config_name,
+		(
+			SELECT ifnull(SUM(cnt), 0)
+			FROM (
+				SELECT b.pt_idx, s.cnt, DATE_FORMAT(CONCAT(s.s_year , '-' , s.s_month , '-' , s.s_day , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AS dt, is_del
+				FROM bbs_board b
+				INNER JOIN comtnfile_stat s ON s.atch_file_id = b.attach_id
+				WHERE b.attach_id IS NOT NULL
+			) b
+			WHERE 1 = 1 AND b.pt_idx = rs.pt_idx
+				<include refid="periodSearcher"/>
+		) AS down_cnt
+	</sql>
+	<!-- ##### 전체 게시판 건수 ##### -->
+	<select id="getFileDownStatTotalCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsFileDownStatVO" resultType="int">
+		SELECT COUNT(c.pt_idx)
+		FROM (
+			SELECT c.pt_idx, c.pt_sitecode, c.pt_type, c.pt_title
+			FROM bbs_config c
+			WHERE 1 = 1
+				<include refid="configSearcher"/>
+		) c
+		LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode
+		LEFT JOIN comm_code cc ON cc.code_id = c.pt_type
+	</select>
+	<!-- ##### 게시글 등록/삭제/수정/조회 통계 목록 ##### -->
+	<select id="getFileDownStatList" parameterType="egovframework.portal.sys.bbs.vo.BbsFileDownStatVO" resultMap="fileDownMap">
+		SELECT rs.*, <include refid="fileDownStatSelector"/>
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				<include refid="fileDownList"/>
+			) rs, (SELECT @rownum :=0) AS R
+		) rs
+		WHERE rs.rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- ##### 게시글 등록/삭제/수정/조회 통계 전체 합계 ##### -->
+	<select id="getFileDownStatSnippet" parameterType="egovframework.portal.sys.bbs.vo.BbsFileDownStatVO" resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		SELECT SUM(down_cnt) AS sum_down_cnt
+		FROM (
+			SELECT rs.*, <include refid="fileDownStatSelector"/>
+			FROM (
+				<include refid="fileDownList"/>
+			) rs
+		) rs
+	</select>
+	<!-- ##### 게시글 등록/삭제/수정/조회 통계 전체 목록 ##### -->
+	<select id="getFileDownStatListAsMap" parameterType="egovframework.portal.sys.bbs.vo.BbsFileDownStatVO" resultType="HashMap">
+		SELECT rs.*, <include refid="fileDownStatSelector"/>
+		FROM (
+			<include refid="fileDownList"/>
+		) rs
+	</select>
+
+</mapper>

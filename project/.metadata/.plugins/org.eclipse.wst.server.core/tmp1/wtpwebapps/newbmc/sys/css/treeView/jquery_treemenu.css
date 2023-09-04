@@ -1,0 +1,72 @@
+@CHARSET "UTF-8";
+
+.ctltree_wrap {overflow:hidden;  padding:10px 15px 0 0; height:20px;}
+
+.treeview, .treeview ul { 
+	overflow:hiddne;
+	padding: 0;
+	margin: 0;
+	list-style: none;
+	width:99%;	
+}
+
+.treeview ul {
+	background-color: white;
+	margin-top: 4px;
+}
+
+.treeview .plus {
+	background: url(../../img/treeView/treeview-default.png) -64px -25px no-repeat;
+	height: 16px;
+	width: 31px;
+	margin-left: -31px;
+	float: left;
+	cursor: pointer;
+}
+/* fix for IE6 */
+* html .plus {
+	display: inline;
+	float:none;
+}
+.treeview li { 
+	margin: 0;
+	padding: 2px 0px 2px 31px;
+}
+.treeview a.selected {
+	background-color: #eee;
+}
+
+#treecontrol { margin: 1em 0; display: none; }
+
+.treeview li a{display:inline-block;}
+.treeview li a:hover{ background:#c0d2ec;}
+
+.treeview li { background: url(../../img/treeView/treeview-default-line.gif) 0 0 no-repeat; }
+.treeview li.collapsable, .treeview li.expandable { background-position: 0 -176px; }
+
+.treeview .expandable-plus { background-position: -80px -3px; }
+
+.treeview li.base { background: url(../../img/treeView/base.gif) 0 0 no-repeat; position:0 0 0 30px;}
+.treeview li span.base1 { margin-left:-13px; }
+.treeview li.last { background-position: 0 -1766px }
+.treeview li.flast { background-position: 0 -103px }
+.treeview li span.list { margin-left:-13px; padding-left:14px; background: url(../../img/treeView/list_01.png) 0 0 no-repeat; }
+
+.treeview li.lastCollapsable, .treeview li.lastExpandable { background: url(../../img/treeView/treeview-default.png); }  
+.treeview li.lastCollapsable { background-position: 0 -111px }
+.treeview li.lastExpandable { background-position: -31px -67px }
+
+.treeview div.lastCollapsable-plus, .treeview div.lastExpandable-plus { background-position: 0; }
+
+.treeview .placeholder {
+	background: url(../../img/treeView/ajax-loader.gif) 0 0 no-repeat;
+	height: 16px;
+	width: 16px;
+	display: block;
+}
+
+.filetree li { padding: 3px 0 2px 31px; }
+.filetree span.folder, .filetree span.file { padding: 1px 0 1px 16px; display: block; }
+.filetree span.folder { background: url(../../img/treeView/folder.gif) 0 0 no-repeat; }
+.filetree li.expandable span.folder { background: url(../../img/treeView/folder-closed.gif) 0 0 no-repeat; }
+.filetree span.file { background: url(../../img/treeView/file.gif) 0 0 no-repeat; }

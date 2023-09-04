@@ -1,0 +1,110 @@
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" entityID="SITE-IDÀÔ·Â" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:saml="urn:oasis:names:tc:SAML:2.0:assertion" xmlns:xenc="http://www.w3.org/2001/04/xmlenc#" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+	<SPSSODescriptor AuthnRequestsSigned="true" protocolSupportEnumeration="urn:oasis:names:tc:SAML:2.0:protocol" WantAssertionsSigned="true">
+		<KeyDescriptor use="signing">
+			<ds:KeyInfo>
+				<ds:X509Data>
+					<ds:X509Certificate>
+MIID5jCCAs6gAwIBAgIQQ/E0PwEZSHAOOTL/u+ekqzANBgkqhkiG9w0BAQUFADBQMQswCQYDVQQG
+EwJLUjEcMBoGA1UEChMTR292ZXJubWVudCBvZiBLb3JlYTENMAsGA1UECxMER1BLSTEUMBIGA1UE
+AxMLQ0ExMzEwMDAwMDEwHhcNMDYwMjE0MDEzNzAzWhcNMDgwNTE0MDEzNzAzWjBdMQswCQYDVQQG
+EwJLUjEcMBoGA1UECgwTR292ZXJubWVudCBvZiBLb3JlYTEYMBYGA1UECwwPR3JvdXAgb2YgU2Vy
+dmVyMRYwFAYDVQQDDA1TVlIxMzEwMTAxMDEwMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgFxY
+3ZCJmJf1zTGH+2GopOmSNJOEeTEmkBUd7a7DQ/w4efGLQWBVzH3RkaDxsniRsUGa7u8FBUdqAtQ0
+Mf3EGkIU74UKYcCkOBvD8b5i+4GO8ox8R2ywd7hGPhyiOuymQ4M9FviYSi/Fks4Nr9VTyNfTqTkL
+Q2vBMI6nu2xhZP4RAgMBAAGjggEyMIIBLjAfBgNVHSMEGDAWgBQBzxeuBI2HzLdVC3Fsa0ic5rGy
+lTAdBgNVHQ4EFgQU0f9rFjM2/6UEPHbKorvtfifzmCwwDgYDVR0PAQH/BAQDAgUgMBgGA1UdIAQR
+MA8wDQYJKoMaho0hAgECMAAwgYkGA1UdHwSBgTB/MH2ge6B5hndsZGFwOi8vbGRhcC5nY2MuZ28u
+a3I6Mzg5L2NuPWNybDAwMDUsY249Q0ExMzEwMDAwMDEsb3U9R1BLSSxvPUdvdmVybm1lbnQgb2Yg
+S29yZWEsYz1LUj9jZXJ0aWZpY2F0ZVJldm9jYXRpb25saXN0O2JpbmFyeTA2BggrBgEFBQcBAQQq
+MCgwJgYIKwYBBQUHMAGGGmh0dHA6Ly9ndmEuZ3BraS5nby5rcjo4MDgwMA0GCSqGSIb3DQEBBQUA
+A4IBAQAgi9uuW3XQYzXZvSTyKBgpkDh+I3RFtowO0K394HAtey/VxKhYvY0uG0c0IeJ7C2i16yZn
+yRe9aGyBs/exTW7raTC6in3JfvCOSpDEk4z6QmKadeBXC+KJek/+E/TC2zKnROYRM1C/QSvQpY/A
+eZgRt7k6djPm+DCF4EtcEL2eJhdOsn+0y7xxFWeocyIur0Y5dmop6Yv49GvovrnsuTYXeIUK7MaH
+3R6N2MirCJa5/AMvwifBX9Tlvxw6FZsFZI96IzjYSh2FJEpqBQYLR6jVsmPD18WHiG1IMO3sBnjJ
+r/MPLbV+ytoJkTHuDPPu0H0K6miCxyTjtB3YOATts6wp
+					</ds:X509Certificate>
+				</ds:X509Data>
+			</ds:KeyInfo>
+		</KeyDescriptor>
+		<KeyDescriptor use="encryption">
+			<ds:KeyInfo>
+				<ds:X509Data>
+					<ds:X509Certificate>
+MIID5jCCAs6gAwIBAgIQQ/E0PwEZSHAOOTL/u+ekqzANBgkqhkiG9w0BAQUFADBQMQswCQYDVQQG
+EwJLUjEcMBoGA1UEChMTR292ZXJubWVudCBvZiBLb3JlYTENMAsGA1UECxMER1BLSTEUMBIGA1UE
+AxMLQ0ExMzEwMDAwMDEwHhcNMDYwMjE0MDEzNzAzWhcNMDgwNTE0MDEzNzAzWjBdMQswCQYDVQQG
+EwJLUjEcMBoGA1UECgwTR292ZXJubWVudCBvZiBLb3JlYTEYMBYGA1UECwwPR3JvdXAgb2YgU2Vy
+dmVyMRYwFAYDVQQDDA1TVlIxMzEwMTAxMDEwMIGeMA0GCSqGSIb3DQEBAQUAA4GMADCBiAKBgFxY
+3ZCJmJf1zTGH+2GopOmSNJOEeTEmkBUd7a7DQ/w4efGLQWBVzH3RkaDxsniRsUGa7u8FBUdqAtQ0
+Mf3EGkIU74UKYcCkOBvD8b5i+4GO8ox8R2ywd7hGPhyiOuymQ4M9FviYSi/Fks4Nr9VTyNfTqTkL
+Q2vBMI6nu2xhZP4RAgMBAAGjggEyMIIBLjAfBgNVHSMEGDAWgBQBzxeuBI2HzLdVC3Fsa0ic5rGy
+lTAdBgNVHQ4EFgQU0f9rFjM2/6UEPHbKorvtfifzmCwwDgYDVR0PAQH/BAQDAgUgMBgGA1UdIAQR
+MA8wDQYJKoMaho0hAgECMAAwgYkGA1UdHwSBgTB/MH2ge6B5hndsZGFwOi8vbGRhcC5nY2MuZ28u
+a3I6Mzg5L2NuPWNybDAwMDUsY249Q0ExMzEwMDAwMDEsb3U9R1BLSSxvPUdvdmVybm1lbnQgb2Yg
+S29yZWEsYz1LUj9jZXJ0aWZpY2F0ZVJldm9jYXRpb25saXN0O2JpbmFyeTA2BggrBgEFBQcBAQQq
+MCgwJgYIKwYBBQUHMAGGGmh0dHA6Ly9ndmEuZ3BraS5nby5rcjo4MDgwMA0GCSqGSIb3DQEBBQUA
+A4IBAQAgi9uuW3XQYzXZvSTyKBgpkDh+I3RFtowO0K394HAtey/VxKhYvY0uG0c0IeJ7C2i16yZn
+yRe9aGyBs/exTW7raTC6in3JfvCOSpDEk4z6QmKadeBXC+KJek/+E/TC2zKnROYRM1C/QSvQpY/A
+eZgRt7k6djPm+DCF4EtcEL2eJhdOsn+0y7xxFWeocyIur0Y5dmop6Yv49GvovrnsuTYXeIUK7MaH
+3R6N2MirCJa5/AMvwifBX9Tlvxw6FZsFZI96IzjYSh2FJEpqBQYLR6jVsmPD18WHiG1IMO3sBnjJ
+r/MPLbV+ytoJkTHuDPPu0H0K6miCxyTjtB3YOATts6wp
+					</ds:X509Certificate>
+				</ds:X509Data>
+			</ds:KeyInfo>
+			<EncryptionMethod Algorithm="http://www.w3.org/2001/04/xmlenc#rsa-1_5"/>
+		</KeyDescriptor>
+		<ArtifactResolutionService isDefault="true" index="0" Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="NoUse"/>
+		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="NoUse" ResponseLocation="NoUse"/>
+		<SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="NoUse" ResponseLocation="NoUse"/>
+		<ManageNameIDService Binding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Location="NoUse" ResponseLocation="NoUse"/>
+		<ManageNameIDService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="NoUse" ResponseLocation="NoUse"/>
+		<NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+		<!--AssertionConsumerService isDefault="true" index="0" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Artifact" Location="$assertionConsumerLocation"/-->
+		<AssertionConsumerService isDefault="true" index="0" Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="$assertionConsumerLocation"/>
+		<AssertionConsumerService index="1" Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="$assertionConsumerLocation"/>
+		<AssertionConsumerService index="1" Binding="urn:oasis:names:tc:SAML:2.0:bindings:PAOS" Location="$assertionConsumerLocation"/>
+	
+		<AttributeConsumingService index="0" isDefault="true">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="DEFAULT_INFO"/>
+		</AttributeConsumingService>
+		<AttributeConsumingService index="1">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="idn"/>
+		</AttributeConsumingService>
+		<AttributeConsumingService index="2">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="sex"/>
+		</AttributeConsumingService>
+		<AttributeConsumingService index="3">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="idn"/>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="sex"/>
+		</AttributeConsumingService>
+		<AttributeConsumingService index="4">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="birth"/>
+		</AttributeConsumingService>
+		<AttributeConsumingService index="5">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="idn"/>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="birth"/>
+		</AttributeConsumingService>
+		<AttributeConsumingService index="6">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="sex"/>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="birth"/>
+		</AttributeConsumingService>
+		<AttributeConsumingService index="7">
+			<ServiceName xml:lang="en">Provide Attributes</ServiceName>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="idn"/>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="sex"/>
+			<RequestedAttribute NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:uri" Name="birth"/>
+		</AttributeConsumingService>
+	</SPSSODescriptor>
+	<Organization>
+		<OrganizationName xml:lang="en">NoUse</OrganizationName>
+		<OrganizationDisplayName xml:lang="en">NoUse</OrganizationDisplayName>
+		<OrganizationURL xml:lang="en">NoUse</OrganizationURL>
+	</Organization>
+</EntityDescriptor>

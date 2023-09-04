@@ -1,0 +1,61 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.common.mapper.YHDCalendarMapper">
+
+	<sql id="searchConditions">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(category)">
+			AND cr.col_category = #{category}
+		</if>
+		<if test="#fn = isNotBlank, #fn(category2)">
+			AND cr.col_category2 = #{category2}
+		</if>
+	</sql>
+
+
+	<select id="getMonthlyDataListCall" statementType="CALLABLE">
+        {
+        	CALL generate_series(#{start},#{end},'INTERVAL 1 day')
+        }
+    </select>
+
+	<!-- ##### 월별 일정 목록 ##### -->
+	<select id="getMonthlyDataList" resultType="java.util.HashMap">
+		SELECT cd.series AS start,
+			cd.series AS end,
+			(CASE WHEN COUNT(cr.idx) > 0 THEN CONCAT(COUNT(cr.idx) , '') ELSE '0' END) AS title,
+			'javascript:void(0)' AS url
+		FROM series_tmp cd, ${tableInfo.colTableName} cr
+		WHERE is_del = 'N'
+			AND cd.series BETWEEN cr.${tableInfo.colSdayKey} and cr.${tableInfo.colEdayKey}
+			<include refid="searchConditions" />
+		GROUP BY cd.series
+		ORDER BY cd.series
+	</select>
+	<!-- ##### 일별 일정 목록 ##### -->
+	<select id="getDailyDataList" resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		<include refid="s.funcs"/>
+
+		SELECT *
+		FROM ${tableInfo.colTableName} cr
+		WHERE is_del = 'N'
+			AND DATE_FORMAT(#{start}, '%Y-%m-%d') BETWEEN DATE_FORMAT(cr.${tableInfo.colSdayKey}, '%Y-%m-%d')
+			AND DATE_FORMAT(cr.${tableInfo.colEdayKey}, '%Y-%m-%d')
+			<include refid="searchConditions" />
+		ORDER BY
+			<if test="#fn = isBlank, #fn(tableInfo.colOrderKey)">
+				cr.idx
+			</if>
+			<if test="#fn = isNotBlank, #fn(tableInfo.colOrderKey)">
+				${tableInfo.colOrderKey}
+			</if>
+	</select>
+	<!-- ##### 캘린더 마스터 정보 상세 ##### -->
+	<select id="getTableInfo" resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		SELECT *
+		FROM dmt_yhd_calendar
+		WHERE is_del = 'N' AND col_key_url = #{urlKey}
+	</select>
+
+</mapper>

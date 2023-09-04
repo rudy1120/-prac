@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<!-- ================================== 메뉴 관리 ================================== -->
+
+		<!-- 메뉴관리 -->
+		<definition name="/sys/totalAdminMng/menuMng/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuMng/list.jsp" />
+		</definition>
+		<!-- 메뉴점검목록관리 -->
+		<definition name="/sys/totalAdminMng/menuMng/checkList" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuMng/checkList.jsp" />
+		</definition>
+		<!-- 관리메뉴관리 -->
+		<definition name="/sys/totalAdminMng/menuSysMng/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuSysMng/list.jsp" />
+		</definition>
+		<!-- 개인정보취급메뉴 목록 -->
+		<definition name="/sys/totalAdminMng/menuSysMng/privacy/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuSysMng/privacy/list.jsp" />
+		</definition>
+		<!-- 게시판선택 목록 -->
+		<definition name="/sys/totalAdminMng/menuMng/menuInBbsList" extends="sysEmpty">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuMng/bbsList.jsp" />
+		</definition>
+		<!-- CMS로 메뉴 보내기 -->
+		<definition name="/sys/totalAdminMng/menuMng/sendMenuList" extends="sysEmpty">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuMng/sendMenuList.jsp" />
+		</definition>
+		<!-- 메뉴 엑셀 업로드 -->
+		<definition name="/sys/totalAdminMng/menuMng/uploadExcel" extends="sysEmpty">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuMng/uploadExcel.jsp" />
+		</definition>
+		<!-- 마이페이지 -->
+		<definition name="/sys/totalAdminMng/myPage/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/mypage/list.jsp" />
+		</definition>
+		<definition name="/sys/totalAdminMng/myPage/ackList" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/mypage/ackList.jsp" />
+		</definition>
+		<!-- 메뉴 상태 체크 -->
+		<definition name="/sys/totalAdminMng/menuMng/status" extends="sysEmpty">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuMng/status.jsp" />
+		</definition>
+		<!-- 직원업무관리(선택용 리스트) -->
+		<definition name="/sys/totalAdminMng/menuMng/staff/listChoice" extends="sysEmpty">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/menuMng/staff/listChoice.jsp" />
+		</definition>
+
+	<!-- ================================== 사이트 관리 ================================== -->
+
+		<!-- 사이트 목록 -->
+		<definition name="/sys/totalAdminMng/siteMng/list" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/siteMng/list.jsp" />
+		</definition>
+		<!-- 사이트 상세보기 -->
+		<definition name="/sys/totalAdminMng/siteMng/view" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/siteMng/view.jsp" />
+		</definition>
+		<!-- 사이트 등록 -->
+		<definition name="/sys/totalAdminMng/siteMng/insert" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/siteMng/insert.jsp" />
+		</definition>
+		<!-- 사이트 수정 -->
+		<definition name="/sys/totalAdminMng/siteMng/modify" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/siteMng/modify.jsp" />
+		</definition>
+
+		<!-- CMS로 보낼 사이트 선택 화면 -->
+		<definition name="/sys/totalAdminMng/siteMng/sendSiteList" extends="sysEmpty">
+			<put-attribute name="body" value="/sys/jsp/totalAdminMng/siteMng/sendSiteList.jsp" />
+		</definition>
+
+	<!-- ================================== QR코드 관리 ================================== -->
+
+		<definition name="/sys/qrcode/qrcodeList" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/qrcode/qrcodeList.jsp" />
+		</definition>
+		<definition name="/sys/qrcode/qrcodeDetail" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/qrcode/qrcodeDetail.jsp" />
+		</definition>
+		<definition name="/sys/qrcode/qrcodeInsert" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/qrcode/qrcodeInsert.jsp" />
+		</definition>
+		<definition name="/sys/qrcode/qrcodeUpdate" extends="sysSub">
+			<put-attribute name="body" value="/sys/jsp/qrcode/qrcodeUpdate.jsp" />
+		</definition>
+		<definition name="/sys/qrcode/qrcodePreview" extends="sysEmpty">
+			<put-attribute name="body" value="/sys/jsp/qrcode/qrcodePreview.jsp" />
+		</definition>
+
+	<!-- ================================== ETC ================================== -->
+		<definition name="/sys/hrefCheck" template="/sys/jsp/tools/href.jsp" />
+		<definition name="/sys/menu" template="/sys/jsp/tools/menu.jsp" />
+		<definition name="/sys/wa" template="/sys/jsp/tools/wa.jsp" />
+
+</tiles-definitions>

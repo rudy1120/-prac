@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.MenuMng.mapper.SysMenuMngMapper">
+	<cache eviction="LRU" flushInterval="600000" size="512" readOnly="false"/>
+
+	<resultMap id="sysMenuMap" type="egovframework.portal.sys.content.vo.SysMenuVO">
+		<result property="idx" column="IDX"/>
+		<result property="mId" column="MID"/>
+		<result property="menuName" column="MENU_NAME"/>
+		<result property="programUrl" column="PROGRAM_URL"/>
+		<result property="target" column="TARGET"/>
+		<result property="isUse" column="IS_USE"/>
+		<result property="parentIdx" column="PARENT_IDX"/>
+		<result property="menuOrder" column="MENU_ORDER"/>
+		<result property="menuLevel" column="MENU_LEVEL"/>
+		<result property="siteCode" column="SITE_CODE"/>
+		<result property="regDt" column="REG_DT"/>
+		<result property="modDt" column="MOD_DT"/>
+		<result property="accessLevelCode" column="ACCESS_LEVEL_CODE"/>
+		<result property="privacyDataYn" column="privacy_data_yn"/>
+	</resultMap>
+	<resultMap id="map_sysMenuVO" extends="sysMenuMap" type="egovframework.portal.sys.content.vo.SysMenuVO">
+		<result property="menuOrderCode" column="MENU_ORDER_CODE"/>
+	</resultMap>
+
+	<select id="getMenuList" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultMap="map_sysMenuVO">
+		select IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT, ACCESS_LEVEL_CODE, MENU_ORDER_CODE,PRIVACY_DATA_YN
+		from sys_menu
+		where is_use = 'Y'
+		order by MENU_ORDER_CODE , MENU_ORDER
+	</select>
+	<select id="getMenu" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultMap="map_sysMenuVO">
+		SELECT IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT,ACCESS_LEVEL_CODE, MENU_ORDER_CODE,PRIVACY_DATA_YN
+		FROM sys_menu
+		WHERE MID = #{mId}
+	</select>
+	<select id="getMaxMid" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultType="String">
+		select max(MID) as MAX_MID
+		from sys_menu
+		where  MID like CONCAT(#{mId},'%') and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getMenuNextSeq" resultType="int">
+		select max(idx+1) from sys_menu
+	</select>
+	<select id="getMenuNextMenuOrder" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultType="int">
+		select ifnull(max(MENU_ORDER),0)+1 as NEXT_MENU_ORDER from sys_menu t
+		where  MID like CONCAT(#{mId},'%') and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getMenuNextParentIdx" resultType="int">
+		select IDX AS PARENT_IDX from sys_menu t
+		where MID like CONCAT(#{mId},'%') and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getNextMenuOrderCode" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultType="String">
+		select '0' || date_format(cast(max(MENU_ORDER_CODE) AS UNSIGNED) + cast(#{addNextValue} AS UNSIGNED)) as NEXT_MENU_ORDER_CODE
+		from sys_menu t
+		where MID like CONCAT(#{mId},'%')
+		and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getMoveMenuDownTarget" parameterType="java.util.HashMap" resultType="String">
+		select '0' || date_format(cast(MENU_ORDER_CODE AS UNSIGNED) - cast(#{moveDepth} AS UNSIGNED))
+		from sys_menu
+		where MENU_ORDER_CODE LIKE CONCAT(#{moveMenuOrderCode},'%')
+			and MID LIKE CONCAT(#{moveMid},'%')
+			limit 1
+	</select>
+	<select id="getUpMenu" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultMap="map_sysMenuVO ">
+	<![CDATA[
+		select * from (
+			select IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT, ACCESS_LEVEL_CODE , MENU_ORDER_CODE,PRIVACY_DATA_YN
+				from sys_menu
+			where parent_idx=#{parentIdx}
+				and menu_order_code < #{menuOrderCode}
+			order by menu_order_code desc
+		) RES limit 1
+	]]>
+	</select>
+	<select id="getDownMenu" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultMap="map_sysMenuVO ">
+		select * from (
+			select IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT, ACCESS_LEVEL_CODE , MENU_ORDER_CODE,PRIVACY_DATA_YN
+			from sys_menu
+			where parent_idx=#{parentIdx}
+				and menu_order_code > #{menuOrderCode}
+			order by menu_order_code
+		) RES limit 1
+	</select>
+	<select id="getMoveMenuTarget" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultMap="map_sysMenuVO ">
+		select IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT, ACCESS_LEVEL_CODE , MENU_ORDER_CODE,PRIVACY_DATA_YN
+		from sys_menu
+		where MENU_ORDER_CODE = #{menuOrderCode}
+	</select>
+	<select id="chkDownLevelMenu" parameterType="java.util.HashMap" resultType="int">
+		select COUNT(*) AS RESULT
+		from sys_menu
+		where MENU_LEVEL = #{menuLevel}
+			and MENU_ORDER_CODE like CONCAT(#{moveMenuOrderCode},'%')
+	</select>
+	<select id="getMoveMenuUpTarget" parameterType="java.util.HashMap" resultType="String">
+		select '0' || date_format(cast(MENU_ORDER_CODE AS UNSIGNED) + cast(#{moveDepth} AS UNSIGNED))
+		from sys_menu
+		where MENU_ORDER_CODE LIKE CONCAT(#{moveMenuOrderCode},'%')
+			and MID LIKE CONCAT(#{moveMid},'%')
+			limit 1
+	</select>
+	<select id="getMinMenuOrderCode" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultType="String">
+		select min(MENU_ORDER_CODE)
+		from sys_menu
+		where MENU_ORDER_CODE LIKE CONCAT(#{menuOrderCode},'%')
+			and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getMaxMenuOrderCode" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultType="String">
+		select max(MENU_ORDER_CODE)
+		from sys_menu
+		where MENU_ORDER_CODE LIKE CONCAT(#{menuOrderCode},'%')
+			and MENU_LEVEL = #{menuLevel}
+	</select>
+
+<!-- usecache="false" flushCache="true" -->
+	<insert id="insertMenu" flushCache="true">
+		insert into sys_menu (
+			IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT, ACCESS_LEVEL_CODE, MENU_ORDER_CODE, PRIVACY_DATA_YN
+		) values (
+			#{idx},#{mId}, #{menuName}, #{programUrl}, #{target}, #{isUse}, #{parentIdx}, #{menuOrder}, #{menuLevel}, #{siteCode, jdbcType=VARCHAR}, NOW(),null,#{accessLevelCode},#{menuOrderCode}, #{privacyDataYn}
+		)
+	</insert>
+
+	<update id="updateMenu" flushCache="true">
+		update sys_menu
+		set MENU_NAME 		= #{menuName}
+			, PROGRAM_URL 	= #{programUrl}
+			, TARGET 		= #{target}
+			, IS_USE 		= #{isUse}
+			, ACCESS_LEVEL_CODE = #{accessLevelCode}
+			, PRIVACY_DATA_YN = #{privacyDataYn}
+			, MOD_DT 		= NOW()
+		where MID = #{mId}
+	</update>
+	<update id="moveMenuUp" flushCache="true">
+		update sys_menu
+		set MENU_ORDER_CODE = '0' || date_format(cast(MENU_ORDER_CODE AS UNSIGNED) - cast(#{moveDepth} AS UNSIGNED))
+		where MENU_ORDER_CODE LIKE CONCAT(#{moveMenuOrderCode},'%')
+			and MID LIKE CONCAT(#{moveMid},'%')
+	</update>
+	<update id="moveMenuDown" flushCache="true">
+		update sys_menu
+		set MENU_ORDER_CODE = '0' || date_format(cast(MENU_ORDER_CODE AS UNSIGNED) + cast(#{moveDepth} AS UNSIGNED))
+		where MENU_ORDER_CODE LIKE CONCAT(#{moveMenuOrderCode},'%')
+			and MID LIKE CONCAT(#{moveMid},'%')
+	</update>
+	<update id="moveDownLevelMenuUp" flushCache="true">
+		update sys_menu
+		set MENU_ORDER_CODE = '0' || date_format(cast(MENU_ORDER_CODE AS UNSIGNED) - cast(#{moveDepth} AS UNSIGNED))
+		where MENU_ORDER_CODE LIKE CONCAT(#{moveMenuOrderCode},'%')
+			and MENU_LEVEL = #{menuLevel}
+	</update>
+	<update id="moveDownLevelMenuDown" flushCache="true">
+		update sys_menu
+		set MENU_ORDER_CODE = '0' || date_format(cast(MENU_ORDER_CODE AS UNSIGNED) + cast(#{moveDepth} AS UNSIGNED))
+		where MENU_ORDER_CODE LIKE CONCAT(#{moveMenuOrderCode},'%')
+			and MENU_LEVEL = #{menuLevel}
+	</update>
+
+
+	<delete id="deleteMenu" flushCache="true">
+		delete from sys_menu where MID like CONCAT(#{mId},'%')
+	</delete>
+
+	<select id="getSysMenuParent" resultMap="sysMenuMap">
+		select
+			a.IDX, a.MID, a.MENU_NAME, a.PROGRAM_URL, a.TARGET, a.IS_USE, a.PARENT_IDX, a.MENU_ORDER, a.MENU_LEVEL, a.SITE_CODE, a.REG_DT, a.MOD_DT,a.ACCESS_LEVEL_CODE
+			, a.PRIVACY_DATA_YN
+		from sys_menu a
+		left join sys_menu b on a.idx=b.parent_idx
+		where b.mid=#{mId}
+	</select>
+	<select id="getSysMenuList" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultMap="sysMenuMap">
+		SELECT IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT,ACCESS_LEVEL_CODE,PRIVACY_DATA_YN
+		FROM sys_menu
+		WHERE IS_USE = 'Y'
+			${searchQuery}
+		ORDER BY MENU_ORDER_CODE,MENU_ORDER
+	</select>
+	<select id="getSysCurMid" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultType="String">
+		select * from (
+			SELECT MID FROM sys_menu
+			WHERE MID like CONCAT(#{mId},'%')
+				AND IS_USE = 'Y'
+				AND MENU_LEVEL IN (2, 3)
+			ORDER BY MID , MENU_ORDER
+		) RES limit 1
+	</select>
+
+	<select id="getSysMenuVO" parameterType="egovframework.portal.sys.content.vo.SysMenuVO" resultMap="sysMenuMap">
+		SELECT
+			IDX, MID, MENU_NAME, PROGRAM_URL, TARGET, IS_USE, PARENT_IDX, MENU_ORDER, MENU_LEVEL, SITE_CODE, REG_DT, MOD_DT,ACCESS_LEVEL_CODE,PRIVACY_DATA_YN
+		FROM sys_menu
+		WHERE MID = #{mId} AND IS_USE = 'Y'
+		ORDER BY MID , MENU_ORDER
+	</select>
+
+</mapper>

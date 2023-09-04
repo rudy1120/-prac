@@ -1,0 +1,709 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.bbs.mapper.BbsMngMapper">
+	<cache/>
+
+	<resultMap id="basicBbsMap" type="egovframework.portal.sys.bbs.vo.BbsMngVO">
+		<result property="bIdx"           column="b_idx"/>
+		<result property="ptIdx"          column="pt_idx"/>
+		<result property="bSame"          column="b_same"/>
+		<result property="bSort"          column="b_sort"/>
+		<result property="bLevel"         column="b_level"/>
+		<result property="bWrite"         column="b_write"/>
+		<result property="writeId"        column="write_id"/>
+		<result property="bPrivatecode"   column="b_privatecode"/>
+		<result property="encPasswd"      column="b_password"/>
+		<result property="bTitle"         column="b_title"/>
+		<result property="bContent"       column="b_content"/>
+		<result property="bCnt"           column="b_cnt"/>
+		<result property="bPhone"         column="b_phone"/>
+		<result property="bCategory"      column="b_category"/>
+		<result property="bDeptNm"        column="b_dept_nm"/>
+		<result property="bDeptGroup"     column="b_dept_group"/>
+		<result property="bAddr1"         column="b_addr1"/>
+		<result property="bAddr2"         column="b_addr2"/>
+		<result property="bReplyAdmin"    column="b_reply_admin"/>
+		<result property="bPublic"        column="b_public"/>
+		<result property="bNotice"        column="b_notice"/>
+		<result property="bMainYn"        column="b_main_yn"/>
+		<result property="bNuriType"      column="b_nuri_type"/>
+		<result property="privacyYn"      column="privacy_yn"/>
+		<result property="optPrivacyYn"   column="opt_privacy_yn"/>
+		<result property="bWriteDeptId"   column="b_write_dept_id"/>
+		<result property="bWriteDeptNm"   column="b_write_dept_nm"/>
+		<result property="bWriteDeptTel"  column="b_write_dept_tel"/>
+		<result property="attachId"       column="attach_id"/>
+		<result property="bHostIp"        column="b_host_ip"/>
+		<result property="bState"         column="b_state"/>
+		<result property="bTermSdate"     column="b_term_sdate"/>
+		<result property="bTermEdate"     column="b_term_edate"/>
+		<result property="bNtermSdate"     column="b_nterm_sdate"/>
+		<result property="bNtermEdate"     column="b_nterm_edate"/>
+		<result property="bClass"     column="b_class"/>
+		<result property="bPlace"     column="b_place"/>
+		<result property="bOrganize"     column="b_organize"/>
+		<result property="bSdate"     column="b_sdate"/>
+		<result property="bStime"     column="b_stime"/>
+		<result property="bEdate"     column="b_edate"/>
+		<result property="bEtime"     column="b_etime"/>
+		<result property="showYn"     column="show_yn"/>
+		<result property="isDel"          column="is_del"/>
+		<result property="createDate"     column="create_date"/>
+		<result property="updateDate"     column="update_date"/>
+		<result property="deleteDate"     column="delete_date"/>
+		<result property="bodFileExt"     column="bod_file_ext"/>
+		<result property="replyCnt"       column="reply_cnt"/>
+		<result property="cmtCnt"         column="cmt_cnt"/>
+		<result property="encPasswd"      column="b_password"/>
+		<result property="smsYN"     	   column="sms_yn"/>
+		<result property="smsSubject"		column="sms_Subject"/>
+		<result property="smsOptions"      column="sms_options"/>
+		<result property="smsMsg"    	   column="sms_msg"/>
+		<result property="trCallback"      column="tr_callback"/>
+		<result property="mainNotice"      column="main_notice"/>
+		<result property="mainOrder"      column="main_order"/>
+		<result property="preIdx"			column="pre_idx"/>
+		<result property="nextIdx"			column="next_idx"/>
+		<result property="rltdDeptNm"		column="rltd_dept_nm"/>
+		<result property="bEnquiry"			column="b_enquiry"/>
+		<result property="bYoutube"			column="b_youtube"/>
+	</resultMap>
+	
+	<resultMap id="bbsViewMap" extends="basicBbsMap" type="egovframework.portal.sys.bbs.vo.BbsMngVO">
+		<result property="fileCnt" column="file_cnt"/>
+	</resultMap>
+
+	<!-- ================================================== ADMIN ================================================== -->
+	<!-- ##### 게시글 목록 ##### -->
+	<select id="getBbsMngNoticeList" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="basicBbsMap">
+		SELECT 	/*+ RULE */ A.*,
+				(SELECT group_concat(FILE_EXTSN) FROM comtnfile_detail WHERE atch_file_id = A.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = A.b_idx AND is_del = 'N') AS reply_cnt,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = A.b_idx) AS cmt_cnt
+		FROM 	bbs_board A
+		WHERE 	1 = 1
+			<include refid="listNoticeSearcher"/>
+			<include refid="listSearcher"/>
+		ORDER BY b_same DESC, b_level, b_sort
+	</select>
+	<select id="getBbsMngCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultType="int">
+		SELECT 	/*+ RULE */ COUNT(*) CNT
+		FROM 	bbs_board
+		WHERE 	1 = 1
+			<include refid="listSearcher"/>
+	</select>
+	<select id="getBbsMngList" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="basicBbsMap">
+		SELECT /*+ RULE */ MA2.*,
+			(SELECT group_concat(file_extsn) FROM comtnfile_detail WHERE atch_file_id = MA2.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+			(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = MA2.b_idx AND is_del = 'N') AS reply_cnt,
+			(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = MA2.b_idx) AS cmt_cnt
+		FROM (
+			SELECT MA.*, @rownum:=@rownum+1 rn
+			FROM (
+				SELECT 	A.*
+				FROM 	bbs_board A
+				WHERE 	1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY b_same DESC, b_level, b_sort
+			) MA, (SELECT @rownum :=0) AS R
+		) MA2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<sql id="listNoticeSearcher">
+		
+		<![CDATA[
+			AND B_NOTICE = 'Y'
+			AND (
+				((B_NTERM_SDATE IS NULL OR B_NTERM_SDATE = '') AND (B_NTERM_EDATE IS NULL OR B_NTERM_EDATE = '')) OR
+				((B_NTERM_SDATE IS NULL OR B_NTERM_SDATE = '') AND B_NTERM_EDATE IS NOT NULL AND NOW() <= DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s')) OR
+				((B_NTERM_EDATE IS NULL OR B_NTERM_EDATE = '') AND B_NTERM_SDATE IS NOT NULL AND NOW() >= DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s')) OR
+				(B_NTERM_SDATE IS NOT NULL AND B_NTERM_EDATE IS NOT NULL AND NOW() BETWEEN DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s'))
+			)
+		]]>
+		
+	</sql>
+	<sql id="listSearcher">
+		<include refid="subListSearcher"/>
+		AND B_IDX >= (SELECT MIN(B_IDX) FROM (
+						SELECT B_IDX FROM (
+							SELECT B_IDX FROM (
+								SELECT B_IDX FROM bbs_board
+								WHERE 1 = 1
+									<include refid="subListSearcher"/>
+								ORDER BY b_same DESC, b_level, b_sort
+							) SR1
+						) SR2
+					) B
+				)
+	</sql>
+	<sql id="subListSearcher">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(ptIdx)">
+			AND PT_IDX = #{ptIdx}
+		</if>
+		<if test="ptIdx == 0">
+			or (pt_idx = 768 or pt_idx = 788 or pt_idx = 769 or pt_idx = 801 or pt_idx = 773 or pt_idx = 770 or pt_idx = 884)
+		</if>
+		<!-- <if test="@egovframework.portal.util.StringUtil@isNotBlank(bNotice)">
+			AND B_NOTICE = #{bNotice}
+		</if> -->
+		<if test="@egovframework.portal.util.StringUtil@isBlank(bNotice)">
+			AND
+			(
+				(b_notice = 'N' OR b_notice IS NULL)
+				<if test="config.ptNtermYn.equalsIgnoreCase('Y')">
+				<![CDATA[
+					OR
+					(
+						B_NOTICE = 'Y' AND
+						(
+							(B_NTERM_SDATE IS NOT NULL OR B_NTERM_EDATE IS NOT NULL) AND
+							(
+								(B_NTERM_SDATE IS NULL AND B_NTERM_EDATE IS NOT NULL AND NOW() > DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s')) OR
+								(B_NTERM_EDATE IS NULL AND B_NTERM_SDATE IS NOT NULL AND NOW() < DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s')) OR
+								(B_NTERM_SDATE IS NOT NULL AND B_NTERM_EDATE IS NOT NULL AND NOW() NOT BETWEEN DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s'))
+							)
+						)
+					)
+				]]>
+				</if>
+			)
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchCategory)">
+			AND B_CATEGORY = #{searchCategory}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchDept)">
+			AND B_DEPT_GROUP = #{searchDept}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			AND ${searchType} LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchDelete)">
+			AND is_del = #{searchDelete}
+		</if>
+		<if test="!config.ptType.equalsIgnoreCase('BRD001') or !config.ptReplyYn.equalsIgnoreCase('Y')">
+			AND b_level = '0'
+		</if>
+	</sql>
+	<!-- ##### 신규 게시글 인덱스 FETCH ##### -->
+	<select id="getBidx" resultType="String">
+		select max(b_idx+1) from bbs_board
+	</select>
+	<!-- ##### 게시글 상세 FETCH ##### -->
+	<select id="getBbsMngView" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="bbsViewMap">
+		SELECT	A.*,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = A.b_idx AND is_del = 'N') AS reply_cnt,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = A.b_idx) AS cmt_cnt,
+				(SELECT COUNT(*) FROM comtnfile_detail WHERE atch_file_id = A.attach_id) AS file_cnt
+		FROM 	bbs_board A
+		WHERE	b_idx = #{bIdx}
+	</select>
+	<!-- ##### 답글 등록을 위해 next bSame값 FETCH ##### -->
+	<select id="getReplyMaxBodSame" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultType="int">
+		SELECT ifnull(MAX(b_sort), 0) AS b_sort FROM bbs_board WHERE b_same = #{bSame}
+	</select>
+	<!-- ##### 민원형 게시글 답변 목록 FETCH ##### -->
+	<select id="getBbsMngReplyList" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO"  resultMap="bbsViewMap">
+		SELECT 	/*+ RULE */ A.*,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = A.b_idx AND is_del = 'N') AS reply_cnt,
+				(SELECT group_concat(file_extsn) FROM comtnfile_detail WHERE atch_file_id = A.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = A.b_idx) AS cmt_cnt,
+				(SELECT COUNT(*) FROM comtnfile_detail WHERE atch_file_id = A.attach_id) AS file_cnt
+		FROM 	bbs_board A
+		WHERE 	<include refid="replyListSearcher"/>
+		ORDER BY b_sort
+	</select>
+	<select id="getReplyCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultType="int">
+		SELECT 	COUNT(*) CNT
+		FROM 	bbs_board
+		WHERE 	<include refid="replyListSearcher"/>
+	</select>
+	<sql id="replyListSearcher">
+			b_same = #{bIdx}
+		AND b_level != 0
+		AND is_del = 'N'
+	</sql>
+
+
+
+	<!-- ################## INSERT/UPDATE/DELETE ################## -->
+	<!-- ##### 게시글 등록(관리자) ##### -->
+	<!-- ##### 2019.09.23 문자관련 컬럼 추가 by SM ##### -->
+	<!-- ##### 2019.11.27 메인공지관련 컬럼 추가 by SH ##### -->
+	<insert id="insertBbsMng" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		INSERT INTO bbs_board (
+			b_idx, pt_idx, b_same, b_write, write_id, b_password,
+			b_title, b_content, b_phone, b_category, b_dept_nm, b_dept_group, b_addr1, b_addr2,
+			b_public, b_notice, b_main_yn, b_nuri_type,
+			b_write_dept_id, b_write_dept_nm, b_write_dept_tel, attach_id, b_host_ip, b_term_sdate, b_term_edate, b_nterm_sdate, b_nterm_edate,
+			b_class, b_place, b_organize, b_sdate, b_stime, b_edate, b_etime, show_yn, sms_yn, sms_options, sms_msg, tr_callback,
+			main_notice, main_order, sms_subject,update_date, rltd_dept_nm, b_enquiry, b_youtube
+		) VALUES (
+			#{bIdx}, #{ptIdx}, #{bSame}, #{bWrite}, #{writeId}, #{encPasswd},
+			#{bTitle}, #{bContent}, #{bPhone}, #{bCategory}, #{bDeptNm}, #{bDeptGroup}, #{bAddr1}, #{bAddr2},
+			#{bPublic}, #{bNotice}, #{bMainYn}, #{bNuriType},
+			#{bWriteDeptId}, #{bWriteDeptNm}, #{bWriteDeptTel}, #{attachId}, #{bHostIp}, #{bTermSdate}, #{bTermEdate}, #{bNtermSdate}, #{bNtermEdate},
+			#{bClass}, #{bPlace}, #{bOrganize}, #{bSdate}, #{bStime}, #{bEdate}, #{bEtime}, #{showYn}, #{smsYN}, #{smsOptions}, #{smsMsg}, #{trCallback},
+			#{mainNotice}, #{mainOrder}, #{smsSubject}, NOW(), #{rltdDeptNm}, #{bEnquiry}, #{bYoutube}
+		)
+	</insert>
+	<!-- ##### 답변/답글 등록(관리자) ##### -->
+	<insert id="replyInsertBbsMng" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		INSERT INTO bbs_board (
+			b_idx, pt_idx, b_same, b_sort, b_level, b_write, write_id, b_password,
+			b_title, b_content, b_phone, b_category, b_dept_nm, b_dept_group, b_addr1, b_addr2,
+			b_reply_admin, b_public, b_nuri_type,
+			b_write_dept_nm, b_write_dept_tel, attach_id, b_host_ip
+		) VALUES (
+			#{bIdx}, #{ptIdx}, #{bSame}, #{bSort}, #{bLevel}, #{bWrite}, #{writeId}, #{encPasswd},
+			#{bTitle}, #{bContent}, #{bPhone}, #{bCategory}, #{bDeptNm}, #{bDeptGroup}, #{bAddr1}, #{bAddr2},
+			'Y', 'N', #{bNuriType},
+			#{bWriteDeptNm}, #{bWriteDeptTel}, #{attachId}, #{bHostIp}
+		)
+	</insert>
+	<!-- ##### 게시글 수정(관리자) ##### -->
+	<update id="updateBbsMng" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		UPDATE 	bbs_board
+		SET b_title 			= #{bTitle},
+			b_content 			= #{bContent},
+			b_phone 			= #{bPhone},
+			b_category 			= #{bCategory},
+			b_dept_nm 			= #{bDeptNm},
+			b_dept_group 		= #{bDeptGroup},
+			b_addr1 			= #{bAddr1},
+			b_addr2 			= #{bAddr2},
+			b_public 			= #{bPublic},
+			b_notice 			= #{bNotice},
+			b_main_yn 			= #{bMainYn},
+			b_nuri_type 		= #{bNuriType},
+			b_write_dept_id 	= #{bWriteDeptId},
+			b_write_dept_nm 	= #{bWriteDeptNm},
+			b_write_dept_tel	= #{bWriteDeptTel},
+			attach_id 			= #{attachId},
+			b_host_ip 			= #{bHostIp},
+			b_term_sdate 		= #{bTermSdate},
+			b_term_edate 		= #{bTermEdate},
+			b_nterm_sdate 		= #{bNtermSdate},
+			b_nterm_edate 		= #{bNtermEdate},
+			b_class				= #{bClass},
+			b_place				= #{bPlace},
+			b_organize			= #{bOrganize},
+			b_sdate				= #{bSdate},
+			b_stime				= #{bStime},
+			b_edate				= #{bEdate},
+			b_etime				= #{bEtime},
+			show_yn				= #{showYn},
+			b_state 			= #{bState},
+			update_date 		= NOW(),
+			sms_yn				= #{smsYN}, 
+			sms_subject			= #{smsSubject},
+			sms_options			= #{smsOptions},
+			sms_msg				= #{smsMsg},
+			tr_callback			= #{trCallback},
+			main_notice         = #{mainNotice},
+			main_order          = #{mainOrder},
+			rltd_dept_nm		= #{rltdDeptNm},
+			b_enquiry			= #{bEnquiry},
+			b_youtube			= #{bYoutube}
+			
+		WHERE b_idx = #{bIdx} AND pt_idx = #{ptIdx}
+	</update>
+	<!-- ##### 게시글 삭제(관리자) ##### -->
+	<update id="deleteBbsMng" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		UPDATE bbs_board
+		SET is_del = 'Y',
+			b_state = #{bState},
+			update_date = NOW(),
+			delete_date = NOW()
+		WHERE b_idx = #{bIdx} AND pt_idx = #{ptIdx}
+	</update>
+	<!-- ##### 게시글 이동(관리자) ##### -->
+	<update id="moveBbs" parameterType="hashMap" flushCache="true">
+		UPDATE bbs_board
+		SET pt_idx = #{toPtIdx},
+			b_state = ${@egovframework.portal.sys.bbs.BoardState@MOVED.getCode()}
+		WHERE b_idx = #{bIdx}
+	</update>
+	<!-- ##### 게시글 복원(관리자) ##### -->
+	<update id="reDeleteBbsMng" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		UPDATE bbs_board
+		SET is_del = 'N',
+			b_state = ${@egovframework.portal.sys.bbs.BoardState@RESTORED.getCode()},
+			update_date = NOW()
+		WHERE b_idx = #{bIdx} AND pt_idx = #{ptIdx}
+	</update>
+
+	<!-- ================================================== USER ================================================== -->
+	<!-- ##### 게시글 목록 ##### -->
+	<select id="getBbsNoticeList" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="basicBbsMap">
+		SELECT 	/*+ RULE */ A.*,
+				(SELECT group_concat(FILE_EXTSN) FROM comtnfile_detail WHERE atch_file_id = A.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = A.b_idx AND is_del = 'N') AS reply_cnt,
+				(CASE WHEN date_format(create_date, '%Y%m%d') = date_format(NOW(), '%Y%m%d') THEN 'Y' ELSE 'N' END) AS newmode,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = A.b_idx) AS cmt_cnt
+		FROM 	bbs_board A
+		WHERE 	b_notice = 'Y'
+			<include refid="listNoticeSearcher"/>
+			<include refid="subUserSearchConditions"/>
+		ORDER BY b_same DESC, b_level, b_sort
+	</select>
+	<select id="getBbsCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultType="int">
+		SELECT 	/*+ RULE */ COUNT(*) CNT
+		FROM 	bbs_board
+		WHERE 	1 = 1
+			
+			AND (
+					(b_notice = 'N' OR b_notice IS NULL)
+					
+					<![CDATA[
+						OR
+						(
+							B_NOTICE = 'Y' AND
+							(
+								(B_NTERM_SDATE IS NOT NULL OR B_NTERM_EDATE IS NOT NULL) AND
+								(
+									((B_NTERM_SDATE IS NULL OR B_NTERM_SDATE = '') AND B_NTERM_EDATE IS NOT NULL AND NOW() > DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s')) OR
+									((B_NTERM_EDATE IS NULL OR B_NTERM_EDATE = '') AND B_NTERM_SDATE IS NOT NULL AND NOW() < DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s')) OR
+									(B_NTERM_SDATE IS NOT NULL AND B_NTERM_EDATE IS NOT NULL AND NOW() NOT BETWEEN DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s'))
+								)
+							)
+						)
+					]]>
+					
+			)
+			
+			<include refid="subUserSearchConditions"/>
+	</select>
+	<select id="getBbsList" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="basicBbsMap">
+		SELECT 	/*+ RULE */ MA2.*,
+				(SELECT group_concat(FILE_EXTSN) FROM comtnfile_detail WHERE atch_file_id = MA2.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = MA2.b_idx AND is_del = 'N') AS reply_cnt,
+				(CASE WHEN date_format(create_date, '%Y%m%d') = date_format(NOW(), '%Y%m%d') THEN 'Y' ELSE 'N' END) AS newmode,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = MA2.b_idx AND is_del = 'N') AS cmt_cnt
+		FROM (
+			SELECT MA.*, @rownum:=@rownum+1 RNUM
+			FROM (
+				SELECT 	A.*
+				FROM 	bbs_board A
+				WHERE 	1 = 1
+					
+					AND (
+							(b_notice = 'N' OR b_notice IS NULL)
+							
+							<![CDATA[
+								OR
+								(
+									B_NOTICE = 'Y' AND
+									(
+										(B_NTERM_SDATE IS NOT NULL OR B_NTERM_EDATE IS NOT NULL) AND
+										(
+											((B_NTERM_SDATE IS NULL OR B_NTERM_SDATE = '') AND B_NTERM_EDATE IS NOT NULL AND NOW() > DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s')) OR
+											((B_NTERM_EDATE IS NULL OR B_NTERM_EDATE = '') AND B_NTERM_SDATE IS NOT NULL AND NOW() < DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s')) OR
+											(B_NTERM_SDATE IS NOT NULL AND B_NTERM_EDATE IS NOT NULL AND NOW() NOT BETWEEN DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s'))
+										)
+									)
+								)
+							]]>
+							
+					)
+					
+					<include refid="subUserSearchConditions"/>
+				ORDER BY 
+				case when ifnull(b_term_sdate, '') = '' then create_date
+				else b_term_sdate end
+				desc
+			) MA, (SELECT @rownum :=0) AS R
+		) MA2
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	
+	<sql id="userSearchConditions">
+		<include refid="subUserSearchConditions"/>
+		AND b_idx >= (
+			SELECT MIN(b_idx)
+			FROM (
+				SELECT b_idx
+				FROM (
+					SELECT b_idx
+					FROM (
+						SELECT b_idx
+						FROM bbs_board
+						where 1 = 1
+							<include refid="subUserSearchConditions"/>
+						ORDER BY b_same DESC, b_level, b_sort
+					)
+				)
+			) B
+		)
+	</sql>
+	<sql id="subUserSearchConditions">
+		AND pt_idx = #{ptIdx}
+		AND is_del = 'N'
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchPrivatecode)">
+			and B_PRIVATECODE = #{searchPrivatecode}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchCategory)">
+			and B_CATEGORY = #{searchCategory}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchDept)">
+			and B_DEPT_GROUP = #{searchDept}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchMainYn)">
+			and b_main_yn = #{searchMainYn}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchPublicYn)">
+			and B_PUBLIC = #{searchPublicYn}
+		</if>
+		<if test="searchDeptList != null and searchDeptList.size != 0">
+			and B_DEPT_GROUP in (
+				<foreach item="dept" index="index" collection="searchDeptList" separator=",">
+					#{dept.deptId}
+				</foreach>
+			)
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			<if test="searchType.equals('b_title')">
+				and B_TITLE LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('b_write')">
+				and B_WRITE LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('b_content')">
+				and B_CONTENT LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+		<if test="!config.ptType.equalsIgnoreCase('BRD001') or !config.ptReplyYn.equalsIgnoreCase('Y')">
+			AND b_level = '0'
+		</if>
+		<if test="config.ptTermYn.equalsIgnoreCase('Y')">
+		<![CDATA[
+			AND (
+				((B_TERM_SDATE IS NULL OR B_TERM_SDATE = '') AND (B_TERM_EDATE IS NULL OR B_TERM_EDATE = '')) OR
+				((B_TERM_SDATE IS NULL OR B_TERM_SDATE = '') AND B_TERM_EDATE IS NOT NULL AND NOW() <= DATE_FORMAT(CONCAT(B_TERM_EDATE , ':00'), '%Y-%m-%d %H:%i:%s')) OR
+				((B_TERM_EDATE IS NULL OR B_TERM_EDATE = '') AND B_TERM_SDATE IS NOT NULL AND NOW() >= DATE_FORMAT(CONCAT(B_TERM_SDATE , ':00'), '%Y-%m-%d %H:%i:%s')) OR
+				(B_TERM_SDATE IS NOT NULL AND B_TERM_EDATE IS NOT NULL AND NOW() BETWEEN DATE_FORMAT(CONCAT(B_TERM_SDATE , ':00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(B_TERM_EDATE , ':00'), '%Y-%m-%d %H:%i:%s'))
+			)
+		]]>
+		</if>
+	</sql>
+	
+	 <select id="getMainBbsList" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="basicBbsMap">
+		SELECT 	/*+ RULE */ T1.*,
+				(SELECT group_concat(FILE_EXTSN) FROM comtnfile_detail WHERE atch_file_id = T1.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = T1.b_idx AND is_del = 'N') AS reply_cnt,
+				(CASE WHEN date_format(create_date, '%Y%m%d') = date_format(NOW(), '%Y%m%d') THEN 'Y' ELSE 'N' END) AS newmode,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = T1.b_idx AND is_del = 'N') AS cmt_cnt  FROM
+        (select B.*, @ROWNUM := @ROWNUM + 1 AS RNUM from 
+			(SELECT 	A.*
+				FROM 	bbs_board A
+				WHERE 	1 = 1
+				
+				AND pt_idx = #{ptIdx}
+				<if test="ptIdx == 0">
+					or (pt_idx = 768 or pt_idx = 788 or pt_idx = 769 or pt_idx = 801 or pt_idx = 773 or pt_idx = 770 or pt_idx = 884)   
+				</if>
+				AND is_del = 'N'
+                <!-- AND (B_NOTICE = 'N' OR B_NOTICE IS NULL 
+                <![CDATA[ 
+                	OR  (B_NOTICE = 'Y'
+				AND (
+				((B_NTERM_SDATE IS NULL OR B_NTERM_SDATE = '') AND (B_NTERM_EDATE IS NULL OR B_NTERM_EDATE = '')) OR
+				((B_NTERM_SDATE IS NULL OR B_NTERM_SDATE = '') AND B_NTERM_EDATE IS NOT NULL AND NOW() <= DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s')) OR
+				((B_NTERM_EDATE IS NULL OR B_NTERM_EDATE = '') AND B_NTERM_SDATE IS NOT NULL AND NOW() >= DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s')) OR
+				(B_NTERM_SDATE IS NOT NULL AND B_NTERM_EDATE IS NOT NULL AND NOW() BETWEEN DATE_FORMAT(CONCAT(B_NTERM_SDATE , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(B_NTERM_EDATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s'))
+			)) ]]> 
+			)  -->
+			
+			<![CDATA[
+			AND (
+				((B_TERM_SDATE IS NULL OR B_TERM_SDATE = '') AND (B_TERM_EDATE IS NULL OR B_TERM_EDATE = '')) OR
+				((B_TERM_SDATE IS NULL OR B_TERM_SDATE = '') AND B_TERM_EDATE IS NOT NULL AND NOW() <= DATE_FORMAT(CONCAT(B_TERM_EDATE , ':00'), '%Y-%m-%d %H:%i:%s')) OR
+				((B_TERM_EDATE IS NULL OR B_TERM_EDATE = '') AND B_TERM_SDATE IS NOT NULL AND NOW() >= DATE_FORMAT(CONCAT(B_TERM_SDATE , ':00'), '%Y-%m-%d %H:%i:%s')) OR
+				(B_TERM_SDATE IS NOT NULL AND B_TERM_EDATE IS NOT NULL AND NOW() BETWEEN DATE_FORMAT(CONCAT(B_TERM_SDATE , ':00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(B_TERM_EDATE , ':00'), '%Y-%m-%d %H:%i:%s'))
+			)
+			]]>
+			
+			ORDER BY 
+			<if test="ptIdx == 0">
+				MAIN_NOTICE DESC, MAIN_ORDER ASC, 
+			</if>
+			case when ifnull(b_term_sdate, '') = '' then create_date
+				else b_term_sdate end
+				desc) B,  (SELECT @ROWNUM := 0) R ) T1 
+            WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+</select>	
+	<!-- ##### 게시글 상세 ##### -->
+	<select id="getBbsView" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="bbsViewMap">
+		SELECT 	/*+ RULE */ A.*,
+				(SELECT group_concat(FILE_EXTSN) FROM comtnfile_detail WHERE atch_file_id = A.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = A.b_idx AND is_del = 'N') AS reply_cnt,
+				(CASE WHEN date_format(create_date, '%Y%m%d') = date_format(NOW(), '%Y%m%d') THEN 'Y' ELSE 'N' END) AS newmode,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = A.b_idx) AS cmt_cnt,
+				(SELECT COUNT(*) FROM comtnfile_detail WHERE atch_file_id = attach_id) AS file_cnt,
+				<![CDATA[
+				(SELECT b_idx FROM bbs_board WHERE pt_idx = A.pt_idx AND is_del = 'N' AND b_idx < #{bIdx}
+					AND CASE
+						WHEN b_term_sdate != ''
+						THEN b_term_sdate < date_format(now(), '%Y-%m-%d %I:%i')
+						ELSE 1=1
+					END
+					AND CASE
+						WHEN b_term_edate != ''
+						THEN b_term_edate > date_format(now(), '%Y-%m-%d %I:%i')
+						ELSE 1=1
+					END
+				ORDER BY b_idx DESC LIMIT 1) AS pre_idx,
+				(SELECT b_idx FROM bbs_board WHERE pt_idx = A.pt_idx AND is_del = 'N' AND b_idx > #{bIdx}
+					AND CASE
+						WHEN b_term_sdate != ''
+						THEN b_term_sdate < date_format(now(), '%Y-%m-%d %I:%i')
+						ELSE 1=1
+					END
+					AND CASE
+						WHEN b_term_edate != ''
+						THEN b_term_edate > date_format(now(), '%Y-%m-%d %I:%i')
+						ELSE 1=1
+					END
+				ORDER BY b_idx ASC,
+				case 
+					when b_term_sdate != '' 
+					then b_term_sdate < date_format(now(), '%Y-%m-%d %I:%i')
+					else 1=1
+				end asc LIMIT 1) AS next_idx,
+				(SELECT CASE
+							WHEN b_term_sdate != ''
+							THEN date_format(b_term_sdate, '%Y-%m-%d %H:%i:%s')
+							ELSE 1=1
+						END AS b_term_sdate
+				FROM bbs_board WHERE pt_idx = A.pt_idx AND is_del = 'N' AND b_idx > #{bIdx}
+				) AS b_term_sdate,
+				(SELECT CASE
+							WHEN b_term_edate != ''
+							THEN date_format(b_term_edate, '%Y-%m-%d %H:%i:%s')
+							ELSE 1=1
+						END AS b_term_edate
+				FROM bbs_board WHERE pt_idx = A.pt_idx AND is_del = 'N' AND b_idx > #{bIdx}
+				) AS b_term_edate
+				]]>
+		FROM 	bbs_board A
+		WHERE b_idx = #{bIdx} AND is_del = 'N'
+	</select>
+	<select id="getEntityByAttachId" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="bbsViewMap">
+		SELECT /*+ RULE */ A.*,
+				(SELECT group_concat(file_extsn) FROM comtnfile_detail WHERE atch_file_id = A.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = A.b_idx AND is_del = 'N') AS reply_cnt,
+				(CASE WHEN date_format(create_date, '%Y%m%d') = date_format(NOW(), '%Y%m%d') THEN 'Y' ELSE 'N' END) AS newmode,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = A.b_idx) AS cmt_cnt,
+				(SELECT COUNT(*) FROM comtnfile_detail WHERE atch_file_id = attach_id) AS file_cnt
+		FROM bbs_board A
+		WHERE attach_id = #{_parameter} AND is_del = 'N' limit 1
+	</select>
+	<!-- ##### 게시글 답변 목록 ##### -->
+	<select id="getBbsReplyList" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="bbsViewMap">
+		SELECT	/*+ RULE */ A.*,
+				(SELECT group_concat(FILE_EXTSN) FROM comtnfile_detail WHERE atch_file_id = A.attach_id GROUP BY atch_file_id) AS bod_file_ext,
+				(SELECT COUNT(*) FROM bbs_board WHERE b_level != 0 AND b_same = A.b_idx AND is_del = 'N') AS reply_cnt,
+				(CASE WHEN date_format(create_date, '%Y%m%d') = date_format(NOW(), '%Y%m%d') THEN 'Y' ELSE 'N' END) AS newmode,
+				(SELECT COUNT(*) FROM bbs_comment WHERE b_idx = A.b_idx) AS cmt_cnt,
+				(SELECT COUNT(*) FROM comtnfile_detail WHERE atch_file_id = attach_id) AS file_cnt
+		FROM 	bbs_board A
+		WHERE 	b_same = #{bIdx}
+			AND b_level != 0
+			AND is_del = 'N'
+		ORDER BY b_sort
+	</select>
+	<!-- ##### 사이트 담당 부서 코드 (TODO: DEPT_SQL.xml로 이동) ##### -->
+	<select id="getDeptSiteCode" resultType="String" parameterType="String">
+		SELECT 	site_dept_code
+		FROM 	site_mapping
+		WHERE 	is_use = 'Y' 
+			AND site_code = #{siteCode}
+	</select>
+
+	<!-- ################## INSERT/UPDATE/DELETE ################## -->
+	<!-- ##### 게시글 등록 ##### -->
+	<insert id="insertBbs" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		INSERT INTO bbs_board (
+			b_idx, pt_idx, b_same, b_write, write_id, b_privatecode, b_password,
+			b_title, b_content, b_cnt, b_phone, b_category, b_dept_nm, b_dept_group, b_addr1, b_addr2,
+			b_public, b_nuri_type, privacy_yn, opt_privacy_yn, attach_id, b_host_ip
+		) VALUES (
+			#{bIdx}, #{ptIdx}, #{bSame}, #{bWrite}, #{writeId}, #{bPrivatecode}, #{encPasswd},
+			#{bTitle}, #{bContent}, #{bCnt}, #{bPhone}, #{bCategory}, #{bDeptNm}, #{bDeptGroup}, #{bAddr1}, #{bAddr2},
+			#{bPublic}, #{bNuriType}, #{privacyYn}, #{optPrivacyYn}, #{attachId}, #{bHostIp}
+		)
+	</insert>
+	<!-- ##### 답글/답변 ##### -->
+	<insert id="replyInsertBbs" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		INSERT INTO bbs_board (
+			b_idx, pt_idx, b_same, b_sort, b_level, b_write, write_id, b_privatecode, b_password,
+			b_title, b_content, b_cnt, b_phone, b_category, b_dept_nm, b_dept_group, b_addr1, b_addr2,
+			b_public, b_nuri_type, privacy_yn, opt_privacy_yn, attach_id, b_host_ip
+		) VALUES (
+			#{bIdx}, #{ptIdx}, #{bSame}, #{bSort}, #{bLevel}, #{bWrite}, #{writeId}, #{bPrivatecode}, #{encPasswd},
+			#{bTitle}, #{bContent}, #{bCnt}, #{bPhone}, #{bCategory}, #{bDeptNm}, #{bDeptGroup}, #{bAddr1}, #{bAddr2},
+			'Y', #{bNuriType}, #{privacyYn}, #{optPrivacyYn}, #{attachId}, #{bHostIp}
+		)
+	</insert>
+	<!-- ##### 게시글 수정 ##### -->
+	<update id="updateBbs" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		UPDATE bbs_board
+		SET b_password 		= #{encPasswd},
+			b_title 		= #{bTitle},
+			b_content 		= #{bContent},
+			b_phone 		= #{bPhone},
+			b_category 		= #{bCategory},
+			b_dept_nm 		= #{bDeptNm},
+			b_dept_group 	= #{bDeptGroup},
+			b_addr1 		= #{bAddr1},
+			b_addr2 		= #{bAddr2},
+			b_public 		= #{bPublic},
+			b_notice 		= #{bNotice},
+			b_main_yn 		= #{bMainYn},
+			b_nuri_type 	= #{bNuriType},
+			b_write_dept_nm = #{bWriteDeptNm},
+			b_write_dept_tel = #{bWriteDeptTel},
+			attach_id 		= #{attachId},
+			b_host_ip 		= #{bHostIp},
+			b_state 		= ${@egovframework.portal.sys.bbs.BoardState@MODIFIED_BY_OWNER.getCode()},
+			privacy_yn 		= #{privacyYn},
+			opt_privacy_yn 	= #{optPrivacyYn},
+			update_date 	= NOW()
+		WHERE b_idx = #{bIdx} AND pt_idx = #{ptIdx}
+	</update>
+	<!-- ##### 게시글 삭제 ##### -->
+	<update id="deleteBbs" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		UPDATE bbs_board
+		SET is_del 		= 'Y',
+			b_state 	= ${@egovframework.portal.sys.bbs.BoardState@DELETED_BY_OWNER.getCode()},
+			delete_date = NOW()
+		WHERE b_idx = #{bIdx} AND pt_idx = #{ptIdx}
+	</update>
+	<!-- ##### 게시글 전체 조회수 증가 ##### -->
+	<update id="updateBbsViewCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" flushCache="true">
+		UPDATE bbs_board
+		SET b_cnt = b_cnt +1
+		WHERE b_idx = #{bIdx} AND pt_idx = #{ptIdx}
+	</update>
+	<!-- ##### 일별 게시글 조회수 증가 ##### -->
+	<update id="incrementViewCnt" parameterType="String" flushCache="true">
+		INSERT INTO bbs_view_stat (b_idx, s_year, s_month, s_day)
+		VALUES(#{bIdx}, DATE_FORMAT(now(), '%Y'), DATE_FORMAT(now(), '%m'), DATE_FORMAT(now(), '%d'))
+		ON DUPLICATE KEY UPDATE
+		cnt = cnt + 1
+	</update>
+	
+	<!--  #### 메인 게시글 관리 #### -->
+	<select id="getMainMgt" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO" resultMap="bbsViewMap">
+		select b_idx, pt_idx, b_title, b_term_edate, main_order, main_notice from bbs_board where main_notice = 'Y' and is_del = 'N' order by main_order asc
+	</select>
+	
+	<update id="uncheck" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO">
+		update bbs_board set main_notice = 'N', main_order = 0 where b_idx = #{bIdx}
+	</update>
+	
+	<update id="orderUpdate" parameterType="egovframework.portal.sys.bbs.vo.BbsMngVO">
+		update bbs_board set main_order = #{mainOrder} where b_idx = #{bIdx}
+	</update>
+</mapper>

@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.bbs.mapper.CommentMngMapper">
+
+	<resultMap id="commentMngMap" type="egovframework.portal.sys.bbs.vo.CommentMngVO">
+		<result property="idx" column="idx" />
+		<result property="ptIdx" column="pt_idx" />
+		<result property="bIdx" column="b_idx" />
+		<result property="cContent" column="c_content" />
+		<result property="cWriter" column="c_writer" />
+		<result property="writerId" column="writer_id" />
+		<result property="privatecode" column="privatecode" />
+		<result property="hostIp" column="host_ip" />
+		<result property="isDel" column="is_del" />
+		<result property="isPublic" column="is_public" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="deleteDate" column="delete_date" />
+	</resultMap>
+
+	<!-- ##### 코멘트 전체 건수 ##### -->
+	<select id="getCommentCnt" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM bbs_comment WHERE b_idx = #{bIdx}
+	</select>
+
+	<!-- ##### 코멘트 목록 ##### -->
+	<select id="getCommentList" parameterType="java.util.Map" resultMap="commentMngMap">
+		SELECT *
+		FROM (
+			SELECT @rownum:=@rownum+1 AS rnum, c.*
+			FROM (
+				SELECT *
+				FROM bbs_comment
+				WHERE
+					b_idx = #{bIdx}
+				ORDER BY idx DESC
+			) c, (SELECT @rownum :=0) AS R
+		) RES
+		WHERE rnum BETWEEN #{firstIndex} AND #{lastIndex}
+		ORDER BY idx DESC
+	</select>
+
+	<!-- ##### 단일 코멘트 ##### -->
+	<select id="getComment" parameterType="egovframework.portal.sys.bbs.vo.CommentMngVO" resultMap="commentMngMap">
+		SELECT *
+		FROM bbs_comment
+		WHERE idx = #{idx}
+	</select>
+
+
+
+	<!-- ##### 코멘트 등록 ##### -->
+	<insert id="insertComment" parameterType="egovframework.portal.sys.bbs.vo.CommentMngVO">
+		INSERT INTO bbs_comment (
+			pt_idx, b_idx, c_content, c_writer, writer_id, host_ip
+		)
+		VALUES (
+			#{ptIdx}, #{bIdx}, #{cContent}, #{cWriter}, #{writerId}, #{hostIp}
+		)
+	</insert>
+
+	<!-- ##### 코멘트 수정 ##### -->
+	<update id="updateComment" parameterType="egovframework.portal.sys.bbs.vo.CommentMngVO">
+		UPDATE bbs_comment
+		SET
+			c_content = #{cContent},
+			update_date = NOW()
+		WHERE idx = #{idx} AND privatecode IS NULL
+	</update>
+
+	<!-- ##### 코멘트 삭제/복구 ##### -->
+	<update id="switchState" parameterType="egovframework.portal.sys.bbs.vo.CommentMngVO">
+		UPDATE bbs_comment
+		SET
+			writer_id = #{writerId},
+			host_ip = #{hostIp},
+			is_del = #{isDel}
+			<if test="isDel.equalsIgnoreCase('Y')">
+				, delete_date = NOW()
+			</if>
+			<if test="isDel.equalsIgnoreCase('N')">
+				, update_date = NOW()
+			</if>
+		WHERE idx = #{idx}
+	</update>
+
+</mapper>

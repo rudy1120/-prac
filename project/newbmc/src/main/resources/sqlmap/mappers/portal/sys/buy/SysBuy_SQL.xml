@@ -1,0 +1,374 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.buy.mapper.SysBuyMapper">
+
+	<!-- ##### 분양목록 조건 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchGbn)">
+			AND state = #{searchGbn}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			AND name LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+	</sql>
+	
+	<!-- ##### 공급용도 조건 ##### -->
+	<sql id="listSearcher2">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			AND codename LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+	</sql>
+
+	<!-- ##### 분양목록 데이터 카운트 ##### -->
+	<select id="getTotalCnt"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="int">
+		SELECT
+				COUNT(*) AS cnt
+		FROM	bmc_sell 
+		WHERE	IsTrash != 1
+		<include refid="listSearcher"/>
+	</select>
+	
+	<!-- ##### 공급용도 카운트 ##### -->
+	<select id="getTotalUseCnt"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="int">
+		SELECT	
+				COUNT(*) AS cnt
+		FROM	sellcode
+		WHERE	grpcode = 'GRP001'
+		<include refid="listSearcher2"/>
+	</select>
+	<!-- ##### 분양목록 리스트 ##### -->
+	<select id="getBuyList"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		SELECT rs2.*
+		FROM 
+		(
+			SELECT
+				rs.*, @rownum:=@rownum+1 AS rn
+			FROM
+			(
+				SELECT
+						idx
+				,		name
+				, 
+				(
+					SELECT DATE_FORMAT(reg_date,'%Y-%m-%d %h:%m%:%s') FROM DUAL
+				) as regDate
+				,		state
+				FROM	bmc_sell 
+				WHERE	IsTrash != 1
+				<include refid="listSearcher"/>
+				ORDER BY idx DESC
+			)rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<!-- ##### 공급용도 관리 목록 ##### -->
+	<select id="getUsesList"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		SELECT rs2.*
+		FROM 
+		(
+			SELECT
+				rs.*, @rownum:=@rownum+1 AS rn
+			FROM
+			(
+				SELECT
+						idx
+				,		codename
+				,		useYN
+				,		regdate
+				FROM	sellcode 
+				WHERE	grpcode = 'GRP001'
+				<include refid="listSearcher2"/>
+				ORDER BY idx DESC
+			)rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="getEntity" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		SELECT
+				idx
+		,		codename
+		,		useYN
+		,		regdate
+		FROM  sellcode
+		WHERE idx = #{idx}
+		AND	  grpcode = 'GRP001'
+	</select>
+	<!-- ##### 분양정보 신규등록 ##### -->
+	<insert id="insertSell" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" >
+		INSERT INTO bmc_sell
+		(
+			idx
+		,	name
+		,	state
+		,	IsTrash
+		,	reg_date
+		,	link
+		,   map_info
+		)
+		VALUES
+		(
+			(
+				SELECT
+					*
+				FROM
+				(
+				SELECT
+					IFNULL(MAX(idx),0)+1
+				FROM	bmc_sell
+				)AS idx
+			)
+		,	#{name}
+		,	#{state}
+		,	'0'
+		,	NOW()
+		,	#{link}
+		,   #{mapInfo}
+		)
+	</insert>
+	
+	<!-- ##### 지역별 용도 저장 ##### -->
+	<!-- <insert id="insertAreaUses" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		INSERT INTO areauses
+		(
+			areacode
+		,	usescode
+		)
+		VALUES
+		(
+			(
+				SELECT
+					*
+				FROM
+				(
+				SELECT
+						MAX(idx)
+				FROM	bmc_sell
+				)AS idx
+			)
+		,	#{usescode}
+		)
+	</insert>
+	
+	<insert id="updateAreaUses" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		INSERT INTO areauses
+		(
+			areacode
+		,	usescode
+		)
+		VALUES
+		(
+			#{idx}
+		,	#{usescode}
+		)
+	</insert> -->
+	
+	<!-- ##### 분양 상세화면 ##### -->
+	<select id="getSaleList" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		SELECT
+				*
+		FROM	bmc_sale 
+		WHERE	pidx = #{idx}
+		AND		IsTrash != 1
+	</select>
+	
+	<select id="getView" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		SELECT
+				a.idx, a.name, a.reg_date as regDate, a.state, a.link,
+				a.map_info as mapInfo
+		FROM	bmc_sell a
+		where	a.idx =  #{idx}
+	</select>
+
+	<!-- #### 분양매물 신규등록 ####-->
+	<insert id="insertSale" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" >
+		INSERT INTO bmc_sale
+		(
+			idx
+		,	pidx
+		,	dnum
+		,	uses
+		,	price1
+		,	price2
+		,	space
+		,	height
+		,	reg_date
+		,	IsTrash
+		,	location
+		)
+		VALUES
+		(
+			(
+				SELECT
+					*
+				FROM
+				(
+				SELECT
+					IFNULL(MAX(idx),0)+1
+				FROM	bmc_sale
+				)AS idx
+			)
+		,	#{pidx}
+		,	#{dnum}
+		,	#{uses}
+		,	#{price1}
+		,	#{price2}
+		,	#{space}
+		,	#{height}
+		,	NOW()
+		,	'0'
+		,	#{location}
+		)
+	</insert>
+	
+	<update id="updateSale" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		UPDATE	
+				bmc_sale
+		SET
+			dnum		= #{dnum}
+		,	uses		= #{uses}
+		,	price1		= #{price1}
+		,	price2		= #{price2}
+		,	space		= #{space}
+		,	height		= #{height}
+		,	reg_udate	= NOW()
+		, 	location	= #{location}
+		WHERE 	idx = #{idx}
+	</update>
+	
+	<!-- #### 분양매물 상세조회 #### -->
+	<select id="getSale" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		SELECT
+				pidx, idx, uses, dnum, price1, price2, space, height, location
+		FROM	bmc_sale
+		WHERE 	idx = #{idx}
+	</select>
+	
+	<update id="delSale"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		UPDATE	
+		bmc_sale
+		SET
+			reg_udate	= NOW()
+		,	IsTrash 	= 1
+		WHERE 	idx = #{idx}
+	</update>
+	
+	<!-- ##### 사업별 공급용도 삭제 ##### -->
+	<delete id="deleteAreaUses"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		DELETE 
+		FROM	areauses
+		WHERE 	areacode = #{idx}
+	</delete>
+	
+	<!-- ##### 분양정보 수정 ##### -->
+	<update id="updateSell" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		UPDATE
+				bmc_sell
+		SET
+			name		= #{name}
+		,	state		= #{state}
+		,	reg_udate	= NOW()
+		,	link		= #{link}
+		,   map_info    = #{mapInfo}
+		WHERE 	idx = #{idx}
+	</update>
+	
+	<!-- ##### 분양정보 삭제 ##### -->
+	<update id="delSell" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		UPDATE
+				bmc_sell
+		SET
+			IsTrash		= 1
+		WHERE 	idx = #{idx}
+	</update>
+	
+	<!-- ##### 분양매물정보들 삭제 ##### -->
+	<update id="delSales" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		UPDATE
+				bmc_sale
+		SET
+			IsTrash		= 1
+		WHERE 	pidx = #{idx}
+	</update>
+	
+	<!-- ##### 공급용도 중복체크 ##### -->
+	<select id="chkUses"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="int">
+		SELECT
+				COUNT(*) AS cnt
+		FROM 	sellcode
+		WHERE	grpcode  = 'GRP001'
+		AND		codename = #{codename}
+	</select>
+	
+	<!-- ##### 공급용도 등록 ##### -->
+	<insert id="insertUses"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		INSERT INTO sellcode
+		(
+			idx
+		,	grpcode
+		,	codename
+		,	useYN
+		,	regdate
+		)
+		VALUES
+		(
+			(
+				SELECT
+					*
+				FROM
+				(
+				SELECT
+					IFNULL(MAX(idx),0)+1
+				FROM	sellcode
+				)AS idx
+			)
+		,	'GRP001'
+		,	#{codename}
+		,	#{useYN}
+		,	NOW()
+		)
+	</insert>
+	
+	<!-- ##### 공급용도 수정 ##### -->
+	<update id="updateUses" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		UPDATE	
+				sellcode
+		SET
+			codename	= #{codename}
+		,	useYN		= #{useYN}
+		,	uptdate		= NOW()
+		WHERE 	idx 	= #{idx}
+		AND		grpcode = 'GRP001'
+	</update>
+	
+	<!-- ##### 공급용도 사용유무 ##### -->
+	<select id="chkUses2"  parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="int">
+		SELECT
+				COUNT(*) AS cnt
+		FROM 	areauses
+		WHERE	usescode = #{codename}
+	</select>
+	
+	<delete id="delUses" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" >
+		DELETE 
+		FROM	sellcode
+		WHERE 	idx = #{idx}
+		AND		grpcode = 'GRP001'
+	</delete>
+	
+	<select id="getPurposerList" resultType="egovframework.portal.unit.bmc.buy.vo.SaleVO"  >
+	<![CDATA[
+		SELECT	
+				idx
+		,		codename
+		FROM	sellcode
+		WHERE	grpcode = 'GRP001'
+		AND		useYN = 'Y'
+	 ]]>
+	</select>
+</mapper>

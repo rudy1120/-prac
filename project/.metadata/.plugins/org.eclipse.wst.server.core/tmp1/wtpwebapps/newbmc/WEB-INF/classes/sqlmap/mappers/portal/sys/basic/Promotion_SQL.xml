@@ -1,0 +1,232 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.basic.promotion.mapper.PromotionMngMapper">
+
+	<resultMap id="promotionMap" type="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		<id column="idx" property="idx"/>
+		<result column="prmt_type"      property="prmtType"/>
+		<result column="prmt_name"      property="prmtName"/>
+		<result column="prmt_url"       property="prmtUrl"/>
+		<result column="prmt_content"   property="prmtContent"/>
+		<result column="prmt_sday"      property="prmtSday"/>
+		<result column="prmt_eday"      property="prmtEday"/>
+		<result column="prmt_template"  property="prmtTemplate"/>
+		<result column="prmt_order"  	property="prmtOrder"/>
+		<result column="attach_id"      property="attachId"/>
+		<result column="use_yn"         property="useYn"/>
+		<result column="blank_yn"       property="blankYn"/>
+		<result column="is_del"         property="isDel"/>
+		<result column="create_date"    property="createDate"/>
+		<result column="update_date"    property="updateDate"/>
+		<result column="delete_date"    property="deleteDate"/>
+		<result column="file_cnt"       property="fileCnt"/>
+		<collection property="promotionSites" javaType="java.util.ArrayList" ofType="egovframework.portal.sys.basic.promotion.vo.PromotionSiteVO">
+			<id property="siteIdx" column="site_idx"/>
+			<result property="prmtIdx" column="prmt_idx"/>
+			<result property="siteName" column="site_name"/>
+		</collection>
+	</resultMap>
+
+	<resultMap id="promotionOrderMap" type="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		<id column="idx" property="idx"/>
+		<result column="prmt_order"  	property="prmtOrder"/>
+	</resultMap>
+
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+
+		AND p.is_del = 'N'
+		AND p.prmt_type = #{prmtType}
+		<if test="#fn = isNotBlank, #fn(searchSiteIdx)">
+			AND (ps.site_idx = 0 OR ps.site_idx = #{searchSiteIdx})
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchUseYn)">
+			AND use_yn = #{searchUseYn}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND p.prmt_name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM (
+				SELECT idx
+				FROM promotion p
+				LEFT JOIN promotion_site ps ON ps.prmt_idx = p.idx
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+			) rs
+			GROUP BY idx
+		) RES
+	</select>
+	<select id="getPrmtOrderList" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO" resultMap="promotionOrderMap">
+		SELECT
+			idx, prmt_order
+		FROM promotion p
+		WHERE 1 = 1 AND p.prmt_type = #{prmtType} AND p.is_del = 'N'
+		AND idx IN (SELECT prmt_idx FROM promotion_site WHERE site_idx = #{searchSiteIdx})
+		ORDER BY prmt_order
+	</select>
+
+
+	<select id="getList" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO" resultMap="promotionMap">
+		SELECT rs2.*,
+			(CASE WHEN rs2.site_idx = 0 THEN '전체' ELSE rs2.origin_site_name END) AS site_name,
+			(SELECT COUNT(atch_file_id) FROM comtnfile_detail WHERE atch_file_id = rs2.attach_id) AS file_cnt
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT p.*, ps.*, s.site_name AS origin_site_name
+				FROM promotion p
+				LEFT JOIN promotion_site ps ON ps.prmt_idx = p.idx
+				LEFT JOIN site_mapping s ON s.idx = ps.site_idx
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY p.prmt_order, p.idx DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- ##### 상세 ##### -->
+	<select id="getEntity" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO" resultMap="promotionMap">
+		SELECT
+			p.*, ps.*,
+			(CASE WHEN ps.site_idx = 0 THEN '전체' ELSE s.site_name END) AS site_name,
+			(SELECT COUNT(atch_file_id) FROM comtnfile_detail WHERE atch_file_id = p.attach_id) AS file_cnt
+		FROM promotion p
+		LEFT JOIN promotion_site ps ON ps.prmt_idx = p.idx
+		LEFT JOIN site_mapping s ON s.idx = ps.site_idx
+		WHERE p.idx = #{idx}
+	</select>
+
+	<!-- ##### 기간/사용여부 등을 조합한 사용자용 목록 ##### -->
+	<sql id="displayableListSearcher">
+		AND (
+			(prmt_sday IS NOT NULL AND prmt_eday IS NOT NULL AND NOW() BETWEEN DATE_FORMAT(CONCAT(prmt_sday , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(prmt_eday , ' 23:59:59'), '%Y-%m-%d %H:%i:%s'))
+			OR
+			(prmt_sday IS NOT NULL AND NOW() >= DATE_FORMAT(CONCAT(prmt_sday , ' 00:00:00'), '%Y-%m-%d %H:%i:%s') AND (prmt_eday IS NULL or prmt_eday=''))
+			OR
+			((prmt_sday IS NULL or prmt_sday='') AND prmt_eday IS NOT NULL AND DATE_FORMAT(CONCAT(prmt_eday , ' 23:59:59'), '%Y-%m-%d %H:%i:%s') >= NOW())
+			OR
+			((prmt_sday IS NULL or prmt_sday='') AND (prmt_eday IS NULL or prmt_eday=''))
+		)
+		AND use_yn = 'Y'
+	</sql>
+	<select id="getDisplyableTotalCnt" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM (
+				SELECT idx
+				FROM promotion p
+				LEFT JOIN promotion_site ps ON ps.prmt_idx = p.idx
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+					<include refid="displayableListSearcher"/>
+			) rs
+			GROUP BY idx
+		) RES
+	</select>
+	<select id="getDisplyableList" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO" resultMap="promotionMap">
+		SELECT rs2.*,
+			(CASE WHEN rs2.site_idx = 0 THEN '전체' ELSE rs2.origin_site_name END) AS site_name,
+			(SELECT COUNT(atch_file_id) FROM comtnfile_detail WHERE atch_file_id = rs2.attach_id) AS file_cnt
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT p.*, ps.*, s.site_name AS origin_site_name
+				FROM promotion p
+				LEFT JOIN promotion_site ps ON ps.prmt_idx = p.idx
+				LEFT JOIN site_mapping s ON s.idx = ps.site_idx
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+					<include refid="displayableListSearcher"/>
+				ORDER BY p.prmt_order, p.idx DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- ##### 등록 ##### -->
+	<insert id="insert" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		INSERT INTO promotion (
+			prmt_type, prmt_name, prmt_url, prmt_content, prmt_sday, prmt_eday, prmt_template, prmt_order, attach_id, use_yn, blank_yn
+		) VALUES (
+			#{prmtType}, #{prmtName}, #{prmtUrl}, #{prmtContent}, #{prmtSday}, #{prmtEday}, #{prmtTemplate}, #{prmtOrder}, #{attachId}, #{useYn}, #{blankYn}
+		)
+		<selectKey resultType="String" keyProperty="idx" order="AFTER">
+			select max(idx) as idx from promotion
+		</selectKey>
+	</insert>
+
+	<!-- ##### 수정 ##### -->
+	<update id="update" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		UPDATE promotion
+		SET prmt_name     = #{prmtName},
+			prmt_url      = #{prmtUrl},
+			prmt_content  = #{prmtContent},
+			prmt_sday     = #{prmtSday},
+			prmt_eday     = #{prmtEday},
+			prmt_template = #{prmtTemplate},
+			prmt_order	  = #{prmtOrder},
+			attach_id     = #{attachId},
+			use_yn        = #{useYn},
+			blank_yn      = #{blankYn},
+			update_date   = NOW()
+		WHERE idx = #{idx}
+	</update>
+
+	<!-- ##### 삭제 ##### -->
+	<update id="delete" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		UPDATE promotion
+		SET is_del = 'Y',
+			delete_date = NOW()
+		WHERE idx = #{idx}
+	</update>
+
+	<!-- ##### 전체 삭제 ##### -->
+	<update id="deleteAll" parameterType="String">
+		UPDATE promotion
+		SET is_del = 'Y',
+			delete_date = NOW()
+		WHERE prmt_type = #{_parameter}
+	</update>
+
+
+	<!-- ##### 정렬 변경 ##### -->
+	<update id="changeOrder" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		UPDATE promotion p
+		SET prmt_order = #{prmtOrder}
+		WHERE idx = #{idx} AND p.prmt_type = #{prmtType}
+	</update>
+
+
+	<!-- ##### 기존 정렬값의 entity를 prmt_order 기준값으로 한단계 내리기 ##### -->
+	<update id="updateOtherOrderOneDown" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		UPDATE promotion p
+		SET prmt_order = prmt_order + 1
+		WHERE 1 = 1 AND p.prmt_type = #{prmtType} AND p.is_del = 'N' AND <![CDATA[ prmt_order >= #{prmtOrder} ]]>
+		AND idx IN (SELECT prmt_idx FROM promotion_site WHERE site_idx = #{searchSiteIdx})
+		<if test="prmtOldOrder != null and prmtOldOrder != 1">
+		  AND <![CDATA[ prmt_order <= #{prmtOldOrder} ]]>
+		</if>
+	</update>
+
+	<!-- ##### 기존 정렬값의 entity를 prmt_order 기준값으로 한단계 올리기 ##### -->
+	<update id="updateOtherOrderOneUp" parameterType="egovframework.portal.sys.basic.promotion.vo.PromotionVO">
+		UPDATE promotion p
+		SET prmt_order = prmt_order - 1
+		WHERE 1 = 1 AND p.prmt_type = #{prmtType} AND p.is_del = 'N' AND <![CDATA[ prmt_order >= #{prmtOldOrder} ]]>
+		AND <![CDATA[ prmt_order <= #{prmtOrder} ]]>
+		AND idx IN (SELECT prmt_idx FROM promotion_site WHERE site_idx = #{searchSiteIdx})
+	</update>
+
+
+</mapper>

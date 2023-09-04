@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.pub.mapper.SysPublicMapper">
+
+	<!-- 카테고리 목록 -->
+	<select id="getCategoryList" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO" resultType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		SELECT 
+			cat_idx as catIdx, cat_name as catName, order_num as orderNum, use_yn as useYn, 
+		    date_format(reg_date, '%Y-%m-%d %H:%i:%s') as regDate, date_format(upt_date, '%Y-%m-%d %H:%i:%s') as uptDate, 
+		    reg_id as regId, upt_id as uptId
+		FROM public_category
+		order by order_num asc
+		]]>
+	</select>
+	
+	<!-- 카테고리 상세  -->
+	<select id="getCategoryEntity" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO" resultType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		SELECT 
+			cat_idx as catIdx, cat_name as catName, order_num as orderNum, use_yn as useYn, 
+		    date_format(reg_date, '%Y-%m-%d %H:%i:%s') as regDate, date_format(upt_date, '%Y-%m-%d %H:%i:%s') as uptDate, 
+		    reg_id as regId, upt_id as uptId
+		FROM public_category
+		WHERE cat_idx = #{catIdx}
+		]]>
+	</select>
+
+	<!-- 카테고리 등록 -->
+	<insert id="insertCategory" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<selectKey resultType="String" keyProperty="catIdx" order="BEFORE">
+			select cast(ifnull(max(Convert(cat_idx, SIGNED)), 0) as unsigned)+1 as catIdx from public_category
+		</selectKey>
+		<![CDATA[
+		INSERT INTO public_category (
+			cat_idx, cat_name, order_num, use_yn, reg_date, upt_date, reg_id, upt_id
+		) VALUES (
+			#{catIdx}, #{catName}, ifnull(#{orderNum}, 0), 'Y', NOW(), NOW(), #{regId}, #{uptId}
+		)
+		]]>
+	</insert>
+
+	<!-- 카테고리 수정 -->
+	<update id="updateCategory" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		UPDATE public_category
+		SET cat_name = #{catName},
+			order_num = ifnull(#{orderNum}, 0),
+			use_yn = #{useYn},
+			upt_date = NOW(),
+			upt_id = #{uptId}
+		WHERE cat_idx = #{catIdx}
+		]]>
+	</update>
+
+	<!-- 카테고리 삭제 -->
+	<update id="deleteCategory" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		DELETE FROM public_category
+		WHERE cat_idx = #{catIdx}
+		]]>
+	</update>
+	
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchCatIdx)">
+			AND a.cat_idx = #{searchCatIdx}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchName)">
+			AND a.name LIKE CONCAT('%',#{searchName},'%')
+		</if>
+	</sql>
+	
+	<!-- 사전정보공표 총 카운트 -->
+	<select id="getDataTotalCnt" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM (
+				SELECT a.pub_idx
+				FROM public_data a left join public_category b
+				ON a.cat_idx = b.cat_idx
+				WHERE 1 = 1
+				<include refid="listSearcher"/>
+			) rs
+			GROUP BY pub_idx
+		) RES
+	</select>
+	
+	<!-- 사전정보공표 목록 -->
+	<select id="getDataList" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO" resultType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT 
+					a.pub_idx as pubIdx, a.cat_idx as catIdx, b.cat_name as catName, a.name, a.article, a.time, a.cycle, a.depart, a.link, a.use_yn as useYn, a.order_num as orderNum, 
+					date_format(a.reg_date, '%Y-%m-%d %H:%i:%s') as regDate, date_format(a.upt_date, '%Y-%m-%d %H:%i:%s') as uptDate, a.reg_id as regId, a.upt_id as uptId
+				FROM public_data a left join public_category b
+				ON a.cat_idx = b.cat_idx
+				WHERE 1 = 1
+				<include refid="listSearcher"/>
+				ORDER BY b.order_num asc, a.order_num asc, a.name asc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<!-- 사전정보공표 상세  -->
+	<select id="getDataEntity" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO" resultType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		SELECT 
+			a.pub_idx as pubIdx, a.cat_idx as catIdx, b.cat_name as catName, a.name, a.article, a.time, a.cycle, a.depart, a.link, a.use_yn as useYn, a.order_num as orderNum, 
+			date_format(a.reg_date, '%Y-%m-%d %H:%i:%s') as regDate, date_format(a.upt_date, '%Y-%m-%d %H:%i:%s') as uptDate, a.reg_id as regId, a.upt_id as uptId
+		FROM public_data a left join public_category b
+		ON a.cat_idx = b.cat_idx
+		WHERE a.pub_idx = #{pubIdx}
+		]]>
+	</select>
+	
+	<!-- 사전정보공표 등록 -->
+	<insert id="insertData" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<selectKey resultType="String" keyProperty="pubIdx" order="BEFORE">
+			select cast(ifnull(max(Convert(pub_idx, SIGNED)), 0) as unsigned)+1 as pubIdx from public_data
+		</selectKey>
+		<![CDATA[
+		INSERT INTO public_data (
+			pub_idx, cat_idx, name, article, time, cycle, depart, link, order_num, use_yn, reg_date, upt_date, reg_id, upt_id
+		) VALUES (
+			#{pubIdx}, #{catIdx}, #{name}, #{article}, #{time}, #{cycle}, #{depart}, #{link}, ifnull(#{orderNum}, 0), ifnull(#{useYn}, 'Y'), NOW(), NOW(), #{regId}, #{uptId}
+		)
+		]]>
+	</insert>
+	
+	<!-- 사전정보공표 수정 -->
+	<update id="updateData" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		UPDATE public_data
+		SET cat_idx = #{catIdx},
+			name = #{name},
+			article = #{article},
+			time = #{time},
+			cycle = #{cycle},
+			depart = #{depart},
+			link = #{link},
+			order_num = ifnull(#{orderNum}, 0),
+			use_yn = ifnull(#{useYn}, 'Y'),
+			upt_date = NOW(),
+			upt_id = #{uptId}
+		WHERE pub_idx = #{pubIdx}
+		]]>
+	</update>
+
+	<!-- 사전정보공표 삭제 -->
+	<update id="deleteData" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		DELETE FROM public_data
+		WHERE pub_idx = #{pubIdx}
+		]]>
+	</update>
+	
+	<!-- 모니터링 총카운트  -->
+	<select id="getMonitorTotalCnt" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) as cnt
+			FROM monitor
+		) RES;
+	</select>
+	
+	<!-- 사전정보공표 목록 -->
+	<select id="getMonitorList" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO" resultType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM monitor rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+		order by rs2.create_date desc
+	</select>
+	
+	<update id="deleteMonitor" parameterType="egovframework.portal.sys.pub.vo.SysPublicVO">
+		<![CDATA[
+		DELETE FROM monitor
+		WHERE ptidx = #{ptidx}
+		]]>
+	</update>
+</mapper>

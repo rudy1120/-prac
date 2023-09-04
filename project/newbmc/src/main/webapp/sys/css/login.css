@@ -1,0 +1,55 @@
+@charset "utf-8";
+
+#login_wrap{
+	width:475px;
+	margin:110px auto 0 auto;
+	padding-top:268px;	
+	background:url(../img/login/bg_login.png) no-repeat center 0;
+	}
+.admin_external{
+	background:url(../img/login/bg_login_external.png) no-repeat center 0 !important;
+	}
+#login_wrap > div{
+	background:#f2f7f6;
+	border:1px solid #b1c9c4;
+	border-radius:5px;
+	box-shadow:0px 5px 0px #f0f0f0;
+	padding:40px 0;
+	text-align:center;
+	}
+#login_wrap > div > h1{
+	font-weight: 600;
+	font-size:30px;
+	line-height:30px;
+	color:#1c4952;
+	letter-spacing:-1px;
+	}
+ul.list_form {
+	padding-top:20px;
+	}
+label{
+	display:none;
+	}
+input{
+	border-radius:5px;
+	width:267px;
+	padding:7px 10px;
+	}
+input[type="text"],
+input[type="password"]{
+	background:#ffffff;
+	border:1px solid #b1c9c4;
+	font-size:13px;
+	color:#666666;
+	}
+.list_form > li{
+	margin-bottom:10px;
+	}
+input[type="submit"]{
+	font-weight: 600;
+	font-size:18px;
+	color:#ffffff;	
+	background:#1c4952;
+	border:1px solid #1c4952;
+	width:287px;
+	}

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.basic.participation.mapper.SysParticipationMapper">
+
+	<resultMap id="partcontMap" type="egovframework.portal.unit.bmc.participation.vo.PartContVO">
+		<result column="idx"         property="idx"/>
+		<result column="title"       property="title"/>
+		<result column="cont"        property="cont"/>
+		<result column="thumbnail"   property="thumbnail"/>
+		<result column="sdate"       property="sdate"/>
+		<result column="edate"       property="edate"/>
+		<result column="etc1"        property="etc1"/>
+		<result column="etc2"        property="etc2"/>
+		<result column="etc3"        property="etc3"/>
+		<result column="etc4"        property="etc4"/>
+		<result column="etc5"        property="etc5"/>
+		<result column="cnt"         property="cnt"/>
+		<result column="gbn"         property="gbn"/>
+		<result column="is_del"      property="isDel"/>
+		<result column="create_date" property="createDate"/>
+		<result column="update_date" property="updateDate"/>
+		<result column="totcnt"      property="totcnt"/>
+	</resultMap>
+	
+	<resultMap id="participantMap" type="egovframework.portal.unit.bmc.participation.vo.ParticipantVO">
+		<result property="ptidx"      column="ptidx" />
+		<result property="idx"        column="idx" />
+		<result property="usernm"     column="usernm" />
+		<result property="email"      column="email" />
+		<result property="tel"        column="tel" />
+		<result property="addr1"      column="addr1" />
+		<result property="addr2"      column="addr2" />
+		<result property="dupinfo"    column="dupinfo" />
+		<result property="attachId"   column="attach_id" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="isDel"      column="is_del" />
+	</resultMap>
+
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchGbn)">
+			AND t.gbn = #{searchGbn}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND t.title LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="participantSearcher">
+		<include refid="s.funcs"/>
+		AND t.idx = #{idx}
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND t.usernm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<select id="getTotalCnt" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM partcont t
+			WHERE 1 = 1
+				and is_del = 'N'
+				<include refid="listSearcher"/>
+		) RES
+	</select>
+	
+	<select id="getList" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO" resultMap="partcontMap">
+		SELECT idx, title, cont, thumbnail, date_format(sdate, '%Y-%m-%d') sdate, date_format(edate, '%Y-%m-%d') edate
+		, etc1, etc2, etc3, etc4, etc5, cnt, gbn, is_del, create_date, update_date
+
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.* 
+				FROM partcont t
+				WHERE 1 = 1
+					and is_del = 'N'
+					<include refid="listSearcher"/>
+				ORDER BY idx desc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<insert id="insert" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO">
+		INSERT INTO partcont (
+			title, cont, thumbnail, sdate, edate, etc1, etc2, etc3, etc4, etc5, gbn
+		) VALUES (
+			#{title}, #{cont}, #{thumbnail}, #{sdate}, #{edate}, #{etc1}, #{etc2}, #{etc3}, #{etc4}, #{etc5}, #{gbn}
+		)
+		<selectKey resultType="int" keyProperty="idx" order="AFTER">
+			select max(idx) as idx from partcont
+		</selectKey>
+	</insert>
+	
+	<update id="update" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO">
+		UPDATE partcont
+		SET title     = #{title},
+			cont      = #{cont},
+			thumbnail = #{thumbnail},
+			sdate     = #{sdate},
+			edate     = #{edate},
+			etc1      = #{etc1},
+			etc2	  = #{etc2},
+			etc3      = #{etc3},
+			etc4      = #{etc4},
+			etc5      = #{etc5},
+			gbn       = gbn,
+			update_date = now()
+		WHERE idx = #{idx}
+	</update>
+	
+	<select id="getEntity" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO" resultMap="partcontMap">
+		SELECT
+			idx
+			, title
+			, date_format(sdate, '%Y-%m-%d') sdate
+			, date_format(edate, '%Y-%m-%d') edate
+			, cont
+			, etc1
+			, etc2
+			, etc3
+			, etc4
+			, etc5
+			, gbn
+			, thumbnail
+		FROM partcont
+		WHERE idx = #{idx}
+	</select>
+	
+	<update id="delete" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO">
+		UPDATE partcont
+		SET is_del = 'Y',
+			update_date = NOW()
+		WHERE idx = #{idx}
+	</update> 
+
+	<select id="getContent" parameterType="int" resultMap="partcontMap">
+		SELECT t.idx, t.gbn, t.title
+			, date_format(t.sdate, '%Y-%m-%d') sdate
+			, date_format(t.edate, '%Y-%m-%d') edate   
+			, (select count(*) from participant where idx = #{idx}) as totcnt
+		FROM partcont t
+		WHERE is_del = 'N'
+		and idx = #{idx}
+	</select>
+	
+	<select id="getParticipantCnt" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM participant t
+			WHERE 1 = 1
+				and is_del = 'N'
+				<include refid="participantSearcher"/>
+		) RES
+	</select>
+	
+	<select id="getParticipantList" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO" resultMap="participantMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.* 
+				FROM participant t
+				WHERE 1 = 1
+					and is_del = 'N'
+					<include refid="participantSearcher"/>
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+</mapper>

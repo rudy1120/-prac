@@ -1,0 +1,21 @@
+/* font-face */
+@font-face {
+	font-family:'NotoSans'; font-style:normal; font-weight:100;
+	src: url('./notoSansKRLight.woff2') format('woff2'),
+	url('./notoSansKRLight.woff') format('woff'),
+	url('./notoSansKRLight.otf') format('opentype');
+}
+
+@font-face {
+	font-family:'NotoSans'; font-style:normal; font-weight:400;
+	src: url('./notoSansKRRegular.otf') format('woff2'),
+	url('./notoSansKRRegular.woff') format('woff'),
+	url('./notoSansKRRegular.otf') format('opentype');
+}
+
+@font-face {
+	font-family:'NotoSans'; font-style:normal; font-weight:700;
+	src: url('./notoSansKRBold.woff2') format('woff2'),
+	url('./notoSansKRBold.woff') format('woff'),
+	url('./notoSansKRBold.otf') format('opentype');
+}

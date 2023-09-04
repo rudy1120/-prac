@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.common.mapper.EncryptMapper">
+
+	<select id="getTotalCnt" parameterType="java.util.Map" resultType="int">
+		SELECT COUNT(*) FROM ${tableName}
+	</select>
+
+	<select id="getList" parameterType="java.util.Map" resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		SELECT * FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT *
+				FROM ${tableName}
+			) rs, (SELECT @rownum :=0) AS R
+		) rs
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<update id="update" parameterType="java.util.Map">
+		UPDATE ${tableName}
+		SET ${targetColumn} = #{targetValue}
+		WHERE ${keyColumn} = #{keyValue}
+	</update>
+
+</mapper>

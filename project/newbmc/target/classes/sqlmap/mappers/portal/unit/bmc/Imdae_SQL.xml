@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.imdae.mapper.ImdaeMapper">
+
+	<resultMap id="imdaeMap" type="egovframework.portal.unit.bmc.imdae.vo.ImdaeJiguVO">
+		<result column="sn"         property="sn"/>
+		<result column="jigu"       property="jigu"/>
+		<result column="jiguname"   property="jiguname"/>
+		<result column="jiguso"     property="jiguso"/>
+		<result column="pyung"      property="pyung"/>
+		<result column="sedaetotal" property="sedaetotal"/>
+		<result column="sedae"      property="sedae"/>
+		<result column="dae"        property="dae"/>
+		<result column="num"        property="num"/>
+		<result column="gb"         property="gb"/>
+		<result column="wating"     property="wating"/>
+		<result column="supply"		property="supply"/>
+		<result column="cnt"		property="cnt"/>
+		<result column="hgbn"		property="hgbn"/>
+	</resultMap>
+	
+	<resultMap id="imdaeWatingMap" type="egovframework.portal.unit.bmc.imdae.vo.ImdaeWatingInfoVO">
+		<result column="sn"			property="sn"/>
+		<result column="num"		property="num"/>
+		<result column="username"	property="username"/>
+		<result column="a_date"		property="aDate"/>
+		<result column="b_date"		property="bDate"/>
+		<result column="gu"			property="gu"/>
+		<result column="jiguname"	property="jiguname"/>
+		<result column="no"			property="no"/>
+		<result column="jumin_no"	property="juminNo"/>
+		<result column="telnum"		property="telnum"/>
+		<result column="supply"		property="supply"/>
+		<result column="pyungsu"	property="pyungsu"/>
+		<result column="uname"		property="uname"/>
+	</resultMap>
+	
+	<select id="getList" parameterType="egovframework.portal.unit.bmc.imdae.vo.ImdaeJiguVO" resultMap="imdaeMap">
+		
+		select sn, jigu, jiguname, cnt,
+			jiguso, pyung, dae, num, gb, supply, sum(sedaetotal) as sedaetotal, sum(sedae) as sedae, sum(wating) as wating from 
+			(select t.*, case when t.chk is null then 0 else count(t.sn) end as wating, tt.cnt from
+				(select t2.sn as chk, t1.sn, t1.jigu, t1.jiguname, t1.jiguso, t1.pyung, t1.supply
+				, cast(ifnull(t1.sedaetotal, '0') as signed integer) as sedaetotal
+				, cast(ifnull(t1.sedae, '0') as signed integer) as sedae, t1.dae, t1.num, t1.gb from wp_imdae_jigu t1
+					left join 
+					<if test="gb == 2">wp_imdae_sunhyan t2</if>
+					<if test="gb == 0">wp_imdae t2</if> 
+					<if test="gb == 3">wp_imdae_redevelop t2</if>
+					<if test="gb == 4">wp_imdae_redevelop t2</if>
+					<if test="gb == 5">wp_imdae_donglae t2</if>
+					on t1.jiguname = t2.jiguname
+					<if test="gb == 5">
+					and t1.supply = t2.supply
+					</if> 
+					where gb=#{gb}
+					<if test="gb == 2">
+					and t2.jiguname not like concat('%', '정관', '%')
+					</if>
+					) t left join (select jiguname, count(*) as cnt from wp_imdae_jigu where gb = 5 group by jiguname) tt
+					on t.jiguname = tt.jiguname
+					group by sn order by sn asc) ta group by sn with rollup;
+	</select>
+	
+	<select id="getWatingList" parameterType="egovframework.portal.unit.bmc.imdae.vo.ImdaeWatingInfoVO" resultMap="imdaeWatingMap">
+		select b.sn, b.num, b.username, b.a_date, b.b_date, b.no, b.jumin_no, b.gu
+			, b.jiguname, b.telnum, a.supply
+			, CASE
+			    WHEN LENGTH(b.username) = 6 THEN CONCAT(LEFT(b.username, 1), ' * ')
+			    WHEN LENGTH(b.username) = 9 
+			    	THEN CONCAT(
+			           LEFT(b.username, 1),
+			           REPEAT(' * ', LENGTH(b.username) - 8),
+			           RIGHT(b.username, 1)
+			         )
+			    WHEN LENGTH(b.username) = 12 THEN CONCAT(
+			           LEFT(b.username, 1),
+			           REPEAT(' * ', LENGTH(b.username) - 10),
+			           RIGHT(b.username, 1)
+			         )
+			   	WHEN LENGTH(b.username) = 18 THEN CONCAT(
+			           LEFT(b.username, 1),
+			           REPEAT(' * ', LENGTH(b.username) - 14),
+			           RIGHT(b.username, 1)
+			         )
+			    WHEN LENGTH(b.username) = 24 THEN CONCAT(
+			           LEFT(b.username, 1),
+			           REPEAT(' * ', LENGTH(b.username) - 18),
+			           RIGHT(b.username, 1)
+			         )
+			    ELSE CONCAT(
+			           LEFT(b.username, 1),
+			           REPEAT(' * ', LENGTH(b.username) - 20),
+			           RIGHT(b.username, 1)
+			         )
+			  END AS uname
+			, CASE
+			    WHEN a.jiguname like '%(%' 
+			    THEN substring(a.jiguname, instr(a.jiguname, '(') + 1, instr(a.jiguname, ')') - instr(a.jiguname, '(') - 1)
+			    ELSE '-'
+			  END AS pyungsu
+			from wp_imdae_jigu a right join
+			<if test="gb == 2">
+				wp_imdae_sunhyan b
+			</if>
+			<if test="gb == 0">
+				wp_imdae b
+			</if> 
+			<if test="gb == 3">
+				wp_imdae_redevelop b 
+			</if>
+			<if test="gb == 5">
+				wp_imdae_donglae b
+			</if>
+		on a.jiguname = b.jiguname and a.supply = b.supply
+		where b.username = #{username}
+		and b.jumin_no = #{juminNo}
+	</select>
+	
+	<select id="getHappyList" parameterType="egovframework.portal.unit.bmc.imdae.vo.ImdaeJiguVO" resultMap="imdaeMap">
+		
+		select sn, jigu, jiguname, cnt,
+			jiguso, pyung, dae, num, gb, supply, sum(sedaetotal) as sedaetotal, sum(sedae) as sedae, sum(wating) as wating from 
+			(select t.*, case when t.chk is null then 0 else count(t.sn) end as wating, tt.cnt from
+				(select t2.sn as chk, t1.sn, t1.jigu, t1.jiguname, t1.jiguso, t1.pyung, t1.supply
+				, cast(ifnull(t1.sedaetotal, '0') as signed integer) as sedaetotal
+				, cast(ifnull(t1.sedae, '0') as signed integer) as sedae, t1.dae, t1.num, t1.gb from wp_imdae_jigu t1
+					left join wp_imdae_donglae t2
+					on t1.jiguname = t2.jiguname
+					and t1.supply = t2.supply
+					where gb=#{gb}
+					and hgbn = #{hgbn}
+					) t left join (select jiguname, count(*) as cnt from wp_imdae_jigu where gb = 5 group by jiguname) tt
+					on t.jiguname = tt.jiguname
+					group by sn order by sn asc) ta group by sn with rollup;
+	</select>
+	
+</mapper>

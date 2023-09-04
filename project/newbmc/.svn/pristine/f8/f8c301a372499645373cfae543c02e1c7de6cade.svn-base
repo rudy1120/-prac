@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.scheduler.mapper.SchedulerMapper">
+
+<resultMap id="termMap" type="egovframework.scheduler.vo.TermVO">
+		<result property="idx"				column="idx"/>
+		<result property="cnt_s"			column="cnt_s"/>
+		<result property="cnt_h"			column="cnt_h"/>
+		<result property="regdate"			column="regdate"/>
+		<result property="total_s"			column="total_s"/>
+		<result property="total_h"			column="total_h"/>
+</resultMap>
+
+	<!--##### 분양 서비스 삭제 개수 #####-->
+	<select id="autoSel_sale" parameterType="egovframework.scheduler.vo.TermVO" resultType="int">
+		SELECT (a.cnt_s + b.cnt_s + c.cnt_s) as total_s
+		FROM 
+		(
+			SELECT count(*) as cnt_s
+			FROM 
+			(
+				SELECT DISTINCT name, phone
+				FROM sms_sale
+				WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 6 month)
+				AND termcode = '76'
+			) a
+		) a,
+		(
+			SELECT count(*) as cnt_s
+			FROM 
+			(
+				SELECT DISTINCT name, phone
+				FROM sms_sale
+				WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 1 year)
+				AND termcode = '77'
+			) b
+		)b,
+		(
+			SELECT count(*) as cnt_s
+			FROM 
+			(
+				SELECT DISTINCT name, phone
+				FROM sms_sale
+				WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 2 year)
+				AND termcode = '78'
+			) c
+		)c
+	</select>
+	
+	<!--##### 임대 서비스 삭제 개수 #####-->
+	<select id="autoSel_housing" parameterType="egovframework.scheduler.vo.TermVO" resultType="int">
+		SELECT (a.cnt_h + b.cnt_h + c.cnt_h) as total_h
+		FROM
+		(
+			SELECT count(*) as cnt_h
+			FROM 
+			(
+				SELECT DISTINCT name, phone
+				FROM sms_housing
+				WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 6 month)
+				AND termcode = '76'
+			) a
+		)a,
+		(
+			SELECT count(*) as cnt_h
+			FROM 
+			(
+				SELECT DISTINCT name, phone
+				FROM sms_housing
+				WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 1 year)
+				AND termcode = '77'
+			) b
+		)b,
+		(
+			SELECT count(*) as cnt_h
+			FROM 
+			(
+				SELECT DISTINCT name, phone
+				FROM sms_housing
+				WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 2 year)
+				AND termcode = '78'
+			) c
+		)c
+	</select>
+	
+	<!--##### 분양 서비스 자동삭제 #####-->
+	<delete id="autoDel_sale76">
+		DELETE
+		FROM sms_sale 
+		WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 6 month)
+		AND termcode = '76'
+	</delete>
+	<delete id="autoDel_sale77">
+		DELETE
+		FROM sms_sale 
+		WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 1 year)
+		AND termcode = '77'
+	</delete>
+	<delete id="autoDel_sale78">
+		DELETE
+		FROM sms_sale 
+		WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 2 year)
+		AND termcode = '78'
+	</delete>
+	
+	
+	
+	<!--##### 임대 서비스 자동삭제 #####-->
+	<delete id="autoDel_housing76">
+		DELETE
+		FROM sms_housing
+		WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 6 month)
+		AND termcode = '76'
+	</delete>
+	<delete id="autoDel_housing77">
+		DELETE
+		FROM sms_housing
+		WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 1 year)
+		AND termcode = '77'
+	</delete>
+	<delete id="autoDel_housing78">
+		DELETE
+		FROM sms_housing
+		WHERE date_format(now(), '%Y-%m-%d') = date_add(date_format(regdate,'%y-%m-%d'),interval 2 year)
+		AND termcode = '78'
+	</delete>
+	
+	<insert id="autoLog" parameterType="egovframework.scheduler.vo.TermVO">
+		INSERT INTO sms_del_list
+		(
+			idx,
+			sale,
+			housing,
+			regdate
+		)
+		VALUES
+		(
+			(SELECT * FROM (SELECT IFNULL(MAX(IDX),0)+1 FROM sms_del_list) AS idx),
+			#{sale},
+			#{housing},
+			NOW()
+		)
+	</insert>
+
+	
+</mapper>

@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.MenuMng.mapper.MenuChargeMngMapper">
+	<!-- <cache eviction="LRU" flushInterval="600000" size="512" readOnly="false" /> -->
+
+	<resultMap id="chargeMap" type="egovframework.portal.sys.MenuMng.vo.MenuChargeVO">
+		<result property="idx"				column="IDX" />
+		<result property="siteCode"			column="SITE_CODE" />
+		<result property="mid"				column="MID" />
+		<result property="chargeId"			column="CHARGE_ID" />
+		<result property="chargeFnm"		column="CHARGE_FNM" />
+		<result property="chargeDepCode"	column="CHARGE_DEP_CODE" />
+		<result property="chargeDepNm"		column="CHARGE_DEP_NM" />
+		<result property="chargeTel"		column="CHARGE_TEL" />
+		<result property="createDate"		column="CREATE_DATE" />
+		<result property="sortNum"			column="SORT_NUM" />
+	</resultMap>
+
+	<!-- 담당자 등록 -->
+	<insert id="setInsertCharge" parameterType="egovframework.portal.sys.MenuMng.vo.MenuChargeVO">
+		INSERT INTO menu_charge(
+			SITE_CODE, MID, CHARGE_ID, CHARGE_FNM, CHARGE_DEP_CODE, CHARGE_DEP_NM, CHARGE_TEL, CREATE_DATE, SORT_NUM
+		)VALUES(
+			#{siteCode}, #{mid}, #{chargeId}, #{chargeFnm}, #{chargeDepCode}, #{chargeDepNm}, #{chargeTel}, NOW(), #{sortNum}
+		)
+	</insert>
+
+	<!-- 담당자 삭제 -->
+	<delete id="setDeleteOld" parameterType="egovframework.portal.sys.MenuMng.vo.MenuChargeVO">
+		DELETE FROM menu_charge WHERE SITE_CODE = #{siteCode} AND MID = #{mid} <!-- AND CHARGE_ID = #{chargeId} -->
+	</delete>
+
+	<!-- 담당자 삭제 -->
+	<delete id="setDeleteOldById" parameterType="egovframework.portal.sys.MenuMng.vo.MenuChargeVO">
+		DELETE FROM menu_charge WHERE SITE_CODE = #{siteCode} AND MID = #{mid} AND CHARGE_ID = #{chargeId}
+	</delete>
+
+	<!-- 담당자 목록 조회 -->
+	<select id="getMenuCharge" parameterType="egovframework.portal.sys.MenuMng.vo.MenuChargeVO" resultMap="chargeMap">
+		SELECT * FROM menu_charge WHERE SITE_CODE = #{siteCode} AND MID = #{mid} ORDER BY SORT_NUM, IDX ASC
+	</select>
+
+</mapper>

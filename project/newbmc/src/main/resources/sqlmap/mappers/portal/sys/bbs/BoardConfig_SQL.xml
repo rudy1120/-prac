@@ -1,0 +1,243 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.bbs.mapper.BbsConfigMapper">
+	<cache/>
+	<resultMap id="bbsConfigMap" type="egovframework.portal.sys.bbs.vo.BbsConfigVO">
+		<result property="ptIdx"              column="pt_idx"/>
+		<result property="ptTitle"            column="pt_title"/>
+		<result property="ptSiteCode"         column="pt_sitecode"/>
+		<result property="ptTopText"          column="pt_toptext"/>
+		<result property="ptType"             column="pt_type"/>
+		<result property="ptPageSize"         column="pt_pagesize"/>
+		<result property="ptCheckWord"        column="pt_checkword"/>
+		<result property="ptCheckIp"          column="pt_checkip"/>
+		<result property="ptOutFields"        column="pt_outfields"/>
+		<result property="ptOptionReply"      column="pt_optionreply"/>
+		<result property="ptLevelInput"       column="pt_levelinput"/>
+		<result property="ptLevelReply"       column="pt_levelreply"/>
+		<result property="ptFileCnt"          column="pt_filecnt"/>
+		<result property="isDel"              column="is_del"/>
+		<result property="ptCategoryYn"       column="pt_category_yn"/>
+		<result property="ptCategory"         column="pt_category"/>
+		<result property="ptCategoryGubun"    column="pt_category_gubun"/>
+		<result property="ptReplyYn"          column="pt_reply_yn"/>
+		<result property="ptEditYn"           column="pt_edit_yn"/>
+		<result property="ptPublicYn"         column="pt_public_yn"/>
+		<result property="ptCommentYn"        column="pt_comment_yn"/>
+		<result property="ptMngDeptIds"       column="pt_mng_dept_ids"/>
+		<result property="ptMngIds"           column="pt_mng_ids"/>
+		<result property="ptIsolateYn"        column="pt_isolate_yn"/>
+		<result property="ptReportYn"         column="pt_report_yn"/>
+		<result property="ptWriteOnlyYn"      column="pt_write_only_yn"/>
+		<result property="ptRssYn"            column="pt_rss_yn"/>
+		<result property="ptBundleDelYn"      column="pt_bundle_del_yn"/>
+		<result property="ptTermYn"      	  column="pt_term_yn"/>
+		<result property="ptNtermYn"      	  column="pt_nterm_yn"/>
+		<result property="ptSavePurpose"      column="pt_save_purpose"/>
+		<result property="ptSaveCols"         column="pt_save_cols"/>
+		<result property="ptSaveOptCols"      column="pt_save_opt_cols"/>
+		<result property="ptSavePeriod"       column="pt_save_period"/>
+		<result property="ptSaveGuide"        column="pt_save_guide"/>
+		<result property="ptLimitFileSize"    column="pt_limit_file_size"/>
+		<result property="ptLimitTitLen"      column="pt_limit_tit_len"/>
+		<result property="ptSaveGuide"        column="pt_save_guide"/>
+		<result property="createDate"         column="create_date"/>
+		<result property="updateDate"         column="update_date"/>
+		<result property="deleteDate"         column="delete_date"/>
+	</resultMap>
+
+	<resultMap id="bbsConfigAuthMap" extends="bbsConfigMap" type="egovframework.portal.sys.bbs.vo.BbsConfigVO">
+		<result property="ptMngDeptNms"       column="pt_mng_dept_nms"/>
+		<result property="ptMngNms"           column="pt_mng_nms"/>
+	</resultMap>
+
+	<!-- ##### 게시판 목록 ##### -->
+	<sql id="listSearchConditions">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchType)">
+			AND pt_sitecode = #{searchType}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchType)">
+			<if test="#fn = isNotBlank, #fn(menu_category)">
+				<if test="menu_category.equals('0')">
+					AND (s.site_gubun = #{menu_category} OR c.pt_sitecode = 'common')
+				</if>
+				<if test="!menu_category.equals('0')">
+					AND s.site_gubun = #{menu_category}
+				</if>
+			</if>
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			AND pt_title LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchPtType)">
+			AND pt_type = #{searchPtType}
+		</if>
+		<if test="#fn = isNotBlank, #fn(menu_category)">
+			AND s.site_gubun = #{menu_category}
+		</if>
+	</sql>
+	<select id="getBbsConfigCnt" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" resultType="int">
+		SELECT 	COUNT(*) CNT
+		FROM 	bbs_config c
+		LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode AND s.is_use = 'Y' AND s.is_tmp = 'N'
+		WHERE c.is_del = 'N'
+			${searchQuery}
+			<include refid="listSearchConditions" />
+	</select>
+	<select id="getBbsConfigList" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" resultMap="bbsConfigMap">
+		SELECT * FROM (
+			SELECT MA.*, @rownum:=@rownum+1 RNUM
+			FROM (
+				SELECT	c.*
+				FROM bbs_config c
+				LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode AND s.is_use = 'Y' AND s.is_tmp = 'N'
+				WHERE c.is_del = 'N'
+					${searchQuery}
+					<include refid="listSearchConditions" />
+				ORDER BY c.pt_idx DESC
+			) MA, (SELECT @rownum :=0) AS R
+		) RES
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<select id="getBbsConfigAuthList" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" resultMap="bbsConfigAuthMap">
+		SELECT RES.*,
+			   (select group_concat(USR_NM,'(',USR_ID,')') from user_info WHERE LOWER(USR_ID) IN (select REGEXP_SUBSTR(LOWER(RES.pt_mng_ids),'[^,]+',1) from dual) ) as pt_mng_nms	,
+			   (select group_concat(DEP_CODE_NM,'(',DEP_CODE,')') from dept_info WHERE LOWER(DEP_CODE) IN (select REGEXP_SUBSTR(LOWER(RES.pt_mng_dept_ids),'[^,]+',1) from dual) ) as pt_mng_dept_nms
+		FROM (
+			SELECT MA.*, @rownum:=@rownum+1 RNUM
+			FROM (
+				SELECT
+					c.*
+				FROM bbs_config c
+				LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode AND s.is_use = 'Y' AND s.is_tmp = 'N'
+				WHERE c.is_del = 'N'
+					${searchQuery}
+					<include refid="listSearchConditions" />
+				ORDER BY c.pt_idx DESC
+			) MA, (SELECT @rownum :=0) AS R
+		) RES
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- ##### 게시판 전체권한 목록 #####  -->
+	<select id="getTotalBbsConfigAuthListAsMap" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" resultType="HashMap">
+		SELECT
+			c.PT_TITLE,
+			c.PT_SITECODE,
+			ifnull(s.SITE_NAME,'공통') as SITE_NAME,
+			c.PT_TYPE,
+			(select CODE_NM from comm_code cc where cc.code = 'BOARD' AND cc.code_id = c.PT_TYPE) as PT_TYPE_NAME ,
+			(select group_concat(USR_NM,'(',USR_ID,')') from user_info WHERE LOWER(USR_ID) IN (select REGEXP_SUBSTR(LOWER(c.pt_mng_ids),'[^,]+',1) from dual) ) as pt_mng_nms	,
+			(select group_concat(DEP_CODE_NM,'(',DEP_CODE,')') from dept_info WHERE LOWER(DEP_CODE) IN (select REGEXP_SUBSTR(LOWER(c.pt_mng_dept_ids),'[^,]+',1) from dual) ) as pt_mng_dept_nms
+		FROM bbs_config c
+		LEFT JOIN site_mapping s ON s.site_code = c.pt_sitecode AND s.is_use = 'Y' AND s.is_tmp = 'N'
+		WHERE c.is_del = 'N'
+			${searchQuery}
+			<include refid="listSearchConditions" />
+		ORDER BY c.pt_idx DESC
+	</select>
+
+	<!-- ##### 게시판 다음 시퀀스 ##### -->
+	<select id="getPtIdx" resultType="String">
+		select max(pt_idx+1) from bbs_config
+	</select>
+
+	<!-- ##### 단일 게시판 상세 ##### -->
+	<select id="getBbsConfigView" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" resultMap="bbsConfigMap">
+		SELECT 	*
+		FROM 	bbs_config
+		WHERE 	PT_IDX = #{ptIdx}
+	</select>
+	<!-- ##### 동일한 타입의 게시판 목록 ##### -->
+	<select id="configBoardList" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" resultMap="bbsConfigMap">
+		SELECT 	c.*
+		FROM 	bbs_config c
+		WHERE 	is_del = 'N'
+			AND pt_idx != #{ptIdx}
+			AND PT_TYPE = (
+				SELECT pt_type FROM bbs_config WHERE pt_idx = #{ptIdx}
+			)
+		ORDER BY pt_title
+	</select>
+	<!-- ##### 게시판에 연결된 메뉴 개수 ##### -->
+	<select id="getCntUsingThisBbs" parameterType="String" resultType="Integer">
+		SELECT 	COUNT(*) cnt
+		FROM 	menus
+		WHERE 	bbs_mst_idx = #{value}
+	</select>
+
+
+
+
+
+
+
+
+
+
+	<!-- ################## INSERT/UPDATE/DELETE ################## -->
+	<!-- ##### 게시판 등록 ##### -->
+	<insert id="insertBbsConfig" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" flushCache="true">
+		INSERT INTO bbs_config (
+			pt_idx, pt_title, pt_sitecode, pt_toptext, pt_type, pt_pagesize, pt_checkword, pt_checkip, pt_outfields, pt_optionreply, pt_levelinput, pt_levelreply,
+			pt_filecnt, pt_category_yn, pt_category, pt_category_gubun, pt_reply_yn, pt_edit_yn, pt_public_yn, pt_comment_yn, pt_mng_dept_ids, pt_mng_ids,
+			pt_isolate_yn, pt_report_yn, pt_write_only_yn, pt_rss_yn, pt_bundle_del_yn, pt_term_yn, pt_nterm_yn, pt_save_purpose, pt_save_cols, pt_save_opt_cols, pt_save_period, pt_save_guide,
+			pt_limit_file_size, pt_limit_tit_len
+		) VALUES (
+			#{ptIdx}, #{ptTitle}, #{ptSiteCode}, #{ptTopText}, #{ptType}, #{ptPageSize}, #{ptCheckWord}, #{ptCheckIp}, #{ptOutFields}, #{ptOptionReply}, #{ptLevelInput}, #{ptLevelReply},
+			#{ptFileCnt}, #{ptCategoryYn}, #{ptCategory}, #{ptCategoryGubun}, #{ptReplyYn}, #{ptEditYn}, #{ptPublicYn}, #{ptCommentYn}, #{ptMngDeptIds}, #{ptMngIds},
+			#{ptIsolateYn}, #{ptReportYn}, #{ptWriteOnlyYn}, #{ptRssYn}, #{ptBundleDelYn}, #{ptTermYn}, #{ptNtermYn}, #{ptSavePurpose}, #{ptSaveCols}, #{ptSaveOptCols}, #{ptSavePeriod}, #{ptSaveGuide},
+			#{ptLimitFileSize}, #{ptLimitTitLen}
+		)
+	</insert>
+	<!-- ##### 게시판 수정 ##### -->
+	<update id="updateBbsConfig" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" flushCache="true">
+		UPDATE	bbs_config
+		SET		pt_title           = #{ptTitle},
+				pt_sitecode        = #{ptSiteCode},
+				pt_toptext         = #{ptTopText},
+				pt_pagesize        = #{ptPageSize},
+				pt_checkword       = #{ptCheckWord},
+				pt_checkip         = #{ptCheckIp},
+				pt_outfields       = #{ptOutFields},
+				pt_optionreply     = #{ptOptionReply},
+				pt_levelreply      = #{ptLevelReply},
+				pt_filecnt         = #{ptFileCnt},
+				pt_category_yn     = #{ptCategoryYn},
+				pt_category        = #{ptCategory},
+				pt_category_gubun  = #{ptCategoryGubun},
+				pt_reply_yn        = #{ptReplyYn},
+				pt_edit_yn         = #{ptEditYn},
+				pt_public_yn       = #{ptPublicYn},
+				pt_comment_yn      = #{ptCommentYn},
+				pt_mng_dept_ids    = #{ptMngDeptIds},
+				pt_mng_ids         = #{ptMngIds},
+				pt_isolate_yn      = #{ptIsolateYn},
+				pt_report_yn       = #{ptReportYn},
+				pt_write_only_yn   = #{ptWriteOnlyYn},
+				pt_rss_yn          = #{ptRssYn},
+				pt_bundle_del_yn   = #{ptBundleDelYn},
+				pt_term_yn   	   = #{ptTermYn},
+				pt_nterm_yn   	   = #{ptNtermYn},
+				pt_save_purpose    = #{ptSavePurpose},
+				pt_save_cols       = #{ptSaveCols},
+				pt_save_opt_cols   = #{ptSaveOptCols},
+				pt_save_period     = #{ptSavePeriod},
+				pt_save_guide      = #{ptSaveGuide},
+				pt_limit_file_size = #{ptLimitFileSize},
+				pt_limit_tit_len   = #{ptLimitTitLen},
+				update_date        = NOW()
+		WHERE 	pt_idx = #{ptIdx}
+	</update>
+	<!-- ##### 게시판 삭제 ##### -->
+	<update id="deleteBbsConfig" parameterType="egovframework.portal.sys.bbs.vo.BbsConfigVO" flushCache="true">
+		UPDATE	bbs_config
+		SET		is_del 		= 'Y',
+				update_date	= NOW()
+		WHERE 	pt_idx 		= #{ptIdx}
+	</update>
+
+</mapper>

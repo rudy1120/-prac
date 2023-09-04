@@ -1,0 +1,120 @@
+/* 사이트 전체 공통 */
+#header {position:fixed; width:100%; top:0; left:0; background:#fff; box-shadow: 0 0 10px rgba(0,0,0,.3); z-index: 9999;;}
+#header .header_inner:after {content:""; display: block; clear: both;}
+#header .logo {position: absolute; top:50%;}
+#header #top_nav li { position: relative;}
+#header #top_nav .top_nav_sub {display: none;}
+
+#header #back {position: absolute; display: none;}
+
+#sub_visual {height:370px; background: url(/history/img/common/bg_sub_visual.jpg) no-repeat center center / cover; overflow: hidden; position: relative;}
+#sub_visual:before {content: ""; display: block; position: absolute; top:0; left:0; bottom: 0; right: 0; background: rgba(0,0,0,.6);}
+#sub_visual h2 {position: absolute; top:50%; left:50%; transform: translate(-50%, -50%); color:#fff; font-size: 3em; font-weight: normal;}
+
+#side_nav {background: #ad860b;}
+#side_nav .side_nav_inner {max-width: 1200px; margin: 0 auto;}
+#side_nav .side_nav_inner > ul:after {content:""; display: block; clear: both;}
+#side_nav .side_nav_inner > ul > li {float: left; color:#fff; position: relative;}
+#side_nav .side_nav_inner > ul > li.home > a {display: block; width: 70px; height:70px; overflow: hidden; text-indent: -9999px; background: url(/history/img/common/ico_home.png) no-repeat center center; border-left:1px solid #bd9e3c; border-right: 1px solid #bd9e3c;}
+#side_nav .side_nav_inner > ul > li > button { height:70px; width:230px; padding:0 60px 0 30px; border-right: 1px solid #bd9e3c; text-align: left; position: relative;}
+#side_nav .side_nav_inner > ul > li > button:after {content:""; display: block; width: 12px; height: 6px; background: url(/history/img/common/ico_arrow_down.png) no-repeat center center; position: absolute; top:50%; right:30px; transform: translateY(-50%);}
+#side_nav .side_nav_sub {display: none; position: absolute; top:100%; left:0; right:0; background: #ad860b; z-index: 1;}
+#side_nav .side_nav_sub > li > a {display: block; border-top:1px solid #bd9e3c; height:70px; width:230px; padding:25px 60px 0 30px}
+#side_nav .side_nav_inner >ul > li:hover .side_nav_sub {display:block;}
+#side_nav .side_nav_sub > li > a:hover {color: #1d1d1d;} 
+ 
+
+
+#contents {padding:130px 15px 180px; line-height: 1.6;}
+#contents .contents_inner {max-width: 1200px; margin: 0 auto;}
+#contents .sub_tit {text-align: center; font-size:3em; padding-bottom:50px; margin-bottom:50px; position: relative;}
+#contents .sub_tit:before {content:""; display: block; width:20px; height: 3px; background:#00879e; position: absolute; bottom: 0; right:50%;}
+#contents .sub_tit:after {content:""; display: block; width:20px; height: 3px; background:#8fc320; position: absolute; bottom: 0; left:50%;}
+#contents .sub_txt {font-size: 1.1em; text-align: center; line-height: 1.8; margin-bottom:110px;}
+#contents .point_txt {font-size:1.8em; color:#ad860b; text-align: center; line-height: 1.6; font-weight: bold; margin-bottom: 30px;}
+#contents .point_txt:before {content:""; display: inline-block; width:34px; height: 24px; background: url(/history/img/common/ico_point.jpg) no-repeat 0 center / cover; margin-right: 10px; vertical-align: top;}
+#contents .point_txt:after {content:""; display: inline-block; width:34px; height: 24px; background: url(/history/img/common/ico_point.jpg) no-repeat -34px center / cover; margin-left: 10px; vertical-align: top;}
+
+#footer {background:#313131; color:#aaa;}
+#footer .footer_inner {max-width: 1200px; margin: 0 auto; font-size: 0.9em; padding:40px 15px 60px;}
+#footer .footer_inner:after {content:""; display: block; clear: both;}
+#footer .footer_logo {float: left;}
+#footer .copyright {float: left; padding: 25px 25px 0; line-height: 1.8;}
+#footer .family_site {float: right;}
+#footer .family_site button {background: #161616; padding:12px;}
+
+
+/* desktop */
+@media all and (min-width:1025px){
+    #header .header_inner {position: relative; z-index: 1;}
+    #header .logo {left:15px; transform: translateY(-50%);}
+    #header #top_nav_btn {display:none;}
+    #header #top_nav {float: right;}
+    #header #top_nav > ul:after {content:""; display: block; clear: both;}
+    #header #top_nav > ul > li {float: left;}
+    #header #top_nav > ul > li > a {font-size:1.2em; font-weight: bold; display: block; padding: 35px 70px; position: relative;}
+    #header #top_nav > ul > li > a:after {content:""; display: block; width: 0; height: 3px; bottom: 0; left:50%; transform: translateX(-50%); background: #ad860b; position: absolute; transition: all 0.3s ease-out;}
+    #header #top_nav > ul > li.active > a:after {width: 100%;}
+    #header #top_nav .top_nav_sub {position: absolute; top:100%; left:0; right:0; background:#fff; border-top:1px solid #ccc;}
+    #header #top_nav > ul > li.active .top_nav_sub {background:#f9f9f9;}
+    #header #top_nav > ul > li .top_nav_sub > li > a {display: block; padding:15px;}
+    #header #top_nav > ul > li .top_nav_sub > li:hover > a {background:#333; color:#bbb;}
+    #header #top_nav .top_nav_sub_btn {display: none}
+
+    #header #back {top:100%; left:0; right:0; background: #fff; border-top: 1px solid #ccc; border-bottom: 1px solid #ccc;}
+
+    #container {margin-top:89px;}
+    #footer .family_site button{display:none;}
+}
+
+/* tablet */
+@media all and (max-width:1024px){
+    #header {height: 70px;}
+    #header .logo {left:50%; transform: translate(-50%, -50%);}
+    #header #top_nav_btn {position: absolute; top:50%; right: 15px; transform: translateY(-50%); width:30px; height: 30px; overflow: hidden; text-indent: -9999px;}
+    #header #top_nav_btn > span {display: block; width:100%; height:3px; background:#333; position: absolute; left:50%; transform: translate(-50%, -50%); transition: all 0.3s ease-out;}
+    #header #top_nav_btn > span:nth-of-type(1) {top:3px;}
+    #header #top_nav_btn > span:nth-of-type(2) {top:15px;}
+    #header #top_nav_btn > span:nth-of-type(3) {top:27px;}
+    #header.open #top_nav_btn > span:nth-of-type(1) {transform: translate(-50%, -50%) rotate(45deg); top:50%;}
+    #header.open #top_nav_btn > span:nth-of-type(2) {left:100%; opacity: 0;}
+    #header.open #top_nav_btn > span:nth-of-type(3) {transform: translate(-50%, -50%) rotate(-45deg); top:50%;}
+    #header #top_nav {display: none;position: fixed; top:70px; bottom:0; right:-320px; width:100%; max-width:320px; opacity: 0; background:#fff; z-index: 999; transition: all 0.3s ease-out;}
+    #header #top_nav_btn:hover ~ #top_nav,
+    #header #top_nav_btn:focus ~ #top_nav {display:block;}
+    #header.open #top_nav {display: block; opacity: 1; right:0;}
+    #header #top_nav li a {position: relative; display: block; padding: 0 35px 0 15px;}
+    /* #header #top_nav li a:after {content:""; display: block; width:12px; height: 6px; background: url(/history/img/common/ico_select_arrow.png) no-repeat center center; position: absolute; top:50%; right:15px; transform: translateY(-50%);} */
+    #header #top_nav > ul > li > a {height:50px; border-bottom:1px solid #ccc; line-height: 50px;}
+    #header #top_nav > ul > li:first-of-type > a {border-top: 1px solid #ccc;}
+    #header #top_nav .top_nav_sub > li > a {border-bottom:1px solid #ddd; padding:10px; background: #f9f9f9;}
+    #header #top_nav > ul > li .top_nav_sub > li:hover > a {background:#333; color:#bbb;}
+    #header #top_nav li > .top_nav_sub_btn {width:24px; height: 24px; position: absolute; top:12px; right:15px; background: url(/history/img/common/ico_select_arrow.png) no-repeat center center; text-indent: -9999px; overflow: hidden;}
+    #header #top_nav li.active > .top_nav_sub_btn {transform: rotate(180deg);}
+
+    #header #back {position: fixed; top:70px; left:0; right:0; bottom:0; background: rgba(0,0,0,.6);}
+    
+	#side_nav {display:none;}
+    #sub_visual {height:150px;}
+
+    #container {margin-top:70px;}
+    #footer .family_site button{display:none;}
+}
+
+/* Mobile */
+@media all and (max-width:768px){
+    #header #top_nav > ul > li .top_nav_sub > li:hover > a {background:#333; color:#bbb;}
+    #sub_visual h2 {font-size: 2.4em;}
+	#side_nav {display:none;}
+    #side_nav .side_nav_inner > ul > li.home {width:70px;}
+    #side_nav .side_nav_inner > ul > li {width:calc(50% - 35px);}
+    #side_nav .side_nav_inner > ul > li > button {width:100%;}
+
+    #contents {padding:60px 15px 90px;}
+
+    #footer {text-align: center;}
+    #footer .footer_logo {width:100%;}
+    #footer .copyright {width:100%; margin-bottom: 20px;}
+    #footer .family_site {width:100%;}
+	#footer .family_site button {display:inline-block;}
+}

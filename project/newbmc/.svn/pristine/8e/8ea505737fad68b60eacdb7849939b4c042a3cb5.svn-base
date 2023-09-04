@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.apply.mapper.ApplySmsMapper">
+
+	<resultMap id="smsMap" type="egovframework.portal.unit.bmc.apply.vo.ApplySmsVO">
+		<result property="idx"				column="idx"/>
+		<result property="codename"			column="codename"/>
+		<result property="usescode"			column="usescode"/>
+		<result property="housingtype"		column="housingtype"/>
+		<result property="termcode"			column="termcode"/>
+	</resultMap>
+	
+<!-- ================================================ SELECT ================================================ -->
+
+	<!-- ##### 지역 정보 ##### -->
+	<select id="getAreaList" resultMap="smsMap">
+		<![CDATA[
+		SELECT
+				idx
+		,		codename
+		FROM	sellcode
+		WHERE	grpcode = 'GRP001'
+		 ]]>
+	</select>
+	
+	<!-- ##### 지역에 따른 공급 용도 ##### -->
+	<select id="getUsesList" resultMap="smsMap"  parameterType="String" >
+		<![CDATA[
+			SELECT
+					codename
+			FROM	sellcode
+			WHERE	grpcode = 'GRP001'
+			ORDER BY codename
+		 ]]>
+	</select>
+	
+	<!-- ##### 분양알림 신청자 정보조회 ##### -->
+	<select id="getApplyInfo" parameterType="egovframework.portal.unit.bmc.apply.vo.ApplySmsVO" resultMap="smsMap" >
+		<![CDATA[
+		SELECT
+				idx
+		,		name
+		,		phone
+		,		usescode
+		,		termcode
+		FROM	sms_sale
+		WHERE	name = #{name}
+		AND		phone = #{phone}
+		 ]]>
+	</select>
+	
+	<!-- ##### 분양알림 신규 신청자 등록 ##### -->
+	<insert id="insertApply" parameterType="egovframework.portal.unit.bmc.apply.vo.ApplySmsVO">
+		<![CDATA[
+		INSERT
+		INTO	sms_sale
+		(
+			idx
+		,	name
+		,	phone
+		,	usescode
+		,	termcode
+		)
+		VALUES
+		(
+			(
+				SELECT
+					*
+				FROM
+				(
+				SELECT
+					IFNULL(MAX(idx),0)+1
+				FROM	sms_sale
+				)AS idx
+			)
+		,	#{name}
+		,	#{phone}
+		,	#{usescode}
+		,	#{termcode}
+		)
+		 ]]>
+	</insert>
+	
+	<delete id="deleteApply" parameterType="egovframework.portal.unit.bmc.apply.vo.ApplySmsVO">
+		<![CDATA[
+		DELETE
+		FROM		sms_sale
+		WHERE		NAME = #{name}
+		AND			phone = #{phone}
+		 ]]>	
+	</delete>
+	
+	<!-- ##### 주택 유형 ##### -->
+	<select id="getHousingTypeList" resultMap="smsMap">
+		<![CDATA[	
+		SELECT
+				idx
+		,		codename
+		FROM	sellcode
+		WHERE	grpcode = 'GRP002'
+		ORDER BY sell_order
+		 ]]>	
+	</select>
+	
+	<!-- ##### 임대주택 신청자 정보조회 ##### -->
+	<select id="getApplyInfo2" parameterType="egovframework.portal.unit.bmc.apply.vo.ApplySmsVO" resultMap="smsMap" >
+		<![CDATA[
+		SELECT
+				idx
+		,		name
+		,		phone
+		,		housingtype
+		, 		termcode
+		FROM	sms_housing a
+		WHERE	name = #{name}
+		AND		phone = #{phone}
+		]]>
+	</select>
+	
+	<!-- ##### 임대주택 신규 신청자 등록 ##### -->
+	<insert id="insertApply2" parameterType="egovframework.portal.unit.bmc.apply.vo.ApplySmsVO">
+		<![CDATA[
+		INSERT
+		INTO	sms_housing
+		(
+			idx
+		,	name
+		,	phone
+		,	housingtype
+		,	termcode
+		)
+		VALUES
+		(
+			(
+				SELECT
+					*
+				FROM
+				(
+				SELECT
+					IFNULL(MAX(idx),0)+1
+				FROM	sms_housing
+				)AS idx
+			)
+		,	#{name}
+		,	#{phone}
+		,	#{housingtype}
+		,	#{termcode}
+		)
+		 ]]>
+	</insert>
+	
+	<!-- ##### 임대주택 신청자 삭제 ##### -->
+	<delete id="deleteApply2" parameterType="egovframework.portal.unit.bmc.apply.vo.ApplySmsVO">
+		<![CDATA[
+		DELETE
+		FROM		sms_housing
+		WHERE		NAME = #{name}
+		AND			phone = #{phone}
+		 ]]>
+	</delete>
+	
+	<!-- #### 공급용도 정도 ##### -->
+	<select id="getPurposerList" resultMap="smsMap" >
+	<![CDATA[
+		SELECT	
+				idx
+		,		codename
+		FROM	sellcode
+		WHERE	grpcode = 'GRP003'
+		AND		useYN = 'Y'
+	 ]]>
+	</select>
+	
+	<!-- #### 서비스이용기간 정도 ##### -->
+	<select id="getServiceTermList" resultMap="smsMap" >
+	<![CDATA[
+		SELECT	
+				idx
+		,		codename
+		FROM	sellcode
+		WHERE	grpcode = 'GRP004'
+		AND		useYN = 'Y'
+	 ]]>
+	</select>
+	
+</mapper>

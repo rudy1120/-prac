@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.pub.mapper.PublicMapper">
+
+	<!-- 카테고리 목록 -->
+	<select id="getCategoryList" parameterType="egovframework.portal.unit.bmc.pub.vo.PublicVO" resultType="egovframework.portal.unit.bmc.pub.vo.PublicVO">
+		SELECT 
+			cat_idx as catIdx, cat_name as catName, order_num as orderNum, use_yn as useYn, 
+		    date_format(reg_date, '%Y-%m-%d %H:%i:%s') as regDate, date_format(upt_date, '%Y-%m-%d %H:%i:%s') as uptDate, 
+		    reg_id as regId, upt_id as uptId
+		FROM public_category
+		order by order_num asc
+	</select>
+	
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<if test="searchCatIdx != 0">
+			AND a.cat_idx = #{searchCatIdx}
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(depart)">
+			AND depart LIKE CONCAT('%',#{depart},'%')
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			AND ${searchType} LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+	</sql>
+	
+	<!-- 사전정보공표 총 카운트 -->
+	<select id="getDataTotalCnt" parameterType="egovframework.portal.unit.bmc.pub.vo.PublicVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM (
+				SELECT a.pub_idx
+				FROM public_data a left join public_category b
+				ON a.cat_idx = b.cat_idx
+				WHERE 1 = 1
+				<include refid="listSearcher"/>
+			) rs
+			GROUP BY pub_idx
+		) RES
+	</select>
+	
+	<!-- 사전정보공표 목록 -->
+	<select id="getDataList" parameterType="egovframework.portal.unit.bmc.pub.vo.PublicVO" resultType="egovframework.portal.unit.bmc.pub.vo.PublicVO">
+	<![CDATA[
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT 
+					a.pub_idx as pubIdx, a.cat_idx as catIdx, b.cat_name as catName, replace(replace(a.name, '&lt;', '<'), '&gt;', '>') as name, 
+					replace(replace(a.article, '&lt;', '<'), '&gt;', '>') as article, 
+					a.time, a.cycle, a.depart, a.link, a.use_yn as useYn, a.order_num as orderNum, 
+					date_format(a.reg_date, '%Y-%m-%d %H:%i:%s') as regDate, date_format(a.upt_date, '%Y-%m-%d %H:%i:%s') as uptDate, a.reg_id as regId, a.upt_id as uptId
+				FROM public_data a left join public_category b
+				ON a.cat_idx = b.cat_idx
+				WHERE 1 = 1
+	]]>
+				<include refid="listSearcher"/>
+	<![CDATA[				
+				ORDER BY b.order_num asc, a.order_num asc, a.name asc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+	]]>  WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<!-- 사전정보공표 조회수 -->
+	<select id="getStatsList" parameterType="egovframework.portal.unit.bmc.pub.vo.PublicVO" resultType="egovframework.portal.unit.bmc.pub.vo.PublicVO">
+	<![CDATA[
+		select * from (
+		SELECT 
+			tb.pubIdx, tb.name, tb.cnt, tb.link, @rownum:=@rownum+1 as ranking
+		FROM (
+			SELECT a.pub_idx as pubIdx, replace(replace(a.name, '&lt;', '<'), '&gt;', '>') as name, b.cnt, a.link
+			FROM public_data a join (
+				SELECT pub_idx, count(pub_idx) cnt
+				FROM public_stats
+				group by pub_idx
+			) b
+			ON a.pub_idx = b.pub_idx
+			AND use_yn = 'Y'
+			ORDER BY b.cnt desc
+		) tb
+        WHERE (@rownum:=0)=0
+        ) t where t.ranking < 5
+	]]>
+	</select>
+	
+	<!-- 사전정보공표 조회수 집계 -->
+	<insert id="insertStats" parameterType="egovframework.portal.unit.bmc.pub.vo.PublicVO">
+		<![CDATA[
+		INSERT INTO public_stats (
+			pub_idx, access_date
+		) VALUES (
+			#{pubIdx}, NOW()
+		)
+		]]>
+	</insert>
+	
+	<select id="getDepartList" resultType="hashMap">
+		select depart from public_data
+			group by depart
+	</select>
+	
+	
+	<insert id="insert" parameterType="egovframework.portal.unit.bmc.pub.vo.PublicVO">
+		<![CDATA[
+        INSERT INTO monitor (
+			ptidx,usernm,email,tel,title,content
+		) VALUES (
+		    (select ptidx FROM (select ifnull(max(ptidx),0)+1 as ptidx FROM monitor) AS ptidx),#{usernm},#{email},#{tel},#{title},#{content}
+		)
+		]]>
+	</insert>
+</mapper>

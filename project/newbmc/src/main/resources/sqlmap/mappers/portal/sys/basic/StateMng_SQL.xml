@@ -1,0 +1,448 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.basic.stateMng.mapper.StateSysMapper">
+
+	<resultMap id="StateSearchMenuSysVO_map" type="egovframework.portal.sys.basic.stateMng.vo.StateSearchMenuSysVO">
+		<result property="mId" column="LOG_MID" />
+		<result property="menuName" column="MENU_NAME" />
+		<result property="parentName" column="PARENT_NAME" />
+	</resultMap>
+	<resultMap id="StateSysVO_map1" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="statsLabel" column="month" />
+		<result property="statsCount" column="count" />
+	</resultMap>
+	<resultMap id="StateSysVO_map2" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="statsLabel" column="day" />
+		<result property="statsCount" column="count" />
+	</resultMap>
+	<resultMap id="StateSysVO_map3" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="statsLabel" column="period" />
+		<result property="statsCount" column="count" />
+	</resultMap>
+	<resultMap id="StateSysVO_map4" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="statsLabel" column="referer" />
+		<result property="statsCount" column="cnt" />
+	</resultMap>
+	<resultMap id="StateSysVO_map5" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="statsLabel" column="USERAGENT" />
+		<result property="statsCount" column="sumcnt" />
+	</resultMap>
+	<resultMap id="StateSysVO_map6" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="statsLabel" column="month" />
+		<result property="statsCount" column="count" />
+		<result property="mId" column="LOG_MID" />
+		<result property="menuName" column="MENU_NAME" />
+	</resultMap>
+	<resultMap id="StateSysVO_map7" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="statsCount" column="count" />
+		<result property="siteName" column="SITE_NAME" />
+	</resultMap>
+	<resultMap id="StateSysVO_map8" type="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<result property="siteName" column="SITE_NAME" />
+		<result property="statsCount" column="count" />
+		<result property="menuPath" column="MENU_PATH" />
+	</resultMap>
+
+
+	<!-- insert update log - site
+	<procedure id="procLogSite" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+	<![CDATA[
+		{call PROC_LOG_SITE_${year} (#{siteCode}, #{ip},#{userAgent},#{userAgentFull}, #{referer, jdbcType=VARCHAR}, #{refererFull, jdbcType=VARCHAR}, #{sessionId} )}
+	]]>
+	</procedure> -->
+
+	<!-- log - site / 트랜잭션 대용 / step1 -->
+<!-- 	<select id="procLogSite_step1" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO" resultType="int"> -->
+<!-- 		select count(*) as cntDupl -->
+<!-- 		from state_log_site_${year} tb1 -->
+<!-- 		where tb1.SITECODE = #{siteCode} and tb1.SESSIONID = #{sessionId} -->
+<!-- 		and date_format(tb1.LOG_DATE,'%Y-%m-%d') = #{today} -->
+<!-- 	</select> -->
+	<!-- log - site / 트랜잭션 대용 / step2 -->
+<!-- 	<insert id="procLogSite_step2" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO"> -->
+<!-- 		insert into state_log_site_${year} ( -->
+<!-- 			SITECODE,IP, USERAGENT,USERAGENT_FULL, REFERER, SESSIONID, key_time -->
+<!-- 		) -->
+<!-- 		values ( -->
+<!-- 			#{siteCode}, #{ip}, #{userAgent}, #{userAgentFull},#{referer, jdbcType=VARCHAR}, #{sessionId}, #{keyTime} -->
+<!-- 		) -->
+<!-- 	</insert> -->
+	<!-- log - site / 트랜잭션 대용 / step3 -->
+<!-- 	<select id="procLogSite_step3" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO" resultType="int"> -->
+<!-- 		select ifnull(max(LOG_TOTAL),0) as cntTotal -->
+<!-- 		from state_today_site tb2 -->
+<!-- 		where tb2.LOG_SITECODE = #{siteCode} -->
+<!-- 	</select> -->
+	<!-- log - site / 트랜잭션 대용 / step4 -->
+<!-- 	<insert id="procLogSite_step4" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO"> -->
+<!-- 		INSERT INTO state_today_site (LOG_TODAY,LOG_SITECODE,LOG_COUNT,LOG_TOTAL) -->
+<!-- 		VALUES(#{today}, #{siteCode}, 1, ${cntTotal}+1) -->
+<!-- 		ON DUPLICATE KEY UPDATE -->
+<!-- 		LOG_COUNT=LOG_COUNT+1, LOG_TOTAL=LOG_TOTAL+1 -->
+<!-- 	</insert> -->
+
+
+	<!-- insert update log - menu
+	<procedure id="procLogMenu" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+	<![CDATA[
+		{call PROC_LOG_MENU_${year}(#{siteCode}, #{menuId}, #{ip},#{userAgent}, #{userAgentFull},#{referer, jdbcType=VARCHAR}, #{refererFull, jdbcType=VARCHAR}, #{sessionId} )}
+	]]>
+	</procedure> -->
+
+	<!-- ##### 세션별 메뉴 로그 건수(log - menu / 트랜잭션 대용 / step1) #####  -->
+<!-- 	<select id="procLogMenu_step1" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO" resultType="int"> -->
+<!-- 		select count(*)	as cntDupl -->
+<!-- 		from state_log_menu_${year} tb1 -->
+<!-- 		where tb1.SITECODE = #{siteCode} -->
+<!-- 			and tb1.MENUID = #{menuId} -->
+<!-- 			and tb1.SESSIONID = #{sessionId} -->
+<!-- 			and date_format(tb1.LOG_DATE,'%Y-%m-%d') = #{today} -->
+<!-- 	</select> -->
+	<!-- ##### 메뉴 접근 로그 기록(log - menu / 트랜잭션 대용 / step2) ##### -->
+<!-- 	<insert id="procLogMenu_step2" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO"> -->
+<!-- 		insert into state_log_menu_${year} ( -->
+<!-- 			SITECODE,MENUID,IP, USERAGENT,USERAGENT_FULL, REFERER, SESSIONID, key_time -->
+<!-- 		) values ( -->
+<!-- 			#{siteCode},#{menuId}, #{ip}, #{userAgent},#{userAgentFull}, #{referer, jdbcType=VARCHAR}, #{sessionId}, #{keyTime} -->
+<!-- 		) -->
+<!-- 	</insert> -->
+	<!-- ##### 해당 메뉴 토탈 건수(log - menu / 트랜잭션 대용 / step3) ##### -->
+<!-- 	<select id="procLogMenu_step3" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO" resultType="int"> -->
+<!-- 		select ifnull(max(LOG_TOTAL),0) as cntTotal -->
+<!-- 		from state_today_menu tb2 -->
+<!-- 		where tb2.LOG_SITECODE = #{siteCode} -->
+<!-- 			AND tb2.LOG_MID = #{menuId} -->
+<!-- 	</select> -->
+	<!-- ##### 금일 메뉴 접근 기록(log - menu / 트랜잭션 대용 / step4) ##### -->
+<!-- 	<insert id="procLogMenu_step4" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO"> -->
+<!-- 		INSERT INTO state_today_menu (LOG_TODAY,LOG_SITECODE,LOG_MID,LOG_COUNT,LOG_TOTAL) -->
+<!-- 		VALUES(#{today}, #{siteCode}, #{menuId}, 1, ${cntTotal} + 1) -->
+<!-- 		ON DUPLICATE KEY UPDATE -->
+<!-- 		LOG_COUNT = LOG_COUNT + 1, LOG_TOTAL = LOG_TOTAL + 1 -->
+<!-- 	</insert> -->
+
+
+
+
+
+	<!-- ##### 사이트별 메뉴목록 조회 ##### -->
+	<select id="comboMenusForSite" resultMap="StateSearchMenuSysVO_map">
+		select ostm.LOG_MID, om.MENU_NAME, om2.MENU_NAME parent_name
+		from (
+			select LOG_SITECODE, LOG_MID
+			from state_today_menu
+			where 1 = 1
+				<if test="@egovframework.portal.util.StringUtil@isNotBlank(siteCode)">
+					and LOG_SITECODE = #{siteCode}
+				</if>
+			group by LOG_SITECODE, LOG_MID
+		) ostm
+		left join menus om on LOG_SITECODE = om.SITE_CODE and ostm.LOG_MID=om.MID
+		left join menus om2 on om.parent_idx = om2.idx
+		where om.MENU_NAME is not null
+		order by om.PARENT_IDX,om.IDX
+	</select>
+
+	<!-- ##### 통합 사이트기준 토탈 조회수 획득 ##### -->
+	<select id="getTotalCount" resultType="java.util.HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select
+			sum(LOG_COUNT) FULL,
+			sum(case when substr(LOG_TODAY, 1, 4) = date_format(NOW(),'%Y') then LOG_COUNT else 0 end) YEAR,
+			sum(case when substr(LOG_TODAY, 1, 7) = date_format(NOW(),'%Y-%m') then LOG_COUNT else 0 end) MONTH,
+			sum(case when LOG_TODAY = date_format(NOW(),'%Y-%m-%d') then LOG_COUNT else 0 end) DAY
+		from state_today_site where log_sitecode = 'bmc' or log_sitecode = 'osiria' or log_sitecode = 'badaga'
+	</select>
+
+	<!-- ##### 사이트/메뉴 토탈 조회수 획득 ##### -->
+	<select id="getTotalCountSM" resultType="java.util.HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		<!-- 20150702 ren
+		select sum(LOG_COUNT) full,
+		sum(case when substr(LOG_TODAY, 1, 4)=date_format(NOW(),'%Y') then LOG_COUNT else 0 end ) year,
+		sum(case when substr(LOG_TODAY, 1, 7)=date_format(NOW(),'%Y-%m') then LOG_COUNT else 0 end ) month,
+		sum(case when LOG_TODAY=date_format(NOW(),'%Y-%m-%d') then LOG_COUNT else 0 end ) day
+		from ${searchTable}
+		where ${searchQuery}
+		-->
+		SELECT
+			ifnull(SUM(LOG_COUNT), 0) FULL,
+			ifnull(SUM(case when substr(LOG_TODAY, 1, 4) = date_format(NOW(),'%Y') then LOG_COUNT else 0 end), 0) YEAR,
+			ifnull(SUM(case when substr(LOG_TODAY, 1, 7) = date_format(NOW(),'%Y-%m') then LOG_COUNT else 0 end), 0) MONTH,
+			ifnull(SUM(case when LOG_TODAY = date_format(NOW(),'%Y-%m-%d') then LOG_COUNT else 0 end), 0) DAY
+		from ${searchTable}
+		where ${searchQuery}
+		and (log_sitecode = 'bmc' or log_sitecode = 'osiria' or log_sitecode = 'badaga')
+	</select>
+
+	<!-- ##### 사이트/메뉴 통계 년도 ##### -->
+	<select id="selectStatsYearSM" resultMap="StateSysVO_map1" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select month, sum(LOG_COUNT) count
+		from (
+			select LOG_COUNT, cast(substr(LOG_TODAY,6,2) AS UNSIGNED) month
+			from ${searchTable}
+			where substr(LOG_TODAY,1,4)='${year}' and ${searchQuery}
+			and (log_sitecode != 'portal' and log_sitecode != 'common')
+		) tlb
+		group by month
+		order by month
+	</select>
+
+	<!-- ##### 사이트/메뉴 통계 월 ##### -->
+	<select id="selectStatsMonthSM" resultMap="StateSysVO_map2" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select day, sum(LOG_COUNT) count
+		from (
+			select LOG_COUNT, cast(substr(LOG_TODAY,9,2) AS UNSIGNED) day
+			from ${searchTable}
+			where substr(LOG_TODAY,1,7) = '${year}-${month}' and ${searchQuery}
+			and (log_sitecode != 'portal' and log_sitecode != 'common')
+		) tlb
+		group by day
+		order by day
+	</select>
+
+	<!-- ##### 사이트/메뉴 통계 기간 ##### -->
+	<select id="selectStatsPeriodSM" resultMap="StateSysVO_map3" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select period, sum(LOG_COUNT) count
+		from (
+			select LOG_COUNT, LOG_TODAY period
+			from ${searchTable}
+			where LOG_TODAY between'${dateStart}' and '${dateEnd}' and ${searchQuery}
+			and (log_sitecode != 'portal' and log_sitecode != 'common')
+		) tlb
+		group by period
+		order by period
+	</select>
+
+	<!-- 유입사이트 분석 -->
+	<select id="selectStatsReferer" resultMap="StateSysVO_map4" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select *
+		from (
+			select stats.*, @rownum:=@rownum+1 RNUM
+			from (
+				select count(referer) as cnt, referer
+				from ${searchTable}
+				where referer is not null and ${searchQuery}
+				group by referer
+				order by cnt desc
+			) stats, (SELECT @rownum :=0) AS R
+		) RES
+		WHERE RNUM between 0 and 20
+	</select>
+
+	<!-- ##### 브라우저 분석 ##### -->
+	<select id="selectStatsAgent" resultMap="StateSysVO_map5" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select count(*) as sumcnt, USERAGENT
+		from ${searchTable}
+		where 1 = 1 and ${searchQuery}
+		and ( sitecode != 'common' and sitecode != 'portal' )
+		group by USERAGENT order by sumcnt desc
+	</select>
+
+	<!-- ##### 통합 사이트기준 시각화 사이트 조회수 획득 ##### -->
+	<select id="selectStatsVisualization" resultMap="StateSysVO_map6" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT MONTH, COUNT, LOG_MID, MENU_NAME
+		FROM (
+				SELECT
+					MONTH,
+					SUM(LOG_COUNT) COUNT, LOG_MID
+				FROM (
+						SELECT
+							LOG_COUNT,
+							cast(SUBSTR(LOG_TODAY,6,2) AS UNSIGNED) MONTH,
+							LOG_MID
+						FROM
+							state_today_menu
+						WHERE
+							SUBSTR(LOG_TODAY,1,4)=#{year}
+						AND LOG_SITECODE=#{siteCode}
+				) TLB
+				WHERE MONTH = #{month} AND LENGTH(LOG_MID) = 10
+				GROUP BY MONTH, LOG_MID
+				ORDER BY MONTH
+		 ) A , (SELECT MID, MENU_NAME FROM menus WHERE SITE_CODE=#{siteCode} AND IS_USE = 'Y') TMN
+		 WHERE A.LOG_MID = TMN.MID
+		 ORDER BY COUNT DESC
+	</select>
+
+
+
+
+
+	<!-- ##### 파일 다운로드 통계(연도별) ##### -->
+	<select id="selectFileDownStatsYearSM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT s_year AS dYear, SUM(cnt) AS cnt
+		FROM comtnfile_stat
+		GROUP BY s_year
+		ORDER BY s_year DESC
+	</select>
+	<!-- ##### 파일 다운로드 통계(월별) ##### -->
+	<select id="selectFileDownStatsMonthSM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT
+			s_month AS dMonth,
+			SUM(cnt) AS cnt
+		FROM comtnfile_stat
+		WHERE s_year = #{year}
+		GROUP BY s_month
+		ORDER BY s_month DESC
+	</select>
+	<!-- ##### 파일 다운로드 통계(일별) ##### -->
+	<select id="selectFileDownStatsDaySM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT
+			s_day AS dDay,
+			SUM(cnt) AS cnt
+		FROM comtnfile_stat
+		WHERE s_year = #{year} AND s_month = #{month}
+		GROUP BY s_day
+		ORDER BY s_day DESC
+	</select>
+	<!-- ##### 기간내 파일 다운로드 건수 총합 ##### -->
+	<select id="selectFileDownStatsPeriodSM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT SUM(cnt) AS cnt
+		FROM comtnfile_stat
+		WHERE DATE_FORMAT(CONCAT(s_year , '-' , s_month , '-' , s_day),'%Y-%m-%d') BETWEEN #{dateStart} AND #{dateEnd}
+	</select>
+	<!-- #### 파일 다운로드 통계 요약(최소 연도/최대 연도/전체 다운로드 건수/금년 전체 다운로드 건수/금월 전체 다운로드 건수/금일 전체 다운로드 건수) #####  -->
+	<select id="getTotalFileDownCount" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT
+			MIN(s_year) AS minYear,
+			MAX(s_year) AS maxYear,
+			ifnull(SUM(cnt), 0) AS full,
+			ifnull(SUM(
+				CASE WHEN s_year = date_format(NOW(), '%Y') THEN cnt
+				ELSE 0 END
+			), 0) AS year,
+			ifnull(SUM(
+				CASE WHEN CONCAT(s_year , s_month) = date_format(NOW(), '%Y%m') THEN cnt
+				ELSE 0 END
+			), 0) AS month,
+			ifnull(SUM(
+				CASE WHEN CONCAT(s_year , s_month , s_day) = date_format(NOW(), '%Y%m%d') THEN cnt
+				ELSE 0 END
+			), 0) AS day
+		FROM comtnfile_stat
+	</select>
+	<!-- ##### 게시글 열람 통계(연도별) ##### -->
+	<select id="selectBbsViewStatsYearSM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT s_year AS dYear, SUM(cnt) AS cnt
+		FROM bbs_view_stat
+		GROUP BY s_year
+		ORDER BY s_year DESC
+	</select>
+	<!-- ##### 게시글 열람 통계(월별) ##### -->
+	<select id="selectBbsViewStatsMonthSM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT
+			s_month AS dMonth,
+			SUM(cnt) AS cnt
+		FROM bbs_view_stat
+		WHERE s_year = #{year}
+		GROUP BY s_month
+		ORDER BY s_month DESC
+	</select>
+	<!-- ##### 게시글 열람 통계(일별) ##### -->
+	<select id="selectBbsViewStatsDaySM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT
+			s_day AS dDay,
+			SUM(cnt) AS cnt
+		FROM bbs_view_stat
+		WHERE s_year = #{year} AND s_month = #{month}
+		GROUP BY s_day
+		ORDER BY s_day DESC
+	</select>
+	<!-- ##### 기간내 게시글 열람 건수 총합 ##### -->
+	<select id="selectBbsViewStatsPeriodSM" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT SUM(cnt) AS cnt
+		FROM bbs_view_stat
+		WHERE DATE_FORMAT(CONCAT(s_year , '-' , s_month , '-' , s_day),'%Y-%m-%d') BETWEEN #{dateStart} AND #{dateEnd}
+	</select>
+	<!-- #### 파일 다운로드 통계 요약(최소 연도/최대 연도/전체 다운로드 건수/금년 전체 다운로드 건수/금월 전체 다운로드 건수/금일 전체 다운로드 건수) #####  -->
+	<select id="getTotalBbsViewCount" resultType="HashMap" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		SELECT
+			MIN(s_year) AS minYear,
+			MAX(s_year) AS maxYear,
+			ifnull(SUM(cnt), 0) AS full,
+			ifnull(SUM(
+				CASE WHEN s_year = date_format(NOW(), '%Y') THEN cnt
+				ELSE 0 END
+			), 0) AS year,
+			ifnull(SUM(
+				CASE WHEN CONCAT(s_year , s_month) = date_format(NOW(), '%Y%m') THEN cnt
+				ELSE 0 END
+			), 0) AS month,
+			ifnull(SUM(
+				CASE WHEN CONCAT(s_year , s_month , s_day) = date_format(NOW(), '%Y%m%d') THEN cnt
+				ELSE 0 END
+			), 0) AS day
+		FROM bbs_view_stat
+	</select>
+
+
+	<!-- 많이 찾는 사이트 통계 년도 -->
+	<select id="selectPopularSiteYearSM"  resultMap="StateSysVO_map7" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select sum(case when substr(LOG_TODAY, 1, 4) = #{year} then LOG_COUNT else 0 end) as count, SITE_NAME
+		 from  state_today_site S, site_mapping M
+		 where 1 = 1
+		 and  S.LOG_SITECODE = M.SITE_CODE
+		group by SITE_NAME order by count desc
+	</select>
+
+	<!-- 많이 찾는 사이트뉴 통계 월 -->
+	<select id="selectPopularSiteMonthSM"  resultMap="StateSysVO_map7" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select sum(case when substr(LOG_TODAY, 1, 7) = CONCAT(#{year} , '-' , #{month})   then LOG_COUNT else 0 end) as count, SITE_NAME
+		 from  state_today_site S, site_mapping M
+		 where 1 = 1
+		 and  S.LOG_SITECODE = M.SITE_CODE
+		group by SITE_NAME order by count desc
+	</select>
+
+	<!-- 많이 찾는 사이트 통계 기간 -->
+	<select id="selectPopularSitePeriodSM"  resultMap="StateSysVO_map7" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select sum(case when LOG_TODAY BETWEEN #{dateStart} AND #{dateEnd} then LOG_COUNT else 0 end) as count, SITE_NAME
+		 from  state_today_site S, site_mapping M
+		 where 1 = 1
+		 and  S.LOG_SITECODE = M.SITE_CODE
+		group by SITE_NAME order by count desc
+	</select>
+
+	<!-- 많이 찾는 메뉴 통계 년도 -->
+	<select id="selectPopularMenuYearSM"  resultMap="StateSysVO_map8" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select sum(case when substr(LOG_TODAY, 1, 4) = #{year}  then LOG_COUNT else 0 end) as count, SITE_NAME, MENU_NAVI AS MENU_PATH
+		 from  state_today_menu S, pt_v_menus M
+		 where 1 = 1
+		 	<if test="@egovframework.portal.util.StringUtil@isNotBlank(siteCode)">
+				and LOG_SITECODE = #{siteCode}
+			</if>
+		  and LOG_MID = mid
+		  AND S.LOG_SITECODE = M.SITE_CODE
+		group by SITE_NAME, MENU_NAVI
+		order by count desc
+	</select>
+
+	<!-- 많이 찾는 메뉴 통계 월 -->
+	<select id="selectPopularMenuMonthSM"  resultMap="StateSysVO_map8" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select sum(case when substr(LOG_TODAY, 1, 7) = CONCAT(#{year} , '-' , #{month})  then LOG_COUNT else 0 end) as count, SITE_NAME, MENU_NAVI AS MENU_PATH
+		 from  state_today_menu S, pt_v_menus M
+		 where 1 = 1
+		 	<if test="@egovframework.portal.util.StringUtil@isNotBlank(siteCode)">
+				and LOG_SITECODE = #{siteCode}
+			</if>
+		  and LOG_MID = mid
+		  AND S.LOG_SITECODE = M.SITE_CODE
+		group by SITE_NAME, MENU_NAVI
+		order by count desc
+	</select>
+
+	<!-- 많이 찾는 메뉴 통계 기간 -->
+	<select id="selectPopularMenuPeriodSM"  resultMap="StateSysVO_map8" parameterType="egovframework.portal.sys.basic.stateMng.vo.StateSysVO">
+		select sum(case when LOG_TODAY BETWEEN #{dateStart} AND #{dateEnd} then LOG_COUNT else 0 end) as count, SITE_NAME, MENU_NAVI AS MENU_PATH
+		 from  state_today_menu S, pt_v_menus M
+		 where 1 = 1
+		 	<if test="@egovframework.portal.util.StringUtil@isNotBlank(siteCode)">
+				and LOG_SITECODE = #{siteCode}
+			</if>
+		  and LOG_MID = mid
+		  AND S.LOG_SITECODE = M.SITE_CODE
+		group by SITE_NAME, MENU_NAVI
+		order by count desc
+	</select>
+
+</mapper>

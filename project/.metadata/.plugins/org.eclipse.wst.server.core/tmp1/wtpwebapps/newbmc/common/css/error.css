@@ -1,0 +1,94 @@
+@charset "utf-8";
+
+*{
+	font-family:'굴림','돋움';
+	font-size:13px;
+	}
+
+/* 페이지가없습니다. */
+ #wrap_page{
+	padding-top:30px;
+	margin:0 auto;
+	}
+#wrap_page .title,
+#wrap_page .body{
+	font-family: 'NanumGothicWebB';
+	letter-spacing:-1px;
+	}
+#wrap_page .title{
+	font-size: 30px;
+	color: #7db30f;
+	line-height:33px;
+	}
+#wrap_page .title > span{
+	font-family: 'NanumGothicWebB';
+	font-size:25px;
+	color:#577913;
+	display:block;
+	line-height:30px;
+	}
+#wrap_page .body{
+	font-size:20px;
+	color:#666666;
+	line-height:30px;
+	padding-top:30px;
+	}
+#wrap_page .body > font{
+	font-family: 'NanumGothicWebB';
+	font-size:30px;
+	color:#000000;
+	}
+#wrap_page .tip{
+	border:1px solid #cccccc;
+	padding:3px;
+	margin-top:30px;
+	}
+#wrap_page .tip > div{
+	border:1px solid #eeeeee;
+	padding:10px 15px;
+	}
+#wrap_page .tip > div > ul  > li {
+	background: url(/common/img/error/bul_green.gif) no-repeat 0 6px;
+	padding-left: 10px;
+	}
+
+#wrap_page .tip > div > ul > li > ul > li {
+	background: url(/common/img/error/bul_arrow.gif) no-repeat 0 6px;
+	padding-left: 7px;
+	}
+
+
+@media screen and (min-width:0px){
+	#wrap_page{
+		width:auto;
+		background:transparent;
+		padding-top:0px;
+		padding-bottom:30px;
+		}
+	#wrap_page .title,
+	#wrap_page .body{
+		padding-left:10px;
+		padding-right:10px;
+		}
+	#wrap_page .title{
+		padding-top:20px;
+		}
+	}
+@media screen and (min-width:600px){
+	 #wrap_page{
+		background:url(/common/img/error/bg_nopages.png) no-repeat right 10px;
+		}
+	#wrap_page .title,
+	#wrap_page .body{
+		padding-left:0px;
+		padding-right:0px;
+		}
+	#wrap_page .title{
+		padding-top:90px;
+		}
+	}
+@media screen and (min-width:800px){
+	 #wrap_page{
+		width:800px;
+		}
+	}

@@ -1,0 +1,107 @@
+@charset "utf-8";
+ 
+:lang(en) {font-family:Helvetica, font36450, Arial, Verdana, "Malgun Gothic", MS P Gothic, sans-serif;}
+
+/* Reset */
+html {font-family:'NotoSans'; color:#333; font-weight:normal; font-size:18px; letter-spacing:0; }
+* {margin:0; padding:0;}
+body {-webkit-text-size-adjust:none; line-height:150%; max-width:100%; overflow-x:hidden;}
+
+input, select, textarea {vertical-align:middle; -webkit-box-sizing:border-box; box-sizing:border-box; border-radius:0;}
+input::-ms-clear, input::-ms-reveal {display:none;}
+input::-webkit-search-cancel-button {}
+input::-webkit-clear-button, input::-webkit-inner-spin-button, input::-webkit-outer-spin-button {display:none;}
+input::-webkit-input-placeholder, textarea::-webkit-input-placeholder {color:#d2d2d2;}
+input:-ms-input-placeholder, textarea:-ms-input-placeholder {color:#d2d2d2;}
+input:-ms-input-placeholder {color:#767676;} 
+input::-webkit-input-placeholder {color:#767676;} 
+input::-moz-placeholder {color:#767676;} 
+
+
+select{
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    -ms-appearance: none;
+    -o-appearance: none;
+    appearance: none;
+}
+
+
+select::-ms-expand{
+    display: none;
+}
+
+textarea {resize:none;}
+button {background:none; border:0; border-radius:0; overflow:visible; cursor:pointer;}
+label {vertical-align:middle; cursor:pointer;}
+
+a {color:inherit; text-decoration:none;}
+em, address {font-style:normal;}
+ul:not(.list_style){list-style: none;}
+ol:not(.list_style) {list-style: none;}
+img, fieldset {border:0;}
+img {max-width:100%;}
+
+table {border:0; border-spacing:0; border-collapse:collapse;}
+legend {visibility:hidden; position:absolute; left:-5000px; font-size:0; line-height:0;}
+/* 20230411 접근성 위한 주석 caption {display:none;} */
+hr {display:none;}
+main {display:block;position:relative;}
+
+.skipToNav a {position:absolute;left:-3000%;}
+.skipToNav a:focus {display:block;left:0;top:0;z-index:10000000000;width:100%;height:30px;line-height:30px;background:#039;color:#fff;text-align:center;}
+
+.blind{width: 1px; height: 1px; overflow: hidden;font-size: 1px; line-height: 1px;position: absolute;top: -9999px;}
+
+
+@media all and (min-width:769px) and (max-width:1024px){
+
+}
+@media all and (max-width:768px) { 
+
+}
+
+@media all and (min-width:769px) { 
+	
+@media all and (min-width:769px) and (max-width:1024px) { 
+	
+}
+
+@media all and (min-width:1025px) { 
+	
+}
+
+
+}
+
+@media all and (min-width:769px) and (max-width:1024px) { 
+	
+}
+
+@media all and (min-width:1025px) { 
+	
+}
+
+@media all and (max-width:1280px) {
+	
+}
+
+@media all and (max-width:1024px) {
+	
+}
+
+@media all and (max-width:768px) {
+		
+}
+
+@media all and (max-width: 1280px) {
+
+}
+
+@media all and (max-width: 645px) {
+	
+}
+
+@media all and (max-width: 480px) {
+	
+}

@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+    version="2.0">
+
+  <description>JSTL 1.1 i18n-capable formatting library</description>
+  <display-name>JSTL edosi fmt</display-name>
+  <tlib-version>1.1</tlib-version>
+  <short-name>edosiFmt</short-name>
+  <uri>WEB-INF/config/tld/EdosiFormat.tld</uri>
+
+	<tag>
+		<name>formatDate</name>
+		<tag-class>egovframework.edosi.common.tags.FormatDateTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+  		</attribute>
+		<attribute>
+			<name>delimiter</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+  		</attribute>
+  		<attribute>
+			<name>viewDay</name>
+			<required>false</required>
+			<rtexprvalue>true</rtexprvalue>
+  		</attribute>
+	</tag>
+
+	<tag>
+		<name>formatHtml</name>
+		<tag-class>egovframework.edosi.common.tags.FormatHtmlTag</tag-class>
+		<body-content>empty</body-content>
+		<attribute>
+			<name>value</name>
+			<required>true</required>
+			<rtexprvalue>true</rtexprvalue>
+  	</attribute>
+	</tag>	
+</taglib>

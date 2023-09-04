@@ -1,0 +1,48 @@
+/* reset */
+article,aside,details,figcaption,figure,footer,header,main,menu,nav,section,summary{display:block;}
+audio,canvas,progress,video{display:inline-block;}
+html,body,div,p,h1,h2,h3,h4,h5,h6,dl,dt,dd,ol,ul,li,blockquote,pre,button,fieldset,form,legend,table,caption,tbody,tfoot,thead,tr,th,td,iframe,article,aside,canvas,details,embed,figure,figcaption,header,footer,menu,nav,section,summary,audio,video{margin:0;padding:0;border:0;}
+* { -webkit-text-size-adjust: none; word-break:keep-all;}
+h1,h2,h3,h4,h5 {margin-block-start:0em;}
+img,fieldset{border:none;margin:0;padding:0}
+b,strong{font-weight:bold;}
+em,dfn,cite,address,i{font-style:normal;}
+mark{background-color:#ff0;color:#000;}
+small{font-size:90%;}
+sup,sub{position:relative;font-size:0.9em;line-height:0;vertical-align:baseline;}
+sub{bottom:-0.25em;}
+sup{top:-0.5em;}
+del{text-decoration:line-through;}
+label{cursor:pointer;}
+ol,ul,li{list-style:none;}
+table{border-collapse:collapse;border-spacing:0;width:100%;}
+legend,caption,hr{text-indent:-99999px; overflow:hidden;position:absolute;width:0;height:0;font-size:0;}
+/* form reset */
+input{font-size:inherit;font-family:inherit;color:inherit;vertical-align:middle;}
+input[type="file"]{border:none;}
+input[type="image"]{height:auto;margin:0;border:none;padding:0;line-height:inherit;}
+input[type="radio"],input[type="checkbox"]{border:none;}
+button{margin:0;padding:0;background:none;border:none;text-transform:none;vertical-align:middle;}
+button,[type="button"],[type="reset"],[type="submit"]{margin:0;padding:0;background:none;border:none;cursor:pointer;}
+select{font-size:inherit;font-family:inherit;color:inherit;text-transform:none;vertical-align:middle;}
+textarea{font-size:inherit;font-family:inherit;color:inherit;vertical-align:middle;resize:none;}
+input[disabled="disabled"]{background:#ebebeb;color:#959595;}
+select[disabled="disabled"]{background:#ebebeb;color:#959595;}
+/* form base style */
+input{margin:1px;padding:1px 3px;border:solid 1px #dedede;}
+input[type="radio"],input[type="checkbox"]{width:14px;height:14px;}
+input[type="text"],input[type="passward"] { height:26px; line-height:22px;}
+select{/* height:28px; padding:1px 0 1px 3px;*/border:solid 1px #dedede;background:#fff;}
+textarea{min-height:80px;padding:1px 3px;border:solid 1px #dedede;line-height:25px;}
+caption {
+    position: static;
+}
+.hide, legend, caption, .hidden {
+position: absolute;
+left: -5000px;
+width: 0;
+height: 0;
+font-size: 0;
+line-height: 0;
+overflow: hidden;
+}

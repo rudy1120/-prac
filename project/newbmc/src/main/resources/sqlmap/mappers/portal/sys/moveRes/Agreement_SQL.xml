@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.sys.moveRes.mapper.AgreementMapper">
+
+	<resultMap id="AgreementMap"   type="egovframework.portal.sys.moveRes.vo.AgreementVO" >
+	    <result property="num"			column="num"/>
+		<result property="username"		column="username"/>
+		<result property="usertel"		column="usertel"/>
+		<result property="gbn"			column="gbn"/>
+		<result property="addr1"		column="addr1"/>
+		<result property="addr2"		column="addr2"/>
+		<result property="chk1"			column="chk1"/>
+		<result property="chk2"			column="chk2"/>
+		<result property="chk3"			column="chk3"/>
+		<result property="understand"	column="understand"/>
+		<result property="regdate"		column="regdate"/>
+		<result property="applyYN"		column="applyYN"/>  
+		
+		<result property="cnt"			column="cnt"/>
+	</resultMap>
+	
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<choose>		
+			<when test="#fn = isNotBlank, #fn(searchTxt)">
+				<if test="searchType.equals('name')">
+					AND a.username LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+				<if test="searchType.equals('addr1')">
+					AND a.addr1 LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+			</when>
+			<otherwise>
+				<if test="searchType.equals('applyY')">
+					AND a.applyYN = 'Y'
+				</if>
+				<if test="searchType.equals('applyN')">
+					AND a.applyYN = 'N'
+				</if>
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<!--#################################### 시청앞 행복주택 ####################################-->
+	<select id ="getCityhallTCnt" parameterType="egovframework.portal.sys.moveRes.vo.AgreementVO" resultType="int">
+		SELECT		IFNULL(COUNT(a.num),0) AS cnt
+		FROM		happy_house_agreement a
+		WHERE		a.gbn = 'S'
+		<include refid="listSearcher"/>
+	</select>
+	
+	<select id ="getCityhallList" parameterType="egovframework.portal.sys.moveRes.vo.AgreementVO" resultMap="AgreementMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM 
+			(
+				SELECT a.num, a.username, a.usertel, a.gbn, a.addr1, a.addr2
+					, a.chk1, a.chk2, a.chk3, a.understand, a.regdate, a.applyYN
+				FROM happy_house_agreement a
+				WHERE a.gbn = 'S'
+				<include refid="listSearcher"/>
+			) rs
+			WHERE (@rownum:=0)=0
+			ORDER BY rs.addr1 ASC, CAST(rs.addr2 AS signed)
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	
+	</select>
+	
+	<select id ="getExcelList1" parameterType="egovframework.portal.sys.moveRes.vo.AgreementVO" resultMap="AgreementMap">
+		SELECT a.num, a.username, a.usertel, a.addr1, a.addr2,
+			CASE
+				WHEN a.chk1 = 'Y' THEN '동의함'
+				WHEN a.chk1 = 'N' THEN '동의안함'
+			END AS chk1,
+			CASE
+				WHEN a.chk2 = 'Y' THEN '동의함'
+				WHEN a.chk2 = 'N' THEN '동의안함'
+			END AS chk2,
+			CASE
+				WHEN a.chk3 = 'Y' THEN '동의함'
+				WHEN a.chk3 = 'N' THEN '동의안함'
+			END AS chk3,
+			CASE
+				WHEN a.understand = 'Y' THEN '이해함'
+				WHEN a.understand = 'N' THEN '이해안함'
+			END AS understand,
+			a.regdate
+		FROM happy_house_agreement a
+		WHERE a.gbn = 'S' AND 1 = 1
+		<include refid="listSearcher"/>
+		ORDER BY a.addr1 ASC 
+	</select>
+	
+	
+	<!--#################################### 아미4 행복주택 ####################################-->
+	<select id ="getAmiTCnt" parameterType="egovframework.portal.sys.moveRes.vo.AgreementVO" resultType="int">
+		SELECT		IFNULL(COUNT(a.num),0) AS cnt
+		FROM		happy_house_agreement a
+		WHERE		a.gbn = 'A'
+		<include refid="listSearcher"/>
+	</select>
+	
+	<select id ="getAmiList" parameterType="egovframework.portal.sys.moveRes.vo.AgreementVO" resultMap="AgreementMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM 
+			(
+				SELECT a.num, a.username, a.usertel, a.gbn, a.addr1, a.addr2
+					, a.chk1, a.chk2, a.chk3, a.understand, a.regdate, a.applyYN
+				FROM happy_house_agreement a
+				WHERE a.gbn = 'A'
+				<include refid="listSearcher"/>
+			) rs
+			WHERE (@rownum:=0)=0
+			ORDER BY rs.addr1 ASC, CAST(rs.addr2 AS signed)
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	
+	</select>
+	
+	<select id ="getExcelList2" parameterType="egovframework.portal.sys.moveRes.vo.AgreementVO" resultMap="AgreementMap">
+		SELECT a.num, a.username, a.usertel, a.addr1, a.addr2,
+			CASE
+				WHEN a.chk1 = 'Y' THEN '동의함'
+				WHEN a.chk1 = 'N' THEN '동의안함'
+			END AS chk1,
+			CASE
+				WHEN a.chk2 = 'Y' THEN '동의함'
+				WHEN a.chk2 = 'N' THEN '동의안함'
+			END AS chk2,
+			CASE
+				WHEN a.chk3 = 'Y' THEN '동의함'
+				WHEN a.chk3 = 'N' THEN '동의안함'
+			END AS chk3,
+			CASE
+				WHEN a.understand = 'Y' THEN '이해함'
+				WHEN a.understand = 'N' THEN '이해안함'
+			END AS understand,
+			a.regdate
+		FROM happy_house_agreement a
+		WHERE a.gbn = 'A' AND 1 = 1
+		<include refid="listSearcher"/>
+		ORDER BY a.addr1 ASC 
+	</select>
+	
+</mapper>

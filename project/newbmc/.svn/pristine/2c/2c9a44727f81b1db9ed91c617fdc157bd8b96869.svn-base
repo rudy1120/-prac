@@ -1,0 +1,224 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.basic.satisfaction.mapper.SatisfactionMngMapper">
+
+	<resultMap id="contentMap" type="egovframework.portal.sys.basic.satisfaction.vo.SatisfactionMngVO">
+		<result property="siteName"        column="SITE_NAME"/>
+		<result property="menuName"        column="MENU_NAME"/>
+		<result property="siteCode"        column="SITE_CODE"/>
+		<result property="satisMid"        column="SATIS_MID"/>
+		<result property="researchPoint"   column="RESEARCH_POINT"/>
+		<result property="researchContent" column="RESEARCH_CONTENT"/>
+		<result property="regDt"           column="REG_DT"/>
+	</resultMap>
+	<resultMap id="statMap" type="egovframework.portal.sys.basic.satisfaction.vo.SatisfactionMngVO">
+		<result property="siteName"        column="site_name"/>
+		<result property="menuName"        column="menu_name"/>
+		<result property="siteCode"        column="site_code"/>
+		<result property="satisMid"        column="mid"/>
+		<result property="avgPoint"        column="point"/>
+		<result property="appCnt"          column="app_cnt"/>
+	</resultMap>
+	<resultMap id="menuMngMap" type="egovframework.portal.sys.MenuMng.vo.MenusMngVO">
+		<result property="satisMid"        column="SATIS_MID"/>
+		<result property="menuName"        column="MENU_NAME"/>
+		<result property="parentName"      column="PARENT_NAME"/>
+	</resultMap>
+
+	<sql id="statListSearcher">
+		<include refid="s.funcs"/>
+
+		<if test="#fn = isNotBlank, #fn(siteCode)">
+			AND site_code = #{siteCode}
+		</if>
+		<if test="#fn = isNotBlank, #fn(satisMid)">
+			AND satis_mid = #{satisMid}
+		</if>
+		<if test="#fn = isNotBlank, #fn(sDay)">
+			AND reg_dt >= DATE_FORMAT(#{sDay}, '%Y-%m-%d')
+		</if>
+		<if test="#fn = isNotBlank, #fn(eDay)">
+			AND DATE_FORMAT(#{eDay}, '%Y-%m-%d') >= reg_dt
+		</if>
+	</sql>
+	<sql id="contentListSearcher">
+		<include refid="s.funcs"/>
+
+		<if test="#fn = isNotBlank, #fn(siteCode)">
+			AND r.site_code = #{siteCode}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('menu_name')">
+				AND m.menu_name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('mid')">
+				AND r.satis_mid = #{searchTxt}
+			</if>
+			<if test="searchType.equals('research_content')">
+				AND r.research_content LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+		<if test="#fn = isNotBlank, #fn(sDay)">
+			AND r.reg_dt >= DATE_FORMAT(#{sDay}, '%Y-%m-%d')
+		</if>
+		<if test="#fn = isNotBlank, #fn(eDay)">
+			AND DATE_FORMAT(#{eDay}, '%Y-%m-%d') >= r.reg_dt
+		</if>
+	</sql>
+	<sql id="statListOrderMaker">
+		<include refid="s.funcs"/>
+		<if test="#fn = isBlank, #fn(orderByCode)">
+			rs.point DESC,
+		</if>
+		<if test="#fn = isNotBlank, #fn(orderByCode)">
+			<if test="orderByCode.equals('0')">rs.point DESC,</if>
+			<if test="orderByCode.equals('1')">rs.point ASC,</if>
+			<if test="orderByCode.equals('2')">rs.app_cnt DESC,</if>
+			<if test="orderByCode.equals('3')">rs.app_cnt ASC,</if>
+		</if>
+	</sql>
+
+	<!-- ##### 만족도 평가 내용 전체 건수 ##### -->
+	<select id="getTotalCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM satisfaction_research r
+		LEFT JOIN menus m ON m.mid = r.satis_mid AND m.site_code = r.site_code
+		WHERE 1 = 1
+			<include refid="contentListSearcher"/>
+	</select>
+
+	<!-- ##### 만족도 평가 내용 목록 ##### -->
+	<select id="getTotalList" resultMap="contentMap">
+		SELECT *
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT
+					null AS site_name,
+					m.menu_name AS menu_name,
+					r.site_code AS site_code,
+					r.satis_mid AS satis_mid,
+					r.research_point AS research_point,
+					r.research_content AS research_content,
+					r.reg_dt AS reg_dt
+				FROM satisfaction_research r
+				LEFT JOIN menus m ON m.mid = r.satis_mid AND m.site_code = r.site_code
+				WHERE 1 = 1
+					<include refid="contentListSearcher"/>
+				ORDER BY r.idx DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- ##### 만족도 평가 내용 전체 목록(엑셀 생성용) ##### -->
+	<select id="getTotalListAsMap" resultMap="contentMap">
+		SELECT
+			null AS site_name,
+			m.menu_name AS menu_name,
+			r.site_code AS site_code,
+			r.satis_mid AS satis_mid,
+			r.research_point AS research_point,
+			r.research_content AS research_content,
+			r.reg_dt AS reg_dt
+		FROM satisfaction_research r
+		LEFT JOIN menus m ON m.mid = r.satis_mid AND m.site_code = r.site_code
+		WHERE 1 = 1
+			<include refid="contentListSearcher"/>
+		ORDER BY r.idx DESC
+	</select>
+
+	<!-- ##### 만족도 평점 목록 전체 건수 ##### -->
+	<select id="getSatisfactionStatCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM (
+			SELECT
+				site_code, satis_mid mid, (SUM(research_point) / COUNT(research_point)) AS point
+			FROM satisfaction_research
+			WHERE 1 = 1
+				<include refid="statListSearcher"/>
+			GROUP BY site_code, satis_mid
+		) rs
+	</select>
+
+	<!-- ##### 만족도 평점 목록 ##### -->
+	<select id="getSatisfactionStatList" resultMap="statMap">
+		SELECT * FROM (
+			SELECT rs2.*, @rownum:=@rownum+1 AS rn FROM (
+			SELECT
+				rs.*,
+				(SELECT site_name FROM site_mapping sm WHERE sm.site_code = rs.site_code) AS site_name,
+				(SELECT menu_name FROM menus m WHERE m.site_code = rs.site_code AND m.mid = rs.mid) AS menu_name
+			FROM (
+				SELECT
+					site_code, satis_mid mid, (SUM(research_point) / COUNT(research_point)) AS point, ifnull(COUNT(research_point), 0) AS app_cnt
+				FROM satisfaction_research
+				WHERE 1 = 1
+					<include refid="statListSearcher"/>
+				GROUP BY site_code, satis_mid
+			) rs
+			ORDER BY
+				<include refid="statListOrderMaker"/>
+				rs.site_code, rs.mid
+			) rs2, (SELECT @rownum :=0) AS R
+		) rs3
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- ##### 만족도 평점 전체 목록(엑셀 생성용) ##### -->
+	<select id="getSatisfactionStatListAsMap" resultType="hashMap">
+		SELECT
+			(SELECT site_name FROM site_mapping sm WHERE sm.site_code = rs.site_code) AS site_name,
+			(SELECT menu_name FROM menus m WHERE m.site_code = rs.site_code AND m.mid = rs.mid) AS menu_name,
+			rs.point AS r_point,
+			rs.app_cnt AS app_cnt
+		FROM (
+			SELECT
+				site_code, satis_mid mid, (SUM(research_point) / COUNT(research_point)) AS point, ifnull(COUNT(research_point), 0) AS app_cnt
+			FROM satisfaction_research
+			WHERE 1 = 1
+				<include refid="statListSearcher"/>
+			GROUP BY site_code, satis_mid
+		) rs
+		ORDER BY
+			<include refid="statListOrderMaker"/>
+			rs.site_code, rs.mid
+	</select>
+
+	<!-- ##### 사이트별 메뉴목록 조회 ##### -->
+	<select id="comboMenusForSite" resultMap="menuMngMap">
+		select ASR.SATIS_MID, menus.MENU_NAME, menus2.menu_name AS parent_name
+		from (
+			select SITE_CODE, SATIS_MID
+			from satisfaction_research
+			where SITE_CODE = #{siteCode}
+			group by SITE_CODE, SATIS_MID
+		) asr
+		left join menus menus on asr.SITE_CODE = menus.SITE_CODE and asr.SATIS_MID = menus.MID
+		left join menus menus2 on menus.parent_idx = menus2.idx
+		order by menus.PARENT_IDX, menus.IDX
+	</select>
+
+
+
+
+	<!-- ===================================== USER ===================================== -->
+
+	<!-- ##### 만족도 중복체크 ##### -->
+	<select id="checkDuplSatisfaction" parameterType="egovframework.portal.sys.basic.satisfaction.vo.SatisfactionMngVO" resultType="int">
+		select count(*) cnt
+		from satisfaction_research
+			${searchQuery}
+	</select>
+
+	<!-- ##### 만족도 등록 ##### -->
+	<insert id="insertSatisfaction" parameterType="egovframework.portal.sys.basic.satisfaction.vo.SatisfactionMngVO">
+		insert into satisfaction_research (
+			SITE_CODE, SATIS_MID, RESEARCH_POINT, RESEARCH_CONTENT, SSID
+		) values (
+			#{siteCode}, #{satisMid}, #{researchPoint}, #{researchContent}, #{ssId}
+		)
+	</insert>
+
+</mapper>

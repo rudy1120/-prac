@@ -1,0 +1,825 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.MenuMng.mapper.MenuMngMapper">
+	<cache eviction="LRU" flushInterval="600000" size="512" readOnly="false" />
+
+	<resultMap id="basicMenuMap"
+		type="egovframework.portal.sys.MenuMng.vo.MenuVO">
+		<result property="idx" column="IDX" />
+		<result property="parentIdx" column="PARENT_IDX" />
+		<result property="mId" column="MID" />
+		<result property="menuOrder" column="MENU_ORDER" />
+		<result property="menuLevel" column="MENU_LEVEL" />
+		<result property="incContent" column="IS_INC_CONTENT" />
+		<result property="menuName" column="MENU_NAME" />
+		<result property="siteCode" column="SITE_CODE" />
+		<result property="linkUrl" column="LINK_URL" />
+		<result property="target" column="TARGET" />
+		<result property="menuType" column="MENU_TYPE" />
+		<result property="isUse" column="IS_USE" />
+		<result property="programUrl" column="PROGRAM_URL" />
+		<result property="cclType" column="ccl_type" />
+		<result property="nuriType" column="nuri_type" />
+		<result property="contentFilePath" column="CONTENT_FILE_PATH" />
+		<result property="cmsPageId" column="CMS_PAGE_ID" />
+		<result property="cmsPageTypeCode" column="CMS_PAGE_TYPE_CODE" />
+		<result property="cmsFolderIdx" column="CMS_FOLDER_IDX" />
+		<result property="cmsParentIdx" column="CMS_PARENT_IDX" />
+		<result property="cmsFolderCode" column="CMS_FOLDER_CODE" />
+		<result property="regDt" column="REG_DT" />
+		<result property="modDt" column="MOD_DT" />
+		<result property="menuSummary" column="MENU_SUMMARY" />
+	</resultMap>
+	<resultMap id="sysBasicMenuMap" extends="basicMenuMap"
+		type="egovframework.portal.sys.MenuMng.vo.MenuVO">
+		<result property="isIncContent" column="IS_INC_CONTENT" />
+		<result property="isPoll" column="IS_POLL" />
+		<result property="cmsSiteCode" column="CMS_SITE_CODE" />
+		<result property="bbsMstIdx" column="BBS_MST_IDX" />
+		<result property="bbsIdx" column="BBS_IDX" />
+		<result property="menuOrderCode" column="MENU_ORDER_CODE" />
+	</resultMap>
+	<resultMap id="map2_sys_menuVO" extends="sysBasicMenuMap"
+		type="egovframework.portal.sys.MenuMng.vo.MenuVO">
+		<result property="isFirst" column="IS_FIRST" />
+		<result property="cmsContentData" column="CMS_CONTENT_DATA" />
+		<result property="chargeTel" column="CHARGE_TEL" />
+		<result property="chargeFnm" column="CHARGE_FNM" />
+		<result property="isTermset" column="IS_TERMSET" />
+		<result property="termStartDt" column="TERM_START_DT" />
+		<result property="termEndDt" column="TERM_END_DT" />
+		<result property="chargeId" column="CHARGE_ID" />
+		<result property="chargeDepCode" column="CHARGE_DEP_CODE" />
+		<result property="chargeDepNm" column="CHARGE_DEP_NM" />
+		<result property="isSnsComment" column="IS_SNS_COMMENT" />
+	</resultMap>
+
+	<resultMap id="map3_sys_menuVO" extends="basicMenuMap"
+		type="egovframework.portal.sys.MenuMng.vo.MenuVO">
+		<result property="reqState" column="REQ_STATE" />
+		<result property="reqIdx" column="REQ_IDX" />
+		<result property="reqChargeId" column="REQ_CHARGE_ID" />
+		<result property="reqChargeFnm" column="REQ_CHARGE_FNM" />
+		<result property="reqChargeDepCode"
+			column="REQ_CHARGE_DEP_CODE" />
+		<result property="reqChargeDepNm" column="REQ_CHARGE_DEP_NM" />
+		<result property="reqChargeTel" column="REQ_CHARGE_TEL" />
+		<result property="moveChargeId" column="MOVE_CHARGE_ID" />
+		<result property="moveChargeFnm" column="MOVE_CHARGE_FNM" />
+		<result property="moveChargeDepCode"
+			column="MOVE_CHARGE_DEP_CODE" />
+		<result property="moveChargeDepNm" column="MOVE_CHARGE_DEP_NM" />
+		<result property="moveChargeTel" column="MOVE_CHARGE_TEL" />
+		<result property="ackDt" column="ACK_DT" />
+		<result property="notMappingVal" column="NOTMAPPING_VAL" />
+	</resultMap>
+
+	<resultMap id="map3_sys_menuChargeHistoryVO"
+		type="egovframework.portal.sys.MenuMng.vo.MenusChargeHistoryMngVO">
+		<result property="siteCode" column="SITE_CODE" />
+		<result property="mid" column="MID" />
+		<result property="chargeId" column="CHARGE_ID" />
+		<result property="chargeFnm" column="CHARGE_FNM" />
+		<result property="chargeDepCode" column="CHARGE_DEP_CODE" />
+		<result property="chargeDepNm" column="CHARGE_DEP_NM" />
+		<result property="regDate" column="REG_DATE" />
+	</resultMap>
+
+
+	<select id="getSiteListCnt">
+		select COUNT(*) CNT
+		from site_mapping
+		where IS_USE =
+		'Y'
+	</select>
+	<select id="getMenusMngListAll"
+		resultType="egovframework.rte.psl.dataaccess.util.EgovMap"
+		parameterType="java.lang.String">
+		select IDX, site_group, SITE_CODE, SITE_NAME, IS_USE,
+		SITE_GUBUN, SITE_ORDER
+		from site_mapping
+		where IS_USE = 'Y'
+		${_parameter}
+		order by SITE_ORDER, site_code
+	</select>
+	<select id="getMenuList"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="sysBasicMenuMap">
+		select a.IDX, a.PARENT_IDX, a.MID, a.MENU_ORDER,
+		a.MENU_LEVEL, a.IS_INC_CONTENT, a.MENU_NAME, a.SITE_CODE
+		, a.LINK_URL, a.TARGET, a.MENU_TYPE, a.IS_USE
+		, a.PROGRAM_URL, a.CONTENT_FILE_PATH, a.IS_POLL, a.ccl_type,
+		a.nuri_type
+		, a.CMS_SITE_CODE, a.CMS_PAGE_ID, a.CMS_PAGE_TYPE_CODE,
+		a.CMS_FOLDER_IDX
+		, a.CMS_PARENT_IDX, a.CMS_FOLDER_CODE, a.BBS_MST_IDX, a.BBS_IDX
+		, a.REG_DT, a.MOD_DT, a.MENU_ORDER_CODE , a.MENU_SUMMARY, a.IS_TERMSET,
+		a.TERM_START_DT, a.TERM_END_DT, a.CHARGE_ID, a.CHARGE_DEP_CODE,
+		a.CHARGE_DEP_NM
+		, a.IS_SNS_COMMENT, a.CHARGE_TEL, a.CHARGE_FNM
+		from menus a
+		where
+		SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		order by MENU_ORDER_CODE ,
+		MENU_ORDER
+	</select>
+	<select id="getMenuListAddChargeNms"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="map2_sys_menuVO">
+		select a.IDX, a.PARENT_IDX, a.MID, a.MENU_ORDER,
+		a.MENU_LEVEL, a.IS_INC_CONTENT, a.MENU_NAME, a.SITE_CODE
+		, a.LINK_URL, a.TARGET, a.MENU_TYPE, a.IS_USE
+		, a.PROGRAM_URL, a.CONTENT_FILE_PATH, a.IS_POLL, a.ccl_type,
+		a.nuri_type
+		, a.CMS_SITE_CODE, a.CMS_PAGE_ID, a.CMS_PAGE_TYPE_CODE,
+		a.CMS_FOLDER_IDX
+		, a.CMS_PARENT_IDX, a.CMS_FOLDER_CODE, a.BBS_MST_IDX, a.BBS_IDX
+		, a.REG_DT, a.MOD_DT, a.MENU_ORDER_CODE , a.MENU_SUMMARY, a.IS_TERMSET,
+		a.TERM_START_DT, a.TERM_END_DT, a.CHARGE_ID, a.CHARGE_DEP_CODE,
+		a.CHARGE_DEP_NM
+		, a.IS_SNS_COMMENT, a.CHARGE_TEL, (SELECT group_concat(b.CHARGE_FNM)
+		FROM menu_charge b WHERE b.SITE_CODE = a.SITE_CODE AND b.MID =
+		a.MID ) as CHARGE_FNM
+		from menus a
+		where SITE_CODE = #{siteCode,
+		jdbcType=VARCHAR}
+		order by MENU_ORDER_CODE , MENU_ORDER
+	</select>
+
+
+	<select id="getMenuCheckTotalCnt"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="int">
+		select COUNT(a.IDX) CNT
+		from menus a left join menus_charge_info
+		b on b.SITE_CODE = a.SITE_CODE AND b.MID = a.MID
+		where 1=1
+		<include refid="s.funcs" />
+		<if test="#fn = isNotBlank, #fn(siteCode)">
+			AND a.SITE_CODE = #{siteCode}
+		</if>
+		AND IS_USE = 'Y'
+		<if test="#fn = isNotBlank, #fn(searchType)">
+			<if test="searchType.equals('NOT_CHARGE')">
+				AND (SELECT COUNT(IDX) FROM menu_charge PMC WHERE PMC.SITE_CODE =
+				a.SITE_CODE AND PMC.MID = a.MID) = 0
+			</if>
+			<if test="searchType.equals('REQ')">
+				AND b.REQ_STATE = 'R'
+			</if>
+		</if>
+		<if test="#fn = isBlank, #fn(searchType)">
+			AND ( ((SELECT COUNT(IDX) FROM menu_charge PMC WHERE PMC.SITE_CODE =
+			a.SITE_CODE AND PMC.MID = a.MID) = 0))
+		</if>
+	</select>
+	<select id="getMenuCheckList"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="map3_sys_menuVO">
+		SELECT * FROM (
+		SELECT MA.*, @rownum:=@rownum+1 RNUM FROM (
+
+		select a.*,
+		b.REQ_STATE,
+		b.IDX AS REQ_IDX,
+		b.REQ_CHARGE_ID,
+		b.REQ_CHARGE_FNM,
+		b.REQ_CHARGE_DEP_CODE,
+		b.REQ_CHARGE_DEP_NM,
+		b.REQ_CHARGE_TEL,
+		b.MOVE_CHARGE_ID,
+		b.MOVE_CHARGE_FNM,
+		b.MOVE_CHARGE_DEP_CODE,
+		b.MOVE_CHARGE_DEP_NM,
+		b.MOVE_CHARGE_TEL,
+		b.ACK_DT,
+		null as NOTMAPPING_VAL
+		from menus a left join menus_charge_info b on b.SITE_CODE =
+		a.SITE_CODE AND b.MID = a.MID
+		where 1=1
+		<include refid="s.funcs" />
+		<if test="#fn = isNotBlank, #fn(siteCode)">
+			AND a.SITE_CODE = #{siteCode}
+		</if>
+		AND IS_USE = 'Y'
+		<if test="#fn = isNotBlank, #fn(searchType)">
+			<if test="searchType.equals('NOT_CHARGE')">
+				AND (SELECT COUNT(IDX) FROM menu_charge PMC WHERE PMC.SITE_CODE =
+				a.SITE_CODE AND PMC.MID = a.MID) = 0
+			</if>
+			<if test="searchType.equals('REQ')">
+				AND b.REQ_STATE = 'R'
+			</if>
+		</if>
+		<if test="#fn = isBlank, #fn(searchType)">
+			AND ( ((SELECT COUNT(IDX) FROM menu_charge PMC WHERE PMC.SITE_CODE =
+			a.SITE_CODE AND PMC.MID = a.MID) = 0))
+		</if>
+		order by MENU_ORDER_CODE , MENU_ORDER
+		) MA, (SELECT @rownum :=0) AS R
+		) RES WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<select id="getMenuCheckAckTotalCnt"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="int">
+		select COUNT(a.IDX) CNT
+		from menus_charge_info b left join menus
+		a on b.SITE_CODE = a.SITE_CODE AND b.MID = a.MID AND a.IS_USE = 'Y'
+		where ( REQ_STATE = 'A' OR REQ_STATE = 'C')
+		<include refid="s.funcs" />
+		<if test="#fn = isNotBlank, #fn(siteCode)">
+			AND b.SITE_CODE = #{siteCode}
+		</if>
+	</select>
+	<select id="getMenuCheckAckList"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="map3_sys_menuVO">
+		SELECT * FROM (
+		SELECT MA.*, @rownum:=@rownum+1 RNUM FROM (
+
+		select a.*,
+		b.REQ_STATE,
+		b.IDX AS REQ_IDX,
+		b.REQ_CHARGE_ID,
+		b.REQ_CHARGE_FNM,
+		b.REQ_CHARGE_DEP_CODE,
+		b.REQ_CHARGE_DEP_NM,
+		b.REQ_CHARGE_TEL,
+		b.MOVE_CHARGE_ID,
+		b.MOVE_CHARGE_FNM,
+		b.MOVE_CHARGE_DEP_CODE,
+		b.MOVE_CHARGE_DEP_NM,
+		b.MOVE_CHARGE_TEL,
+		b.ACK_DT,
+		null as NOTMAPPING_VAL
+		from menus_charge_info b left join menus a on b.SITE_CODE =
+		a.SITE_CODE AND b.MID = a.MID AND a.IS_USE = 'Y'
+		where ( REQ_STATE = 'A' OR REQ_STATE = 'C')
+		<include refid="s.funcs" />
+		<if test="#fn = isNotBlank, #fn(siteCode)">
+			AND b.SITE_CODE = #{siteCode}
+		</if>
+		ORDER BY b.ACK_DT DESC
+		) MA, (SELECT @rownum :=0) AS R
+		) RES WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+
+
+
+
+	<select id="getMenu"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="map2_sys_menuVO">
+		select a.IDX, a.PARENT_IDX, a.MID, a.MENU_ORDER,
+		a.MENU_LEVEL, a.IS_INC_CONTENT, a.MENU_NAME
+		, a.SITE_CODE, a.LINK_URL, a.TARGET, a.MENU_TYPE, a.IS_USE
+		, a.PROGRAM_URL, a.CONTENT_FILE_PATH, a.IS_POLL
+		, a.IS_POLL, a.ccl_type, a.nuri_type, a.IS_FIRST
+		, a.CMS_SITE_CODE, a.CMS_PAGE_ID, a.CMS_PAGE_TYPE_CODE,
+		a.CMS_FOLDER_IDX
+		, a.CMS_PARENT_IDX, a.CMS_FOLDER_CODE
+		, a.BBS_MST_IDX, a.BBS_IDX
+		, a.REG_DT, a.MOD_DT, a.MENU_ORDER_CODE
+		, b.CONTENT_DATA as CMS_CONTENT_DATA , a.CHARGE_TEL, a.CHARGE_FNM
+		,a.MENU_SUMMARY, a.IS_TERMSET, a.TERM_START_DT, a.TERM_END_DT,
+		a.CHARGE_ID, a.CHARGE_DEP_CODE, a.CHARGE_DEP_NM
+		, a.IS_SNS_COMMENT
+		from menus a
+		LEFT OUTER JOIN pt_ycms_content b ON a.MID = b.PAGE_ID and a.SITE_CODE =
+		b.SITE_CODE
+		where a.SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and a.MID = #{mId}
+		order by a.MENU_ORDER_CODE , a.MENU_ORDER
+	</select>
+	<select id="getMenuInBbsName"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="String">
+		select PT_TITLE AS BBS_NM
+		from bbs_config
+		where PT_IDX =
+		#{bbsMstIdx}
+	</select>
+	<select id="getMaxMid"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="String">
+		select max(MID) as MAX_MID
+		from menus
+		where SITE_CODE =
+		#{siteCode, jdbcType=VARCHAR} and MID like CONCAT(#{mId},'%') and
+		MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getMenuNextSeq" resultType="int">
+		select max(idx+1) from
+		menus
+	</select>
+	<select id="getMenuNextMenuOrderCode"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="String">
+		select ifnull(max(menu_order_code),#{mId})
+		from menus t
+		where SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and MENU_LEVEL = #{menuLevel}
+		and parent_idx = #{parentIdx}
+	</select>
+	<select id="getMenuNextMenuOrder"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="int">
+		select ifnull(max(MENU_ORDER),0)+1 as NEXT_MENU_ORDER
+		from
+		menus t
+		where SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and MID like CONCAT(#{mId},'%')
+		and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getMenuNextParentIdx" resultType="int">
+		select IDX AS
+		PARENT_IDX
+		from menus t
+		where SITE_CODE = #{siteCode,
+		jdbcType=VARCHAR}
+		and MID like CONCAT(#{mId},'%')
+		and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getNextMenuOrderCode"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="String">
+		select CONCAT('0' , date_format(cast(max(MENU_ORDER_CODE)
+		AS UNSIGNED) + cast(#{addNextValue} AS UNSIGNED))) as
+		NEXT_MENU_ORDER_CODE
+		from menus t
+		where SITE_CODE = #{siteCode,
+		jdbcType=VARCHAR}
+		and MID like CONCAT(#{mId},'%')
+		and MENU_LEVEL = #{menuLevel}
+	</select>
+	<select id="getMoveMenuDownTarget"
+		parameterType="java.util.HashMap" resultType="String">
+		select CONCAT('0' ,
+		date_format(cast(MENU_ORDER_CODE AS UNSIGNED) - cast(#{moveDepth} AS
+		UNSIGNED)))
+		from menus
+		where MENU_ORDER_CODE LIKE
+		CONCAT(#{moveMenuOrderCode},'%')
+		and SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and MID LIKE CONCAT(#{moveMid},'%')
+		limit 1
+	</select>
+	<select id="getMoveMenuTarget"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="sysBasicMenuMap">
+		select
+		a.IDX, a.PARENT_IDX, a.MID, a.MENU_ORDER, a.MENU_LEVEL, a.IS_INC_CONTENT,
+		a.MENU_NAME
+		, a.SITE_CODE, a.LINK_URL, a.TARGET, a.MENU_TYPE, a.IS_USE
+		, a.PROGRAM_URL, a.CONTENT_FILE_PATH, a.IS_POLL
+		, a.IS_POLL, a.ccl_type, a.nuri_type
+		, a.CMS_SITE_CODE, a.CMS_PAGE_ID, a.CMS_PAGE_TYPE_CODE,
+		a.CMS_FOLDER_IDX
+		, a.CMS_PARENT_IDX, a.CMS_FOLDER_CODE, a.BBS_MST_IDX, a.BBS_IDX
+		, a.REG_DT, a.MOD_DT, a.MENU_ORDER_CODE , a.MENU_SUMMARY, a.IS_TERMSET,
+		a.TERM_START_DT, a.TERM_END_DT, a.CHARGE_ID, a.CHARGE_DEP_CODE,
+		a.CHARGE_DEP_NM
+		, a.IS_SNS_COMMENT, a.CHARGE_TEL, a.CHARGE_FNM
+		from menus a
+		where
+		a.SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and a.MENU_ORDER_CODE = #{menuOrderCode}
+	</select>
+	<select id="getDownMenu" resultMap="sysBasicMenuMap">
+		select * from (
+		select * from menus
+		where SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and parent_idx=#{parentIdx}
+		and menu_order_code > #{moveMenuOrderCode}
+		order by menu_order_code
+		) RES limit 1
+	</select>
+	<select id="getUpMenu" resultMap="sysBasicMenuMap">
+	<![CDATA[
+		select * from (
+			select * from menus
+			where SITE_CODE   = #{siteCode, jdbcType=VARCHAR}
+				and parent_idx=#{parentIdx}
+				and menu_order_code < #{moveMenuOrderCode}
+			order by menu_order_code desc
+		) RES limit 1
+	]]>
+	</select>
+	<select id="chkDownLevelMenu" parameterType="java.util.HashMap"
+		resultType="int">
+		select COUNT(*) AS RESULT
+		from menus
+		where SITE_CODE =
+		#{siteCode, jdbcType=VARCHAR}
+		and MENU_LEVEL = #{menuLevel}
+		and MENU_ORDER_CODE like CONCAT(#{moveMenuOrderCode},'%')
+	</select>
+	<select id="getMoveMenuUpTarget"
+		parameterType="java.util.HashMap" resultType="String">
+		select CONCAT('0' ,
+		date_format(cast(MENU_ORDER_CODE AS UNSIGNED) + cast(#{moveDepth} AS
+		UNSIGNED)))
+		from menus
+		where MENU_ORDER_CODE LIKE
+		CONCAT(#{moveMenuOrderCode},'%')
+		and SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and MID LIKE CONCAT(#{moveMid},'%')
+		limit 1
+	</select>
+	<select id="getMinMenuOrderCode"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="String">
+		select min(MENU_ORDER_CODE)
+		from menus
+		where MID LIKE
+		CONCAT(#{mId},'%')
+		and MENU_LEVEL = #{menuLevel}
+		and SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+	</select>
+	<select id="getMaxMenuOrderCode"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="String">
+		select max(MENU_ORDER_CODE)
+		from menus
+		where MID LIKE
+		CONCAT(#{mId},'%')
+		and MENU_LEVEL = #{menuLevel}
+		and SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+	</select>
+	<select id="getMenuNotInBbsList"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		SELECT pt_idx AS bbs_mst_idx, '' AS bbs_idx, PT_TITLE AS
+		bbs_name
+		FROM bbs_config
+		WHERE pt_idx NOT IN (
+		SELECT DISTINCT bbs_mst_idx FROM menus WHERE bbs_mst_idx IN (
+		SELECT pt_idx FROM bbs_config WHERE pt_sitecode NOT IN ('common') AND
+		is_del = 'N'
+		)
+		)
+		AND is_del = 'N'
+		AND (pt_sitecode = #{siteCode, jdbcType=VARCHAR} or PT_SITECODE =
+		'common')
+		ORDER BY bbs_mst_idx DESC
+	</select>
+	<select id="getMenuName" resultType="String">
+		select menu_name
+		FROM
+		menus
+		WHERE SITE_CODE = #{siteCode, jdbcType=VARCHAR} AND mid =
+		#{mId}
+	</select>
+	<select id="getMenuChargeHistoryList"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		SELECT SITE_CODE, MID, CHARGE_ID, CHARGE_FNM,
+		CHARGE_DEP_CODE, CHARGE_DEP_NM, REG_DATE
+		FROM menu_charge_history
+		WHERE SITE_CODE = #{siteCode, jdbcType=VARCHAR} AND MID = #{mId}
+		ORDER
+		BY IDX ASC
+	</select>
+
+	<insert id="insertMenu" flushCache="true">
+		insert into menus (
+		IDX, PARENT_IDX, MID, MENU_ORDER, MENU_LEVEL, IS_INC_CONTENT, MENU_NAME,
+		SITE_CODE, LINK_URL, TARGET, MENU_TYPE, IS_USE
+		, PROGRAM_URL, CONTENT_FILE_PATH, CMS_PAGE_ID, CMS_SITE_CODE,
+		BBS_MST_IDX, BBS_IDX, MENU_ORDER_CODE, IS_POLL
+		, ccl_type, nuri_type, IS_FIRST, MENU_SUMMARY, REG_DT
+		, IS_TERMSET, TERM_START_DT, TERM_END_DT, IS_SNS_COMMENT
+		) values (
+		#{idx}, #{parentIdx}, #{mId}, #{menuOrder}, #{menuLevel},
+		#{isIncContent}, #{menuName}, #{siteCode, jdbcType=VARCHAR},
+		#{linkUrl}, #{target}, #{menuType}, #{isUse}
+		, #{programUrl}, #{contentFilePath}, #{cmsPageId}, #{cmsSiteCode},
+		#{bbsMstIdx}, #{bbsIdx}, #{menuOrderCode}, #{isPoll}
+		, #{cclType}, #{nuriType}, #{isFirst}, #{menuSummary,
+		jdbcType=VARCHAR}, NOW()
+		, #{isTermset}, #{termStartDt, jdbcType=DATE}, #{termEndDt,
+		jdbcType=DATE}, #{isSnsComment}
+		)
+	</insert>
+	<insert id="insertMenuChargeHistory" flushCache="true">
+		insert into
+		menu_charge_history (
+		SITE_CODE, MID, CHARGE_ID, CHARGE_FNM, CHARGE_DEP_CODE, CHARGE_DEP_NM, REG_DATE
+		) values (
+		#{siteCode, jdbcType=VARCHAR}, #{mid}, #{chargeId}, #{chargeFnm},
+		#{chargeDepCode}, #{chargeDepNm}, NOW()
+		)
+	</insert>
+
+	<update id="updateSiblingsFirst" flushCache="true">
+		<!-- update menus
+		set
+		IS_FIRST = 0
+		where PARENT_IDX = #{parentIdx} -->
+	</update>
+	<update id="updateMenu" flushCache="true">
+		update menus
+		set
+		IS_INC_CONTENT = #{isIncContent}
+		, MENU_NAME = #{menuName}
+		, LINK_URL = #{linkUrl}
+		, TARGET = #{target}
+		, MENU_TYPE = #{menuType}
+		, IS_USE = #{isUse}
+		, PROGRAM_URL = #{programUrl}
+		, CONTENT_FILE_PATH = #{contentFilePath}
+		, CMS_PAGE_ID = #{cmsPageId}
+		, CMS_SITE_CODE = #{cmsSiteCode}
+		, BBS_MST_IDX = #{bbsMstIdx}
+		, BBS_IDX = #{bbsIdx}
+		, IS_POLL = #{isPoll}
+		, ccl_type = #{cclType}
+		, nuri_type = #{nuriType}
+		, IS_FIRST = #{isFirst}
+		, MENU_SUMMARY = #{menuSummary, jdbcType=VARCHAR}
+		, MOD_DT = NOW()
+		, IS_TERMSET = #{isTermset}
+		, TERM_START_DT = #{termStartDt, jdbcType=DATE}
+		, TERM_END_DT = #{termEndDt, jdbcType=DATE}
+		, IS_SNS_COMMENT = #{isSnsComment}
+		where MID = #{mId}
+		and SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+	</update>
+	<update id="moveMenu" flushCache="true">
+		update menus
+		set
+		MENU_ORDER_CODE = #{moveMenuOrderCode}
+		where SITE_CODE = #{siteCode,
+		jdbcType=VARCHAR}
+		and MID = #{moveMid}
+	</update>
+	<update id="moveMenuChildren" flushCache="true">
+		update menus
+		set
+		menu_order_code = CONCAT(substr(#{moveMenuOrderCode},1,
+		#{menuLevel}*2) , substr(menu_order_code, #{menuLevel}*2+1))
+		where
+		SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+		and menu_level > #{menuLevel}
+		and mid like CONCAT(substr(#{curMid},1, #{menuLevel}*2),'%')
+	</update>
+
+	<delete id="deleteMenu" flushCache="true">
+		delete from menus
+		where MID
+		like CONCAT(#{mId},'%')
+		and SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+	</delete>
+	<delete id="deleteMenuTargetSite"
+		parameterType="java.lang.String" flushCache="true">
+		DELETE FROM menus
+		WHERE
+		SITE_CODE = #{siteCode, jdbcType=VARCHAR}
+	</delete>
+
+
+
+
+	<!-- 메뉴 사용자단 -->
+
+	<resultMap id="map1_menuVO" extends="basicMenuMap"
+		type="egovframework.portal.sys.MenuMng.vo.MenuVO">
+		<result property="isFirst" column="IS_FIRST" />
+	</resultMap>
+	<resultMap id="map2_menuVO" extends="basicMenuMap"
+		type="egovframework.portal.sys.MenuMng.vo.MenuVO">
+		<result property="cclType" column="ccl_type" />
+		<result property="nuriType" column="nuri_type" />
+		<result property="bbsMstIdx" column="BBS_MST_IDX" />
+		<result property="bbsIdx" column="BBS_IDX" />
+		<result property="cmsContentData" column="CMS_CONTENT_DATA" />
+		<result property="chargeTel" column="CHARGE_TEL" />
+		<result property="chargeFnm" column="CHARGE_FNM" />
+		<result property="chargeDepNm" column="CHARGE_DEP_NM" />
+		<result property="isSnsComment" column="IS_SNS_COMMENT" />
+		<result property="cmsContentDate" column="CMS_CONTENT_DATE" />
+	</resultMap>
+
+
+	<select id="getUserMenuList"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="map1_menuVO ">
+		select IDX, PARENT_IDX, MID, MENU_ORDER, MENU_LEVEL,
+		IS_INC_CONTENT, MENU_NAME
+		, SITE_CODE, LINK_URL, TARGET, MENU_TYPE, IS_USE
+		, PROGRAM_URL, CONTENT_FILE_PATH
+		, CMS_PAGE_ID, CMS_PAGE_TYPE_CODE, CMS_FOLDER_IDX
+		, CMS_PARENT_IDX, CMS_FOLDER_CODE
+		, REG_DT, MOD_DT, MENU_SUMMARY, ccl_type, nuri_type, IS_FIRST
+		from
+		menus
+		where SITE_CODE = #{siteCode}
+		and IS_USE = 'Y'
+		and (
+		IS_TERMSET = 'N'
+		OR (
+		IS_TERMSET = 'Y'
+		AND DATE_FORMAT(NOW(),'%Y-%m-%d') BETWEEN
+		DATE_FORMAT(SUBSTR(TERM_START_DT,1,10),'%Y-%m-%d')
+		AND DATE_FORMAT(SUBSTR(TERM_END_DT,1,10),'%Y-%m-%d')
+		)
+		)
+		order by MENU_ORDER_CODE , MENU_ORDER
+	</select>
+	<select id="getCurMid"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="String">
+		select MID
+		from (
+		select t.MID
+		from menus t
+		where t.MID like CONCAT(#{mId},'%')
+		and t.SITE_CODE = #{siteCode}
+		and t.IS_USE = 'Y'
+		and (t.IS_TERMSET = 'N' OR (t.IS_TERMSET = 'Y' AND
+		DATE_FORMAT(NOW(),'%Y-%m-%d') BETWEEN
+		DATE_FORMAT(SUBSTR(t.TERM_START_DT,1,10),'%Y-%m-%d') AND
+		DATE_FORMAT(SUBSTR(t.TERM_END_DT,1,10),'%Y-%m-%d') ) )
+		and t.IS_INC_CONTENT = 'Y'
+		and t.MENU_TYPE != 'L'
+		order by
+		t.IS_FIRST desc,
+		t.MENU_ORDER_CODE asc
+		) TBL
+		limit 1
+	</select>
+	<select id="getMenuVO"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultMap="map2_menuVO">
+		select a.IDX, a.PARENT_IDX, a.MID, a.MENU_ORDER, a.MENU_LEVEL,
+		a.IS_INC_CONTENT, a.MENU_NAME
+		, a.SITE_CODE, a.LINK_URL, a.TARGET, a.MENU_TYPE, a.IS_USE
+		, a.PROGRAM_URL, a.CONTENT_FILE_PATH
+		, a.ccl_type, a.nuri_type
+		, a.CMS_PAGE_ID, a.CMS_PAGE_TYPE_CODE, a.CMS_FOLDER_IDX
+		, a.CMS_PARENT_IDX, a.CMS_FOLDER_CODE, a.BBS_MST_IDX, a.BBS_IDX
+		, a.REG_DT, a.MOD_DT
+		, b.CONTENT_DATA as CMS_CONTENT_DATA , a.CHARGE_TEL, a.CHARGE_FNM,
+		a.CHARGE_DEP_NM
+		, a.MENU_SUMMARY, a.IS_SNS_COMMENT, b.REG_DATE as CMS_CONTENT_DATE
+		from
+		menus a
+		LEFT OUTER JOIN pt_ycms_content b ON a.MID = b.PAGE_ID and a.SITE_CODE =
+		b.SITE_CODE
+		where a.SITE_CODE = #{siteCode}
+		and a.MID = #{mId}
+		and a.IS_USE = 'Y'
+		and ( a.IS_TERMSET = 'N' OR (a.IS_TERMSET = 'Y' AND
+		DATE_FORMAT(NOW(),'%Y-%m-%d') BETWEEN
+		DATE_FORMAT(SUBSTR(a.TERM_START_DT,1,10),'%Y-%m-%d') AND
+		DATE_FORMAT(SUBSTR(a.TERM_END_DT,1,10),'%Y-%m-%d') ) )
+		order by
+		a.MENU_ORDER_CODE , a.MENU_ORDER
+	</select>
+	<select id="getSiteDeptCode" resultType="String">
+		SELECT
+		SITE_DEPT_CODE
+		FROM site_mapping
+		WHERE SITE_CODE = #{siteCode}
+	</select>
+	<!-- 사이트 코드에 해당하는 메뉴 리스트를 계층 구조로 리턴 -->
+	<select id="getHierarchicalMenuList" parameterType="HashMap"
+		resultMap="map1_menuVO ">
+		WITH RECURSIVE t AS
+		(
+		SELECT
+		MENU_ORDER_CODE AS HIERARCHY
+		, IDX, PARENT_IDX, MID, MENU_ORDER, MENU_LEVEL, IS_INC_CONTENT,
+		MENU_NAME
+		, SITE_CODE, LINK_URL, TARGET, MENU_TYPE, IS_USE
+		, PROGRAM_URL, CONTENT_FILE_PATH
+		, CMS_PAGE_ID, CMS_PAGE_TYPE_CODE, CMS_FOLDER_IDX
+		, CMS_PARENT_IDX, CMS_FOLDER_CODE
+		, REG_DT, MOD_DT, MENU_SUMMARY, ccl_type, nuri_type,
+		IS_FIRST,MENU_ORDER_CODE
+		FROM menus A
+		WHERE SITE_CODE = #{siteCode}
+		AND A.IS_USE = 'Y'
+		AND (A.IS_TERMSET = 'N' OR (A.IS_TERMSET = 'Y' AND
+		DATE_FORMAT(NOW(),'%Y-%m-%d') BETWEEN
+		DATE_FORMAT(SUBSTR(A.TERM_START_DT,1,10),'%Y-%m-%d') AND
+		DATE_FORMAT(SUBSTR(A.TERM_END_DT,1,10),'%Y-%m-%d') ) )
+		AND A.PARENT_IDX = 0
+		${optionalQuery}
+		UNION ALL
+		SELECT
+		concat(t.HIERARCHY,',', A.MENU_ORDER_CODE) AS HIERARCHY
+		, A.IDX, A.PARENT_IDX, A.MID, A.MENU_ORDER, A.MENU_LEVEL,
+		A.IS_INC_CONTENT, A.MENU_NAME
+		, A.SITE_CODE, A.LINK_URL, A.TARGET, A.MENU_TYPE, A.IS_USE
+		, A.PROGRAM_URL, A.CONTENT_FILE_PATH
+		, A.CMS_PAGE_ID, A.CMS_PAGE_TYPE_CODE, A.CMS_FOLDER_IDX
+		, A.CMS_PARENT_IDX, A.CMS_FOLDER_CODE
+		, A.REG_DT, A.MOD_DT, A.MENU_SUMMARY, A.ccl_type, A.nuri_type,
+		A.IS_FIRST, A.MENU_ORDER_CODE
+		FROM menus A, t
+		WHERE A.PARENT_IDX = t.IDX
+		AND A.SITE_CODE = #{siteCode}
+		AND A.IS_USE = 'Y'
+		AND (A.IS_TERMSET = 'N' OR (A.IS_TERMSET = 'Y' AND
+		DATE_FORMAT(NOW(),'%Y-%m-%d') BETWEEN
+		DATE_FORMAT(SUBSTR(A.TERM_START_DT,1,10),'%Y-%m-%d') AND
+		DATE_FORMAT(SUBSTR(A.TERM_END_DT,1,10),'%Y-%m-%d') ) )
+		${optionalQuery}
+		) SELECT
+		IDX, PARENT_IDX, MID, MENU_ORDER, MENU_LEVEL, IS_INC_CONTENT, MENU_NAME
+		, SITE_CODE, LINK_URL, TARGET, MENU_TYPE, IS_USE
+		, PROGRAM_URL, CONTENT_FILE_PATH
+		, CMS_PAGE_ID, CMS_PAGE_TYPE_CODE, CMS_FOLDER_IDX
+		, CMS_PARENT_IDX, CMS_FOLDER_CODE
+		, REG_DT, MOD_DT, MENU_SUMMARY, ccl_type, nuri_type, IS_FIRST
+		FROM t
+		ORDER BY HIERARCHY, MENU_LEVEL, MENU_ORDER_CODE, MENU_ORDER
+	</select>
+	<select id="getMenuByIdx" parameterType="int"
+		resultMap="map1_menuVO">
+		SELECT *
+		FROM menus
+		WHERE IDX = #{idx}
+	</select>
+	<!-- 유효한 MID인지 확인 -->
+	<select id="getAbailableMid"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="java.lang.Integer">
+		SELECT COUNT(IDX) FROM menus WHERE MID = #{mId} AND
+		SITE_CODE = #{siteCode} AND is_use = 'Y'
+	</select>
+
+	<!-- 현재 메뉴 하위에 사용 상태의 하위 메뉴가 있는지 확인 -->
+	<select id="getAvailableChildMid"
+		parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO"
+		resultType="java.lang.String">
+		SELECT
+		MID
+		FROM
+		(
+		SELECT
+		MID,
+		@rownum:=@rownum+1 ROWNUM
+		FROM
+		menus, (SELECT @rownum :=0) AS R
+		WHERE
+		IS_USE = 'Y'
+		AND MENU_TYPE != 'L'
+		AND PARENT_IDX =
+		(
+		SELECT
+		IDX
+		FROM
+		menus
+		WHERE
+		SITE_CODE = #{siteCode}
+		AND MID = #{mId})
+		ORDER BY
+		MENU_ORDER_CODE ASC) RES
+		limit 1
+	</select>
+
+	<!-- 해당 사이트의 그룹 코드를 조회 -->
+	<select id="getSiteGroup" parameterType="java.lang.String"
+		resultType="java.lang.String">
+		SELECT SITE_GROUP FROM site_mapping WHERE SITE_CODE =
+		#{_parameter}
+	</select>
+
+	<select id="getURLContentsList" resultType="HashMap"
+		useCache="false">
+		SELECT v.site_name, v.site_code, v.title, v.menu_navi, v.url,
+		c.page_id
+		FROM pt_ycms_content c, pt_v_menus v
+		WHERE c.content_data LIKE
+		'%http%' AND c.content_data LIKE '%href%'
+		AND c.site_code = v.site_code
+		AND c.page_id = v.mid
+		ORDER BY v.site_code
+	</select>
+
+	<select id="getURLContents" resultType="java.lang.String"
+		parameterType="java.util.Map" useCache="false">
+		SELECT content_data
+		FROM
+		pt_ycms_content
+		WHERE site_code = #{siteCode}
+		AND page_id = #{pageId}
+	</select>
+
+	<select id="getURLmenuList" resultType="HashMap"
+		useCache="false">
+		SELECT SITE_NAME, SITE_CODE, TITLE, MENU_NAVI, MID FROM
+		pt_v_menus ORDER BY site_code ASC
+	</select>
+
+	<select id="getURLmenu" resultType="java.lang.String"
+		parameterType="java.util.Map" useCache="false">
+		SELECT URL FROM pt_v_menus
+		WHERE SITE_CODE = #{siteCode} AND MID = #{pageId}
+	</select>
+
+</mapper>

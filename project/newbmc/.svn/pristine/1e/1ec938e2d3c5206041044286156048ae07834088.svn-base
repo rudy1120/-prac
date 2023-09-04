@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.unit.bmc.moveRes.mapper.MoveReserveMapper">
+	<resultMap id="moveReserveMap" type="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO">
+			<result property="cust_id"		column="cust_id"/>
+			<result property="name"			column="name"/>
+			<result property="tel"			column="tel"/>
+			<result property="addr1"		column="addr1"/>
+			<result property="addr2"		column="addr2"/>
+			<result property="use_yn"		column="use_yn"/>
+			<result property="gbn1"			column="gbn1"/>
+			<result property="gbn2"			column="gbn2"/>
+			
+			<result property="idx"			column="idx"/>
+			<result property="move_date"	column="move_date"/>
+			<result property="move_time"	column="move_time"/>
+			<result property="updt_yn"		column="updt_yn"/>
+			
+			<result property="cnt"			column="cnt"/>
+	</resultMap>
+	
+	<select id="getCustInfoN" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultMap="moveReserveMap">
+		<![CDATA[
+			SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn, a.gbn1, a.gbn2,
+				b.idx, b.move_date, b.move_time, b.regdate, b.uptdate, b.updt_yn
+			FROM happyhouse_cust a 
+				LEFT OUTER JOIN happyhouse_res b
+			ON a.cust_id = b.cust_id
+			WHERE a.name = #{name} and a.tel = #{tel}
+			and a.use_yn = 'Y'
+		]]>
+	</select>
+	
+	<select id="getCustInfo" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultMap="moveReserveMap">
+		<![CDATA[
+			SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn, a.gbn1, a.gbn2,
+				b.idx, b.move_date, b.move_time, b.regdate, b.uptdate, b.updt_yn
+			FROM happyhouse_cust a 
+				LEFT OUTER JOIN happyhouse_res b
+			ON a.cust_id = b.cust_id
+			WHERE a.cust_id = #{cust_id}
+			and a.use_yn = 'Y'
+		]]>
+	</select>
+	
+	<select id="chkCust" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultMap="moveReserveMap">
+		<![CDATA[
+			SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn, a.gbn2
+			FROM happyhouse_cust a
+			WHERE a.name = #{name} and a.tel = #{tel}
+		]]>
+	</select>
+	
+	<select id="getResInfo" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultMap="moveReserveMap">
+		<![CDATA[
+			SELECT idx, cust_id, move_date, move_time, 
+				DATE_FORMAT(regdate, '%Y-%m-%d') AS regdate, 
+				DATE_FORMAT(uptdate, '%Y-%m-%d') AS uptdate, 
+				updt_yn
+			FROM happyhouse_res
+		]]>
+	</select>
+	
+	<select id="getChkCustInfo" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultMap="moveReserveMap">
+		<![CDATA[
+			SELECT cust_id, name, tel, addr1, addr2, gbn1, a.gbn2
+			FROM happyhouse_cust
+			WHERE name = #{name} AND tel = #{tel}
+			AND addr1 = #{addr1} AND addr2 = #{addr2}
+			AND use_yn = 'Y'
+		]]>
+	</select>
+	
+	<select id="chkReserve" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultMap="moveReserveMap">
+		<![CDATA[
+			SELECT a.idx, a.cust_id, a.move_date, a.move_time, a.updt_yn 
+			FROM happyhouse_res a, (
+				SELECT cust_id
+				FROM happyhouse_cust
+				WHERE name = #{name} AND tel = #{tel}
+				AND addr1 = #{addr1} AND addr2 = #{addr2}) b
+			WHERE a.cust_id = b.cust_id
+		]]>
+	</select>
+	
+	<select id="chkRes" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultType="int">
+		<![CDATA[
+			select count(*) as cnt
+			from happyhouse_cust a, happyhouse_res b
+			where a.cust_id = b.cust_id
+			and a.addr1 = #{addr1}
+			and b.move_date = #{dateSel}
+			and b.move_time = #{timeSel}
+		]]>
+	</select>
+	
+	<select id="chkThird" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultType="int">
+		<![CDATA[
+			select count(*) as cnt
+			from happyhouse_cust
+			where name = #{name} and tel = #{tel}
+			and addr1 = #{addr1} and addr2 = #{addr2}
+			and gbn1 = 'T'
+		]]>
+	</select>
+	
+	<select id="chkResCust" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultType="int">
+		<![CDATA[
+			select count(*) as cntC
+			from happyhouse_res
+			where cust_id = #{cust_id}
+		]]>
+	</select>
+	
+	<select id="chkTime" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultMap="moveReserveMap">
+		<![CDATA[
+			SELECT DISTINCT b.move_date, b.move_time 
+			FROM happyhouse_cust a, happyhouse_res b
+			WHERE a.cust_id = b.cust_id
+			AND a.addr1 = #{addr1} and b.move_date = #{dateSel}
+			ORDER BY b.move_time ASC
+		]]> 
+	</select>
+	
+	<select id="getgbn2" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO" resultType="String">
+		<![CDATA[
+			SELECT gbn2 
+			FROM happyhouse_cust a
+			WHERE a.name = #{name}
+			AND a.tel = #{tel}
+		]]> 
+	</select>
+	
+	<insert id="reserve" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO">
+		<![CDATA[
+			INSERT INTO happyhouse_res
+			(
+				idx,
+				cust_id,
+				move_date,
+				move_time
+			)
+			VALUES
+			(
+				(SELECT * FROM (SELECT IFNULL(MAX(IDX),0)+1 FROM happyhouse_res) AS idx),
+				#{cust_id},
+				#{dateSel},
+				#{timeSel}
+			)
+		]]>
+	</insert>
+	
+	<update id="resUp" parameterType="egovframework.portal.unit.bmc.moveRes.vo.MoveReserveVO">
+		<![CDATA[
+			UPDATE happyhouse_res
+			SET move_date = #{dateSel},
+				move_time = #{timeSel},
+				uptdate = CURRENT_TIMESTAMP, 
+				updt_yn = 'N'
+			WHERE cust_id = #{cust_id}
+		]]>
+	</update>
+
+</mapper>

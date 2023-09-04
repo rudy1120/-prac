@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.basic.poll.mapper.PollMngServiceMapper">
+
+	<resultMap id="pollListResult" type="egovframework.portal.sys.basic.poll.vo.PollMngVO">
+		<result property="idx"			column="IDX" />
+		<result property="siteName"		column="SITE_NAME" />
+		<result property="title"		column="TITLE" />
+		<result property="startDate"	column="START_DATE" />
+		<result property="endDate"		column="END_DATE" />
+		<result property="stateFlag"	column="STATE_FLAG" />
+		<result property="userCnt"		column="USER_CNT" />
+		<result property="stateYn"		column="STATE_YN" />
+		<result property="publicYn"		column="PUBLIC_YN" />
+		<result property="viewYn"		column="VIEW_YN" />
+		<result property="mainFile"		column="MAIN_FILE" />
+		<result property="dupType"		column="DUP_TYPE" />
+	</resultMap>
+
+	<resultMap id="pollViewResult" type="egovframework.portal.sys.basic.poll.vo.PollMngVO">
+		<result property="idx"			column="IDX" />
+		<result property="title"		column="TITLE" />
+		<result property="startDate"	column="START_DATE" />
+		<result property="endDate"		column="END_DATE" />
+		<result property="siteCode"		column="SITE_CODE" />
+		<result property="dupType"		column="DUP_TYPE" />
+		<result property="joinGender"	column="JOIN_GENDER" />
+		<result property="joinStAge"	column="JOIN_ST_AGE" />
+		<result property="joinEdAge"	column="JOIN_ED_AGE" />
+		<result property="joinAgeYn"	column="JOIN_AGE_YN" />
+		<result property="lotteryYn"	column="LOTTERY_YN" />
+		<result property="lotteryNum"	column="LOTTERY_NUM" />
+		<result property="reservNum"	column="RESERV_NUM" />
+		<result property="publicYn"		column="PUBLIC_YN" />
+		<result property="header"		column="HEADER" />
+		<result property="headerFile"	column="HEADER_FILE" />
+		<result property="footer"		column="FOOTER" />
+		<result property="mainFile"		column="MAIN_FILE" />
+		<result property="stateYn"		column="STATE_YN" />
+		<result property="viewYn"		column="VIEW_YN" />
+		<result property="questionYn"	column="QUESTION_YN" />
+		<result property="joinTarget"	column="JOIN_TARGET" />
+		<result property="isDel"		column="IS_DEL" />
+		<result property="userCnt"		column="USER_CNT" />
+		<result property="stateFlag"	column="STATE_FLAG" />
+		<result property="lotDate"		column="lot_date" />
+		<result property="siteName"		column="site_name" />
+	</resultMap>
+
+	<!-- 설문조사 관리 카운트 -->
+	<select id="getPollMngCnt" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO" resultType="java.lang.Integer">
+		<include refid="s.funcs"/>
+		SELECT COUNT(p.IDX)
+		FROM
+			poll p
+		LEFT JOIN
+			site_mapping s
+		ON
+			s.SITE_CODE = p.SITE_CODE
+		WHERE
+			p.IS_DEL = 'N'
+		<if test="#fn = isNotBlank, #fn(searchSiteCode)">AND s.SITE_CODE = #{searchSiteCode}</if>
+		<if test="#fn = isNotBlank, #fn(searchState)">
+			<!-- 진행중 -->
+			<if test='searchState.equals("1")'><![CDATA[ AND p.STATE_YN = 'Y' AND DATE_FORMAT(p.START_DATE, '%Y-%m-%d %H:%i:%s') <= NOW() AND DATE_FORMAT(CONCAT(p.END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') >= NOW() ]]></if>
+			<!-- 중단 -->
+			<if test='searchState.equals("2")'>AND p.STATE_YN = 'N'</if>
+			<!-- 종료 -->
+			<if test='searchState.equals("3")'><![CDATA[ AND p.STATE_YN = 'Y' AND DATE_FORMAT(CONCAT(p.END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') < NOW() ]]></if>
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchViewYn)">AND p.VIEW_YN = #{searchViewYn}</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">AND p.TITLE LIKE CONCAT('%',#{searchTxt},'%')</if>
+	</select>
+
+	<!-- 설문조사 관리 목록 -->
+	<select id="getPollMngList" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO" resultMap="pollListResult">
+		<include refid="s.funcs"/>
+		SELECT *
+			FROM (
+				SELECT MA.*, @rownum:=@rownum+1 AS RNUM
+				FROM (
+					SELECT
+						p.IDX,
+						s.SITE_NAME,
+						(SELECT COUNT(DISTINCT(USER_IDX)) FROM poll_response WHERE POLL_IDX = p.IDX ) AS USER_CNT,
+						p.TITLE, p.START_DATE, p.END_DATE,
+						<![CDATA[
+						(CASE WHEN NOW() BETWEEN DATE_FORMAT(START_DATE, '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(END_DATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s') THEN '진행중'
+						WHEN NOW() < DATE_FORMAT(START_DATE, '%Y-%m-%d %H:%i:%s') THEN '대기중'
+						ELSE '종료' END) AS STATE_FLAG,
+						]]>
+						p.STATE_YN, p.PUBLIC_YN, p.VIEW_YN, p.DUP_TYPE
+					FROM
+						poll p
+					LEFT JOIN
+						site_mapping s
+					ON
+						s.SITE_CODE = p.SITE_CODE
+					WHERE
+						p.IS_DEL = 'N'
+					<if test="#fn = isNotBlank, #fn(searchSiteCode)">AND s.SITE_CODE = #{searchSiteCode}</if>
+					<if test="#fn = isNotBlank, #fn(searchState)">
+						<!-- 진행중 -->
+						<if test='searchState.equals("1")'><![CDATA[ AND p.STATE_YN = 'Y' AND DATE_FORMAT(p.START_DATE, '%Y-%m-%d %H:%i:%s') <= NOW() AND DATE_FORMAT(CONCAT(p.END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') >= NOW() ]]></if>
+						<!-- 중단 -->
+						<if test='searchState.equals("2")'>AND p.STATE_YN = 'N'</if>
+						<!-- 종료 -->
+						<if test='searchState.equals("3")'><![CDATA[ AND p.STATE_YN = 'Y' AND DATE_FORMAT(CONCAT(p.END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') < NOW() ]]></if>
+					</if>
+					<if test="#fn = isNotBlank, #fn(searchViewYn)">AND p.VIEW_YN = #{searchViewYn}</if>
+					<if test="#fn = isNotBlank, #fn(searchTxt)">AND p.TITLE LIKE CONCAT('%',#{searchTxt},'%')</if>
+					ORDER BY IDX DESC
+				) MA, (SELECT @rownum :=0) AS R
+			) MB
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- 설문조사 등록 -->
+	<insert id="setInsertPoll" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO">
+		<include refid="s.funcs"/>
+		INSERT INTO poll (
+			TITLE, START_DATE, END_DATE, SITE_CODE, DUP_TYPE, LOTTERY_YN, PUBLIC_YN,
+			STATE_YN, VIEW_YN, QUESTION_YN, IS_DEL, CREATE_DATE
+			<if test="#fn = isNotBlank, #fn(headerFile)">, HEADER_FILE</if>
+			<if test="#fn = isNotBlank, #fn(mainFile)">, MAIN_FILE</if>
+			<if test="#fn = isNotBlank, #fn(joinTarget)">, JOIN_TARGET</if>
+			<if test="#fn = isNotBlank, #fn(joinGender)">, JOIN_GENDER</if>
+			<if test="#fn = isNotBlank, #fn(joinAgeYn)">, JOIN_AGE_YN</if>
+			<if test="#fn = isNotBlank, #fn(joinStAge)">, JOIN_ST_AGE</if>
+			<if test="#fn = isNotBlank, #fn(joinEdAge)">, JOIN_ED_AGE</if>
+			<if test="#fn = isNotBlank, #fn(lotteryNum)">, LOTTERY_NUM</if>
+			<if test="#fn = isNotBlank, #fn(reservNum)">, RESERV_NUM</if>
+			<if test="#fn = isNotBlank, #fn(header)">, HEADER</if>
+			<if test="#fn = isNotBlank, #fn(footer)">, FOOTER</if>
+		) VALUES (
+			#{title}, #{startDate}, #{endDate}, #{siteCode}, #{dupType}, #{lotteryYn}, #{publicYn},
+			#{stateYn}, #{viewYn}, #{questionYn}, #{isDel}, NOW()
+			<if test="#fn = isNotBlank, #fn(headerFile)">, #{headerFile}</if>
+			<if test="#fn = isNotBlank, #fn(mainFile)">, #{mainFile}</if>
+			<if test="#fn = isNotBlank, #fn(joinTarget)">, #{joinTarget}</if>
+			<if test="#fn = isNotBlank, #fn(joinGender)">, #{joinGender}</if>
+			<if test="#fn = isNotBlank, #fn(joinAgeYn)">, #{joinAgeYn}</if>
+			<if test="#fn = isNotBlank, #fn(joinStAge)">, #{joinStAge}</if>
+			<if test="#fn = isNotBlank, #fn(joinEdAge)">, #{joinEdAge}</if>
+			<if test="#fn = isNotBlank, #fn(lotteryNum)">, #{lotteryNum}</if>
+			<if test="#fn = isNotBlank, #fn(reservNum)">, #{reservNum}</if>
+			<if test="#fn = isNotBlank, #fn(header)">, #{header}</if>
+			<if test="#fn = isNotBlank, #fn(footer)">, #{footer}</if>
+		)
+		<selectKey resultType="java.lang.Integer" keyProperty="idx" order="AFTER">
+			select max(idx) as idx from poll
+		</selectKey>
+	</insert>
+
+	<!-- 노출 여부 값 수정 -->
+	<update id="setUpdatePollViewYn" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO">
+		UPDATE poll SET VIEW_YN = #{viewYn} WHERE IDX = #{idx}
+	</update>
+
+	<!-- 설문조사 상세 정보 -->
+	<select id="getPollView" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO" resultMap="pollViewResult">
+		SELECT
+			poll.*,
+			(SELECT site_name FROM site_mapping s WHERE s.site_code = poll.site_code limit 1) AS site_name,
+			(SELECT COUNT(DISTINCT(USER_IDX)) FROM poll_response WHERE POLL_IDX = poll.IDX ) AS USER_CNT,
+			<![CDATA[
+			(CASE WHEN NOW() BETWEEN DATE_FORMAT(poll.START_DATE, '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(poll.END_DATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s') THEN '진행중'
+			WHEN NOW() < DATE_FORMAT(poll.START_DATE, '%Y-%m-%d %H:%i:%s') THEN '대기중'
+			ELSE '종료' END) AS STATE_FLAG
+			]]>
+		FROM poll poll
+		WHERE IDX = #{idx}
+	</select>
+
+	<!-- 설문조사 수정 -->
+	<update id="setPollUpdate" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO">
+		<include refid="s.funcs"/>
+		UPDATE
+			poll
+		SET
+			TITLE = #{title}, START_DATE = #{startDate}, END_DATE = #{endDate}, SITE_CODE = #{siteCode}, DUP_TYPE = #{dupType}, LOTTERY_YN = #{lotteryYn}, PUBLIC_YN = #{publicYn},
+			STATE_YN = #{stateYn}, VIEW_YN = #{viewYn}, QUESTION_YN = #{questionYn}, IS_DEL = #{isDel}, UPDATE_DATE = NOW()
+			, HEADER_FILE = #{headerFile}
+			, MAIN_FILE = #{mainFile}
+			, JOIN_TARGET = #{joinTarget}
+			, JOIN_GENDER = #{joinGender}
+			, JOIN_ST_AGE = #{joinStAge}
+			, JOIN_AGE_YN = #{joinAgeYn}
+			, JOIN_ED_AGE = #{joinEdAge}
+			, LOTTERY_NUM = #{lotteryNum}
+			, RESERV_NUM = #{reservNum}
+			, HEADER = #{header}
+			, FOOTER = #{footer}
+		WHERE
+			IDX = #{idx}
+	</update>
+
+	<!-- 첨부파일 ID를 제거 -->
+	<update id="setAttachFileNull" parameterType="java.lang.String">
+		UPDATE
+			poll
+		SET
+			HEADER_FILE = REPLACE(HEADER_FILE, #{_parameter}, NULL),
+			MAIN_FILE = REPLACE(MAIN_FILE, #{_parameter}, NULL)
+		WHERE
+			HEADER_FILE = #{_parameter}
+		OR
+			main_file = #{_parameter}
+	</update>
+
+	<!-- ========================================= 사용자단 ========================================= -->
+
+	<!-- 설문조사 카운트 -->
+	<select id="getPollCnt" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO" resultType="java.lang.Integer">
+		<include refid="s.funcs"/>
+		SELECT COUNT(IDX) FROM poll WHERE IS_DEL = 'N' AND VIEW_YN = 'Y'
+		<if test="#fn = isNotBlank, #fn(searchSiteCode)"> AND SITE_CODE = #{searchSiteCode}</if>
+		<if test="#fn = isNotBlank, #fn(searchState)">
+			<!-- 진행중 -->
+			<if test='searchState.equals("1")'><![CDATA[ AND STATE_YN = 'Y' AND DATE_FORMAT(START_DATE, '%Y-%m-%d %H:%i:%s') <= NOW() AND date_format(CONCAT(END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') >= NOW() ]]></if>
+			<!-- 중단 -->
+			<if test='searchState.equals("2")'> AND STATE_YN = 'N'</if>
+			<!-- 종료 -->
+			<if test='searchState.equals("3")'><![CDATA[ AND STATE_YN = 'Y' AND DATE_FORMAT(CONCAT(END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') < NOW() ]]></if>
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchViewYn)"> AND VIEW_YN = #{searchViewYn}</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)"> AND TITLE LIKE CONCAT('%',#{searchTxt},'%')</if>
+	</select>
+
+	<!-- 설문조사 목록 -->
+	<select id="getPollList" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO" resultMap="pollListResult">
+		<include refid="s.funcs"/>
+		SELECT *
+			FROM (
+				SELECT MA.*, @rownum:=@rownum+1 AS RNUM
+				FROM (
+					SELECT
+						p.IDX,
+						(SELECT COUNT(DISTINCT(USER_IDX)) FROM poll_response WHERE POLL_IDX = p.IDX ) AS USER_CNT,
+						p.TITLE, p.START_DATE, p.END_DATE,
+						p.MAIN_FILE,
+						<![CDATA[
+						(CASE WHEN NOW() BETWEEN DATE_FORMAT(START_DATE, '%Y-%m-%d %H:%i:%s') AND DATE_FORMAT(CONCAT(END_DATE , ' 23:59:59'), '%Y-%m-%d %H:%i:%s') THEN '진행중'
+						WHEN NOW() < DATE_FORMAT(START_DATE, '%Y-%m-%d %H:%i:%s') THEN '대기중'
+						ELSE '종료' END) AS STATE_FLAG,
+						]]>
+						p.STATE_YN, p.PUBLIC_YN, p.VIEW_YN, p.DUP_TYPE
+					FROM
+						poll p
+					WHERE
+						IS_DEL = 'N' AND VIEW_YN = 'Y'
+					<if test="#fn = isNotBlank, #fn(searchSiteCode)"> AND SITE_CODE = #{searchSiteCode}</if>
+					<if test="#fn = isNotBlank, #fn(searchState)">
+						<!-- 진행중 -->
+						<if test='searchState.equals("1")'><![CDATA[ AND STATE_YN = 'Y' AND DATE_FORMAT(START_DATE, '%Y-%m-%d %H:%i:%s') <= NOW() AND DATE_FORMAT(CONCAT(END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') >= NOW() ]]></if>
+						<!-- 중단 -->
+						<if test='searchState.equals("2")'> AND STATE_YN = 'N'</if>
+						<!-- 종료 -->
+						<if test='searchState.equals("3")'><![CDATA[ AND STATE_YN = 'Y' AND DATE_FORMAT(CONCAT(END_DATE,' 23:59:59'), '%Y-%m-%d %H:%i:%s') < NOW() ]]></if>
+					</if>
+					<if test="#fn = isNotBlank, #fn(searchViewYn)"> AND VIEW_YN = #{searchViewYn}</if>
+					<if test="#fn = isNotBlank, #fn(searchTxt)"> AND TITLE LIKE CONCAT('%',#{searchTxt},'%')</if>
+					ORDER BY IDX DESC
+				) MA, (SELECT @rownum :=0) AS R
+			) MB
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- IP 주소로 설문 응답여부 확인 -->
+	<select id="getResponderWithIp" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT
+			COUNT(IDX) AS cnt
+		FROM
+			poll_responder
+		WHERE
+			IP = #{ip}
+		AND
+			POLL_IDX = #{idx}
+	</select>
+
+	<!-- 해당 유저의 설문 응답여부 확인 -->
+	<select id="getResponderWithPrivateCode" parameterType="java.util.Map" resultType="java.lang.Integer">
+		SELECT
+			COUNT(IDX) AS cnt
+		FROM
+			poll_responder
+		WHERE
+			PRIVATECODE = #{privateCode}
+		AND
+			POLL_IDX = #{idx}
+	</select>
+
+	<!-- 설문 참여자 처리 -->
+	<insert id="setInsertPollApplyResponder" parameterType="egovframework.portal.sys.basic.poll.vo.PollResponderMngVO">
+		<include refid="s.funcs"/>
+		INSERT INTO poll_responder (
+			POLL_IDX,
+			<if test="#fn = isNotBlank, #fn(name)">NAME,</if>
+			<if test="#fn = isNotBlank, #fn(birth)">BIRTH,</if>
+			<if test="#fn = isNotBlank, #fn(gender)">GENDER,</if>
+			<if test="#fn = isNotBlank, #fn(tel)">TEL,</if>
+			<if test="#fn = isNotBlank, #fn(privatecode)">PRIVATECODE,</if>
+			LOTTERY, IP, IS_DEL, AGREE_DATE, CREATE_DATE
+		)VALUES(
+			#{pollIdx},
+			<if test="#fn = isNotBlank, #fn(name)">#{name},</if>
+			<if test="#fn = isNotBlank, #fn(birth)">#{birth},</if>
+			<if test="#fn = isNotBlank, #fn(gender)">#{gender},</if>
+			<if test="#fn = isNotBlank, #fn(tel)">#{tel},</if>
+			<if test="#fn = isNotBlank, #fn(privatecode)">#{privatecode},</if>
+			'1', #{ip}, 'N', NOW(), NOW()
+		)
+		<selectKey resultType="java.lang.Integer" keyProperty="idx" order="AFTER">
+			select max(idx) as idx from poll_responder
+		</selectKey>
+	</insert>
+
+	<!-- 설문 응답 등록 처리 -->
+	<insert id="setInsertPollApplyResponse" parameterType="egovframework.portal.sys.basic.poll.vo.PollResponseMngVO">
+		<include refid="s.funcs"/>
+		INSERT INTO poll_response (
+			POLL_IDX, QUESTION_IDX,
+			<if test="answerIdx != null and answerIdx != 0">ANSWER_IDX,</if>
+			<if test="matrixIdx != null and matrixIdx != 0">MATRIX_IDX,</if>
+			<if test="matrixAnswerIdx != null and matrixAnswerIdx != 0">MATRIX_ANSWER_IDX,</if>
+			<if test="#fn = isNotBlank, #fn(value)">VALUE,</if>
+			USER_IDX, IS_DEL, CREATE_DATE
+		)VALUES(
+			#{pollIdx}, #{questionIdx},
+			<if test="answerIdx != null and answerIdx != 0">#{answerIdx},</if>
+			<if test="matrixIdx != null and matrixIdx != 0">#{matrixIdx},</if>
+			<if test="matrixAnswerIdx != null and matrixAnswerIdx != 0">#{matrixAnswerIdx},</if>
+			<if test="#fn = isNotBlank, #fn(value)">#{value},</if>
+			#{userIdx}, #{isDel}, NOW()
+		)
+	</insert>
+
+	<!-- ##### 설문조사 추첨일자 갱신 ##### -->
+	<update id="updateLotDate" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO">
+		UPDATE poll
+		SET lot_date = NOW()
+		WHERE idx = #{idx}
+	</update>
+
+</mapper>

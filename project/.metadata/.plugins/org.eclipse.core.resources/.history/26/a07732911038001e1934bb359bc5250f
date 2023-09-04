@@ -1,0 +1,45 @@
+body{
+	padding-top:75px;
+}
+h1 {text-align : center;  
+}
+
+.menu ul{
+	width:100%;
+	text-align: right; /*글자 오른쪽으로 처리*/
+	margin-bottom: 60px;
+}
+.menu li{
+	display: inline-block; /*수평처리, float:right처리 해주면 리스트 순서가 바뀜*/
+	height: 12px; line-height:12px; /*중간 테두리*/
+	margin-right:25px;
+}
+
+*{padding: 0; margin: 0;} /*태그 여백 0*/
+li{list-style:none;} /*기호나 번호 제거*/
+a{text-decoration: none;} /*링크 텍스트에 밑줄 없앰*/
+button{cursor:painter;} /*모든 버튼에 마우스 손 모양*/
+
+.wrap{margin: 0 auto; width: 100%; height:100%; }
+
+.wrap form{
+	padding: 50px; box-sizing:border-box;
+}
+.wrap legend{
+	position:absolute; left: -999em; /*요소를 화면 밖 처리*/
+	/*웹 접근성으로 스크린리더기가 읽어줘야 하므로 display: none;을 사용하지 말 것*/
+}
+
+.wrap fieldset{
+	border:none; /*테두리 제거*/
+}
+.ul{width:100%;}
+.a{text-decoration:none; color:#333;}
+.tab_menu{position:relative;}
+.tab_menu .list{overflow:hidden;}
+.tab_menu .list li{float:left; margin-right:14px;}
+.tab_menu .list li.is_on .btn{font-weight:bold; color:green;}
+.tab_menu .list .btn{font-size:13px;}
+.tab_menu .cont_area{margin-top:10px;}
+.tab_menu .cont_area .cont{display:none; background:#555; color:#fff; 
+text-align:center; width:250px; height:100px; line-height:100px;}

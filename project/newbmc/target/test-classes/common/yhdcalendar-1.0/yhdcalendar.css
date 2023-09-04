@@ -1,0 +1,119 @@
+@charset "utf-8";
+/*!
+ * YHDCalendar v1.0 Stylesheet
+ * Docs & License: http://www.yhdatabase.com/
+ * (c) 2016 Sonys & Leejr
+ */
+
+/* Colors
+--------------------------------------------------------------------------------------------------*/
+
+/* Icons (inline elements with styled text that mock arrow icons)
+--------------------------------------------------------------------------------------------------*/
+
+/* Buttons (styled <button> tags, normalized to work cross-browser)
+--------------------------------------------------------------------------------------------------*/
+
+/* Tables
+--------------------------------------------------------------------------------------------------*/
+
+/* Toolbar test_url
+--------------------------------------------------------------------------------------------------*/
+
+ 
+#script-warning {
+	display: none;
+	background: #eee;
+	border-bottom: 1px solid #ddd;
+	padding: 0 10px;
+	line-height: 40px;
+	text-align: center;
+	font-weight: 600;
+	font-size: 12px;
+	color: red;
+}
+
+#loading {
+	display:none;
+	position:relative;
+	top: 10px;
+	left: 10px;
+	text-align:center;
+	font-size:11pt;
+	font-weight:600;
+	color:#6b6b6b;
+}
+
+.fc-sun { color: red !important; }
+.fc-sat { color: blue !important; }
+.fc-more-popover { width:370px;}
+
+.reservationList { /*height:300px;*/overflow: auto }
+
+
+/* ë‹¬ë ¥  */
+.calendarWrap::after {content:""; clear:both;}
+.calendarHead {text-align:center;}
+.calendarHead span {display:inline-block; padding:0 12px; font-weight:800; font-size:25px; color:#333; line-height:34px; letter-spacing: -1px;}
+.calendarHead a {display:inline-block; height:34px; line-height:34px; /*vertical-align:6px;*/ border:1px solid #bdbdbd !important; border-radius:4px 4px; box-sizing:border-box;}
+.calendarHead a.month {width:34px; text-indent:-9999px;}
+.calendarHead a.prev { border-radius: 50%; background:url('img/spr_ico_brd.png') -2px -2px no-repeat;}
+.calendarHead a.next { border-radius: 50%; background:url('img/spr_ico_brd.png') -34px -2px no-repeat;}
+.calendarHead a.today {padding:0 10px; font-weight:600; font-size:16px; color:#5c5c5c !important; margin-left: 5px;}
+
+.calendar ul {width:100%; margin:19px auto 0; border-top:2px solid #283140; overflow:hidden;}
+.calendar li {float:left; width:14.285%; border-right:1px solid #ccc; border-bottom:1px solid #dedede; box-sizing:border-box;}
+.calendar .th {height:40px; font-weight:600; line-height:40px; text-align:center;}
+.calendar .td {height:80px; padding:5px;}
+.calendar .td1 {border-left:1px solid #ccc;}
+.calendar .td1 > span,.calendar li.td1 > a {color:#ff765e;}
+.calendar .td7 > span,.calendar li.td7 > a {color:#00bfc2;}
+.calendar .today{background:#f1f1f1;}
+.calendar .today{font-weight: 600;}
+.calendar .today .schedule{font-weight: normal;}
+.calendar .holiday,.calendar .holiday > a {color:#ec445b;}
+
+.calendar table {width:100%; margin:19px auto 0; border-left:1px solid #dedede; border-top:2px solid #1d518d; box-sizing:border-box;}
+.calendar th,
+.calendar td {font-size:14px; border-right:1px solid #dedede; border-bottom:1px solid #dedede;}
+.calendar th {width:14%; height:40px; font-weight:600; line-height:40px; font-size: 15px; text-align:center; background:#f7f7f7; }
+.calendar th:first-child {color:#ec445b; }
+.calendar th:last-child {color:#186dc4;}
+.calendar td {height:80px; padding:8px 5px 5px; vertical-align:top;}
+.calendar td a { border: none !important; color: #666 !important; font-weight: 600; }
+.calendar td:first-child a {color:#ec445b !important;}
+.calendar td:last-child a {color:#4b96e6 !important;}
+.calendar td .schedule {margin-top:5px;}
+
+.schedule a { display:block; width:100%; margin-bottom:4px; padding-left:26px; font-size:12px; line-height:1.6; background:url('img/spr_ico_brd.png') 0px 100% no-repeat; border-radius:4px 4px; box-sizing:border-box;}
+.schedule:hover{ color:#ddd; border-bottom: 1px dashed #aeaeae;}
+
+.roll_over td[id^="yhdc"]:hover{background: #f7f7f7;}
+
+@media all and (max-width:480px){
+.calendar li {font-size:12px;}
+.calendar .th span span {display:none;}
+.calendar th span {display:none;}
+.calendar th {font-size:13px;}
+.calendar td {font-size:12px;}
+.schedule a {background:none; padding-left:0; background:#f3f3f3;}
+}
+
+/* 캘린더 뷰 */
+.exeSchedule_view {border: 4px solid #eaeaea; background: url(img/bg_schedule_view.png) no-repeat 37px 30px; padding-left: 243px; padding-top: 50px; padding-bottom: 50px;}
+.exeSchedule_view dd{margin-left: 96px;}
+.exeSchedule_view dl:FIRST-CHILD dt{display: none;}
+.exeSchedule_view dl:FIRST-CHILD dd{font-size: 25px; font-weight: 600; color: #006894; padding-bottom: 10px; line-height: 30px; margin-left: 0;}
+.exeSchedule_view dl{border-bottom: 1px dashed #ddd; padding-bottom: 10px; margin-bottom: 10px; width: 90%;}
+.exeSchedule_view dl:after{content: ''; display: block; clear: both;}
+.exeSchedule_view dt{font-weight: 600; float: left; width: 85px; background: #f1f1f1; border-radius: 10px; text-align: center; margin-right: 10px;}
+
+
+@media all and (max-width:650px){
+	.exeSchedule_view{background: url(img/bg_schedule_view.png) no-repeat center 30px; padding: 20px; padding-top: 220px;}
+	.exeSchedule_view dd{line-height: 1.3em; margin-left: 0px;}
+	.exeSchedule_view dl{margin-left: auto; margin-right: auto;}
+}
+@media all and (max-width:400px){
+	.exeSchedule_view dt{float: none; width: 100%;}
+}

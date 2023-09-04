@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.departMng.depart.mapper.DepartMngMapper">
+
+	<resultMap id="departMap" type="egovframework.portal.sys.departMng.depart.vo.DepartMngVO">
+		<result column="dep_code"		property="depCode"/>
+		<result column="dep_code_nm"    property="depCodeNm"/>
+		<result column="upr_dept_code"	property="uprDeptCode"/>
+		<result column="sprm_dept_code"	property="sprmDeptCode"/>
+		<result column="dept_rank"      property="deptRank"/>
+		<result column="use_yn"			property="useYn"/>
+		<result column="dt_update"		property="dtUpdate"/>
+		<result column="dept_type"  	property="deptType"/>
+		<result column="full_path"      property="fullPath"/>
+		<result column="dept_full_nm"	property="deptFullNm"/>
+		<result column="rep_tel_no"		property="repTelNo"/>
+		<result column="rep_fax_no"		property="repFaxNo"/>
+		<result column="dep_comment"   property="depComment"/>
+		<result column="new_sname"     property="newSname"/>
+		<result column="new_depth"     property="newDepth"/>
+		<result column="new_order"     property="newOrder"/>
+		<result column="new_parent"    property="newParent"/>
+		<result column="new_location"  property="newLocation"/>
+	</resultMap>
+
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		AND use_yn = 'Y'
+		<if test="#fn = isNotBlank, #fn(searchDepCode)">
+			AND dep_code = #{searchDepCode}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND dep_code_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM (
+				SELECT dep_code
+				FROM dept_info
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+			) rs
+			GROUP BY dep_code
+		) RES
+	</select>
+	<select id="getList" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO" resultMap="departMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT dep_code, dep_code_nm, upr_dept_code, sprm_dept_code, dept_rank, use_yn, date_format(dt_update, "%Y-%m-%d") dt_update, dep_comment
+				, new_depth, new_parent, new_sname, rep_tel_no, rep_fax_no, new_location
+				
+				FROM dept_info
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY new_depth asc, new_parent asc, new_order asc 
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+	</select>
+
+	<!-- ##### 상세 ##### -->
+	<select id="getEntity" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO" resultMap="departMap">
+		SELECT 
+			dep_code, dep_code_nm, upr_dept_code, sprm_dept_code, dept_rank, use_yn, date_format(dt_update, "%Y-%m-%d") dt_update, dep_comment
+			, new_sname, new_depth, new_order, new_parent, new_location, rep_tel_no, rep_fax_no
+		FROM dept_info
+		where dep_code = #{depCode}
+	</select>
+
+	<!-- ##### 등록 ##### -->
+	<insert id="insert" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO">
+		<selectKey resultType="String" keyProperty="idx" order="BEFORE">
+			select cast(max(dep_code) as unsigned)+1 as idx from dept_info
+		</selectKey>
+		INSERT INTO dept_info (
+			dep_code, dep_code_nm, upr_dept_code, sprm_dept_code, dept_rank, 
+			use_yn, dt_update, dept_type, full_path, dep_full_nm, dep_comment
+			, new_sname, new_depth, new_order, new_parent, new_location, rep_tel_no, rep_fax_no 
+		) VALUES (
+			#{idx}, #{depCodeNm}, '53800000000', '53800000000', (select new_rank from (select max(dept_rank)+1 as new_rank from dept_info) a ), 
+			'Y', NOW(), '2', #{idx}, 'T', #{depComment}, #{newSname}, #{newDepth}, #{newOrder}, #{newParent}, #{newLocation}
+			, #{repTelNo}, #{repFaxNo}
+		)
+	</insert>
+
+	<!-- ##### 수정 ##### -->
+	<update id="update" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO">
+		UPDATE dept_info
+		SET dep_code_nm	= #{depCodeNm},
+			dt_update = now(),
+			dep_comment = #{depComment},
+			new_sname = #{newSname},
+			new_depth = #{newDepth},
+			new_order = #{newOrder},
+			new_parent = #{newParent},
+			new_location = #{newLocation},
+			rep_tel_no = #{repTelNo},
+			rep_fax_no = #{repFaxNo}
+		WHERE dep_code = #{depCode}
+	</update>
+
+	<!-- ##### 삭제 ##### -->
+	<update id="delete" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO">
+		UPDATE dept_info
+		SET 
+			<if test='useYn.equals("Y")'>use_yn = 'N',</if>
+			<if test='useYn.equals("N")'>use_yn = 'Y',</if>
+			dt_update = NOW()
+		WHERE dep_code = #{depCode}
+	</update>
+	
+	<!-- ##### 직원관리에서 사용하는 부서 목록 ##### -->
+	<select id="getDepartList" resultMap="departMap">
+		SELECT dep_code, dep_code_nm, upr_dept_code, sprm_dept_code, dept_rank, use_yn, date_format(dt_update, "%Y-%m-%d") dt_update, dep_comment
+		, new_depth, new_parent
+		FROM dept_info
+		WHERE use_yn = 'Y'
+		ORDER BY new_depth asc, new_parent asc, new_order asc
+	</select>
+	
+	<!-- ##### 상위 부서 정보 가져오기 -->
+	<select id="getParent" parameterType="String" resultMap="departMap">
+		select dep_code_nm, new_depth from dept_info where dep_code = #{value}
+	</select>
+	
+	<update id="staffUpdate" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO">
+		update user_info set real_use_dep_nm = #{depCodeNm} where real_use_dep_code = #{depCode}
+	</update>
+	<update id="chargeUpdate" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO">
+		update menu_charge set charge_dep_nm = #{depCodeNm} where charge_dep_code = #{depCode}
+	</update>
+
+</mapper>

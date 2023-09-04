@@ -1,0 +1,33 @@
+@charset "utf-8";
+
+html, body { height:100%; width:100%; margin:0; padding:0; font-family:"Nanum Gothic", serif !important; }
+header, section, footer	{
+	display:block;
+	
+}
+img{
+	border:none;
+}
+header {
+	/* height:47px; */
+}
+
+
+footer img{
+	margin:0 20px 0 0;
+	float:left;
+}
+
+article	{
+	margin-top:13px;
+	/* height:530px; */
+	clear:both;
+}
+
+article, aside, hgroup, header, footer, figure, figcaption, nav, section,time, mark, canvas, video, audio, details, summary {
+     display:block;
+}
+
+.footer_box { position:relative; display:block;font-size:12px; color:#595959; text-align:center; margin:0 auto;	border-top:1px #cbcbcb solid; font-weight:bold; line-height:24px; }
+.footer_inner {margin-top:10px; }
+

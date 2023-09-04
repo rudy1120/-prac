@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+<!-- ======================================= SITEMAP ======================================= -->
+
+	<!-- 사이트맵 -->
+	<definition name="/guide/siteMaps/*" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/common/sitemap.jsp" />
+	</definition>
+	<definition name="/guide/siteMaps/*/*" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/common/sitemap.jsp" />
+	</definition>
+	<!-- 대표홈페이지 - 사이트맵(시각화) -->
+	<definition name="/guide/siteMapsVisualization/portal" extends="portalEmpty">
+		<put-attribute name="title" value="대표홈페이지" type="string" />
+		<put-attribute name="body" value="/common/jsp/common/sitemapVisualization.jsp" />
+	</definition>
+
+<!-- ======================================= 팝업 컨텐츠 ======================================= -->
+
+	<definition name="econtents" extends="portalEmptyContent">
+		<put-attribute name="body" value="/common/jsp/contents/contents.jsp" />
+	</definition>
+	<definition name="portal/econtents" extends="econtents">
+		<put-attribute name="title" value="대표" type="string" />
+	</definition>
+	<definition name="dept/econtents" extends="econtents">
+		<put-attribute name="title" value="부서" type="string" />
+	</definition>
+	<definition name="csc/econtents" extends="econtents">
+		<put-attribute name="title" value="읍면동" type="string" />
+	</definition>
+	<definition name="mayor/econtents" extends="econtents">
+		<put-attribute name="title" value="열린시장실" type="string" />
+	</definition>
+
+<!-- ======================================= 일반 컨텐츠 ======================================= -->
+
+	<definition name="/*/contents" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/contents/contents.jsp" />
+	</definition>
+	<definition name="/*/*/contents" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/contents/contents.jsp" />
+	</definition>
+
+</tiles-definitions>

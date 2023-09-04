@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<definition name="/sys/dynamic/creator/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/dynamic/creator/list.jsp" />
+	</definition>
+	<definition name="/sys/dynamic/creator/modify" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/dynamic/creator/modify.jsp" />
+	</definition>
+	<definition name="/sys/dynamic/data/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/dynamic/data/list.jsp" />
+	</definition>
+	<definition name="/sys/dynamic/data/modify" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/dynamic/data/modify.jsp" />
+	</definition>
+	<definition name="/sys/dynamic/data/excelUp" extends="sysEmpty">
+		<put-attribute name="body" value="/sys/jsp/dynamic/data/excelUp.jsp" />
+	</definition>
+	<definition name="/sys/dynamic/category/modify" extends="sysEmpty">
+		<put-attribute name="body" value="/sys/jsp/dynamic/category/modify.jsp" />
+	</definition>
+	<definition name="/sys/dynamic/data/custom/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/dynamic/data/custom/list.jsp" />
+	</definition>
+
+
+</tiles-definitions>

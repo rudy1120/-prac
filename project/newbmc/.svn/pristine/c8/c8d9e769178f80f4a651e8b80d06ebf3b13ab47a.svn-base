@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.sysAuth.mapper.SiteAccessMngMapper">
+
+	<resultMap id="siteAccessMngVO_map1" type="egovframework.portal.sys.sysAuth.vo.SiteAccessVO">
+		<result property="seq" column="SEQ"  />
+		<result property="title" column="TITLE"  />
+		<result property="type" column="TYPE"  />
+		<result property="ipBandA" column="IP_BAND_A"  />
+		<result property="ipBandB" column="IP_BAND_B"  />
+		<result property="ip" column="IP"  />
+		<result property="allowDateSt" column="ALLOW_DATE_ST" />
+		<result property="allowDateEnd" column="ALLOW_DATE_END" />
+		<result property="allowDateUseYn" column="ALLOW_DATE_USE_YN"  />
+		<result property="useYn" column="USE_YN"  />
+		<result property="rnum" column="RNUM"  />
+	</resultMap>
+	<resultMap id="siteAccessMngVO_map2" type="egovframework.portal.sys.sysAuth.vo.SiteAccessVO">
+		<result property="seq" column="SEQ"  />
+		<result property="ip" column="IP"  />
+		<result property="type" column="TYPE"  />
+		<result property="ipBandA" column="IP_BAND_A"  />
+		<result property="ipBandB" column="IP_BAND_B"  />
+		<result property="allowDateSt" column="ALLOW_DATE_ST" />
+		<result property="allowDateEnd" column="ALLOW_DATE_END" />
+		<result property="allowDateUseYn" column="ALLOW_DATE_USE_YN"  />
+	</resultMap>
+	<resultMap id="siteAccessMngVO_map3" type="egovframework.portal.sys.sysAuth.vo.SiteAccessVO">
+		<result property="seq" column="SEQ"  />
+		<result property="title" column="TITLE"  />
+		<result property="type" column="TYPE"  />
+		<result property="ipBandA" column="IP_BAND_A"  />
+		<result property="ipBandB" column="IP_BAND_B"  />
+		<result property="ip" column="IP"  />
+		<result property="allowDateSt" column="ALLOW_DATE_ST" />
+		<result property="allowDateEnd" column="ALLOW_DATE_END" />
+		<result property="allowDateUseYn" column="ALLOW_DATE_USE_YN"  />
+		<result property="useYn" column="USE_YN"  />
+	</resultMap>
+
+	<sql id="PAGING_HEAD"> SELECT * FROM ( SELECT MA.*, @rownum:=@rownum+1 RNUM FROM ( </sql>
+	<sql id="PAGING_BOTTOM"> ) MA, (SELECT @rownum :=0) AS R ) RES WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex} </sql>
+
+	<!-- 접근허용 목록 수 조회 -->
+	<select id="getAccessAllowListCnt" resultType="int">
+		select COUNT(*) from sys_access_allow where 1=1 ${searchQuery}
+	</select>
+
+	<!-- 접근허용 목록 조회 -->
+	<select id="getAccessAllowList" resultMap="siteAccessMngVO_map1">
+		SELECT
+			seq, title, TYPE,  ip_band_a, ip_band_b, ip, allow_date_st, allow_date_end, allow_date_use_yn, use_yn , @rownum:=@rownum+1 rnum
+		FROM
+			sys_access_allow, (SELECT @rownum :=0) AS R
+		WHERE
+			1=1 ${searchQuery}
+	</select>
+
+	<!-- -->
+	<select id="getAccessAllowChkList" resultMap="siteAccessMngVO_map2">
+		SELECT
+			seq, ip, TYPE, ip_band_a, ip_band_b, ip, allow_date_st, allow_date_end, allow_date_use_yn
+		FROM
+			sys_access_allow
+		WHERE
+			use_yn = 'Y'
+	</select>
+
+	<!-- 접근허용 정보 조회 -->
+	<select id="getAccessAllow" resultMap="siteAccessMngVO_map3">
+		select
+			SEQ, TITLE, TYPE, IP_BAND_A, IP_BAND_B, IP,
+			ALLOW_DATE_ST, ALLOW_DATE_END, ALLOW_DATE_USE_YN, USE_YN
+		from sys_access_allow where SEQ = #{seq}
+	</select>
+
+	<!-- 접근허용 정보 중복체크 -->
+	<select id="getAccessAllowDupChk" resultType="int">
+		select COUNT(*) from sys_access_allow where IP = #{ip}
+	</select>
+
+	<!-- 접근제한 정보 등록 -->
+	<insert id="insertAccessAllow">
+		insert into sys_access_allow
+		(TITLE, TYPE, IP_BAND_A, IP_BAND_B, IP,
+		ALLOW_DATE_ST, ALLOW_DATE_END, ALLOW_DATE_USE_YN, USE_YN, REG_DT)
+		values(#{title}, #{type}, #{ipBandA}, #{ipBandB}, #{ip},
+		DATE_FORMAT(#{allowDateStS}, '%Y-%m-%d'),
+		DATE_FORMAT(#{allowDateEndS}, '%Y-%m-%d'),
+		#{allowDateUseYn}, #{useYn}, NOW())
+	</insert>
+
+	<!-- 접근허용 정보 수정 -->
+	<update id="updateAccessAllow">
+		update sys_access_allow
+             set IP     = #{ip}
+            , USE_YN = #{useYn}
+            , MOD_DT = NOW()
+            , TITLE = #{title}
+            , TYPE  = #{type}
+            , IP_BAND_A = #{ipBandA}
+            , IP_BAND_B = #{ipBandB}
+            , ALLOW_DATE_ST = DATE_FORMAT(#{allowDateStS}, '%Y-%m-%d')
+            , ALLOW_DATE_END = DATE_FORMAT(#{allowDateEndS}, '%Y-%m-%d')
+            , ALLOW_DATE_USE_YN = #{allowDateUseYn}
+            where SEQ = #{seq}
+	</update>
+	<!-- 접근허용 정보 수정 -->
+	<delete id="deleteAccessAllow">
+		delete from sys_access_allow where SEQ = #{seq}
+	</delete>
+</mapper>

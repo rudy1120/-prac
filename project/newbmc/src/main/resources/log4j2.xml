@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration shutdownHook="disable">
+	<Appenders>
+		<Console name="console" target="SYSTEM_OUT">
+			<PatternLayout pattern="%d %5p [%c] %m%n" />
+		</Console>
+		<File name="sqlLog" fileName="/home/webdata/WebLogs/webLog_sql.log" append="false">
+			<PatternLayout pattern="%d %5p [%c] %m%n"/>
+		</File>
+		<File name="egovlog" fileName="/home/webdata/WebLogs/webLog_egov.log" append="false">
+			<PatternLayout pattern="%d %5p [%c] %m%n"/>
+		</File>
+	</Appenders>
+	<Loggers>
+		<Logger name="egovframework.template" level="ERROR" additivity="false">
+			<AppenderRef ref="egovlog" />
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<!-- log SQL with timing information, post execution -->
+		<Logger name="jdbc.sqltiming" level="ERROR" additivity="false">
+			<AppenderRef ref="sqlLog" />
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="org.springframework" level="ERROR" additivity="false">
+			<AppenderRef ref="egovlog" />
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<Logger name="java.sql" level="DEBUG" additivity="false">
+			<AppenderRef ref="sqlLog" />
+			<AppenderRef ref="console" />
+		</Logger>
+
+		<!-- 실행 쿼리 로그 -->
+		<logger name="jdbc.sqlonly" level="ERROR" additivity="false">
+			<Appender-ref ref="console" />
+		</logger>
+
+		<!-- 쿼리 조회결과 -->
+		<logger name="jdbc.resultsettable" level="ERROR" additivity="false">
+			<Appender-ref ref="console" />
+		</logger>
+
+		<Root level="ERROR">
+			<AppenderRef ref="console" />
+		</Root>
+	</Loggers>
+</Configuration>

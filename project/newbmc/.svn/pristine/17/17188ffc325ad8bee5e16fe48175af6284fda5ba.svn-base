@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.basic.poll.mapper.PollResponderMngMapper">
+
+	<resultMap id="responseMap" type="egovframework.portal.sys.basic.poll.vo.PollResponderMngVO">
+		<id property="idx" column="idx" />
+		<result property="name" column="name"/>
+		<result property="birth" column="birth"/>
+		<result property="gender" column="gender"/>
+		<result property="tel" column="tel"/>
+		<result property="privatecode" column="privatecode"/>
+		<result property="ip" column="ip"/>
+		<result property="lottery" column="lottery"/>
+		<result property="createDate" column="create_date"/>
+		<result property="lotCancelDate" column="lot_cancel_date"/>
+		<result property="pollIdx" column="poll_idx"/>
+	</resultMap>
+
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<!-- 추첨 상태 -->
+		<if test="#fn = isNotBlank, #fn(searchState)"> AND lottery = #{searchState} </if>
+		<!-- 성별 -->
+		<if test="#fn = isNotBlank, #fn(searchGender)"> AND gender = #{searchGender} </if>
+		<!-- 검색어 -->
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')"> AND name LIKE CONCAT('%',#{searchTxt},'%') </if>
+			<if test="searchType.equals('ip')"> AND ip LIKE CONCAT('%',#{searchTxt},'%') </if>
+		</if>
+		AND poll_idx = #{pollIdx}
+	</sql>
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.basic.poll.vo.PollResponderMngVO" resultType="int">
+		SELECT COUNT(*)
+		FROM poll_responder
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+	</select>
+	<select id="getList" parameterType="egovframework.portal.sys.basic.poll.vo.PollResponderMngVO" resultMap="responseMap">
+		SELECT *
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn FROM (
+				SELECT *
+				FROM poll_responder
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY create_date DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- ##### 전체 목록(엑셀 다운로드용) ##### -->
+	<select id="getTotalListAsMap" parameterType="egovframework.portal.sys.basic.poll.vo.PollResponderMngVO" resultType="HashMap">
+		SELECT
+			res.name,
+			(CASE res.gender WHEN 'M' THEN '남' ELSE '여' END) AS gender,
+			res.birth, res.tel, res.ip,
+			(CASE lottery
+				WHEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@COMPLETE.getCode()}'
+					THEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@COMPLETE.getDesc()}'
+				WHEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@WIN.getCode()}'
+					THEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@WIN.getDesc()}'
+				WHEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@CANCEL.getCode()}'
+					THEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@CANCEL.getDesc()}'
+				WHEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@WAITING.getCode()}'
+					THEN '${@egovframework.portal.sys.basic.poll.PollLotteryType@WAITING.getDesc()}'
+				ELSE 'unknown' END
+			) AS lottery,
+			date_format(create_date, '%Y-%m-%d %H:%i:%s') AS create_date
+		FROM poll_responder res
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+		ORDER BY create_date DESC
+	</select>
+
+	<!-- ##### 상세 ##### -->
+	<select id="getEntity" parameterType="egovframework.portal.sys.basic.poll.vo.PollResponderMngVO" resultMap="responseMap">
+		SELECT *
+		FROM poll_responder res
+		WHERE idx = #{idx}
+	</select>
+
+
+
+
+
+
+	<!-- ##### 추첨 ##### -->
+	<update id="lot" parameterType="egovframework.portal.sys.basic.poll.vo.PollMngVO">
+		UPDATE poll_responder
+		SET lottery = '${@egovframework.portal.sys.basic.poll.PollLotteryType@WIN.getCode()}'
+		WHERE idx IN (
+			SELECT idx FROM (
+				SELECT idx, @rownum:=@rownum+1 AS rn
+				FROM (
+					SELECT idx FROM poll_responder WHERE is_del = 'N' AND poll_idx = #{idx} ORDER BY DBMS_RANDOM.RANDOM
+				) rs, (SELECT @rownum :=0) AS R
+			) rs
+			WHERE rn BETWEEN 1 AND #{lotteryNum}
+		)
+	</update>
+	<!-- ##### 추첨 취소 ##### -->
+	<update id="lotteryCancel" parameterType="egovframework.portal.sys.basic.poll.vo.PollResponderMngVO">
+		UPDATE poll_responder
+		SET lottery = '${@egovframework.portal.sys.basic.poll.PollLotteryType@CANCEL.getCode()}',
+			lot_cancel_date = NOW()
+		WHERE idx = #{idx}
+	</update>
+
+</mapper>

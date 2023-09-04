@@ -1,0 +1,135 @@
+@charset "utf-8";
+/*!
+ * YHDCalendar v1.0 Stylesheet
+ * Docs & License: http://www.yhdatabase.com/
+ * (c) 2016 Sonys & Leejr
+ */
+
+/* Colors
+--------------------------------------------------------------------------------------------------*/
+
+/* Icons (inline elements with styled text that mock arrow icons)
+--------------------------------------------------------------------------------------------------*/
+
+/* Buttons (styled <button> tags, normalized to work cross-browser)
+--------------------------------------------------------------------------------------------------*/
+
+/* Tables
+--------------------------------------------------------------------------------------------------*/
+
+/* Toolbar test_url
+--------------------------------------------------------------------------------------------------*/
+
+ 
+#script-warning {
+	display: none;
+	background: #eee;
+	border-bottom: 1px solid #ddd;
+	padding: 0 10px;
+	line-height: 40px;
+	text-align: center;
+	font-weight: 600;
+	font-size: 12px;
+	color: red;
+}
+
+#loading {
+	display:none;
+	position:relative;
+	top: 10px;
+	left: 10px;
+	text-align:center;
+	font-size:11pt;
+	font-weight:600;
+	color:#6b6b6b;
+}
+
+.fc-sun { color: red !important; }
+.fc-sat { color: blue !important; }
+.fc-more-popover { width:370px;}
+
+.reservationList { /*height:300px;*/overflow: auto }
+
+
+/* ë‹¬ë ¥  */
+.calendarWrap::after {content:""; clear:both;}
+.calendarHead {text-align:center;}
+.calendarHead span {display:inline-block; padding:0 12px; font-weight:800; font-size:25px; color:#333; line-height:34px; letter-spacing: -1px;}
+.calendarHead a {display:inline-block; height:34px; line-height:34px; /*vertical-align:6px;*/ border:1px solid #bdbdbd !important; border-radius:4px 4px; box-sizing:border-box;transition: 0.3s;}
+.calendarHead a.month {width:34px; text-indent:-9999px;}
+.calendarHead a.prev { border-radius: 50%; background:url('img/spr_calendar.png') -2px -2px no-repeat;}
+.calendarHead a.next { border-radius: 50%; background:url('img/spr_calendar.png') -34px -2px no-repeat;}
+.calendarHead a.today {padding:0 10px; font-weight:600; font-size:16px; color:#5c5c5c !important; margin-left: 5px;}
+
+.calendar ul {width:100%; margin:19px auto 0; border-top:2px solid #283140; overflow:hidden;}
+.calendar li {float:left; width:14.285%; border-right:1px solid #ccc; border-bottom:1px solid #dedede; box-sizing:border-box;}
+.calendar .th {height:40px; font-weight:600; line-height:40px; text-align:center;}
+.calendar .td {height:80px; padding:5px;}
+.calendar .td1 {border-left:1px solid #ccc;}
+.calendar .td1 > span,.calendar li.td1 > a {color:#ff765e;}
+.calendar .td7 > span,.calendar li.td7 > a {color:#00bfc2;}
+.calendar .today{background:#f7f7f7;}
+.calendar .today{font-weight: 500;}
+.calendar .today .schedule{font-weight: normal;}
+.calendar .holiday,.calendar .holiday > a {color:#ec445b;}
+
+.calendar table {width:100%; margin:19px auto 0; border-left:1px solid #dedede; border-top:2px solid #333; box-sizing:border-box;}
+.calendar th, .calendar td {font-size:14px; border-right:1px solid #dedede; border-bottom:1px solid #dedede;}
+.calendar td >span {margin-right: 5px;}
+.calendar th {width:14%; height:40px; font-weight:600; line-height:40px; font-size: 15px; text-align:center; background:#f7f7f7; }
+.calendar th:first-child {color:#ec445b; }
+.calendar th:last-child {color:#4b96e6;}
+.calendar td {height:80px; padding:8px 5px 5px; vertical-align:top;font-weight: 700;color: #999;}
+.calendar td:first-child a {color:#ec445b !important;}
+.calendar td:last-child a {color:#4b96e6 !important;}
+.calendar td .schedule {margin-top:5px;}
+/* .schedule a { display:block; width:100%; margin-bottom:4px; padding-left:26px; font-size:12px; line-height:1.6; background:url('img/spr_ico_brd.png') 0px 100% no-repeat; border-radius:4px 4px;}
+.schedule:hover{ color:#ddd; border-bottom: 1px dashed #aeaeae;} */
+.schedule a >span{width: 31px;height: 30px;display: block;margin: 0 auto;background:url('img/spr_calendar.png') 0 -52px no-repeat;position: relative;transition: 0.3s;}
+.schedule a >span >span {width: 20px;height: 20px;background: #3c9ae7;color: #fff;position: absolute;right: -6px;bottom: -2px;border-radius: 50%;font-size: 12px;font-weight: 500;text-align: center;line-height: 19px;}
+.schedule a >span:hover {background-position: 0px -92px;}
+.schedule a >span:hover >span {background: #3c60e7;}
+
+.roll_over td[id^="yhdc"]:hover{background: #f1f9fd;}
+
+@media screen and (max-width:480px){
+.calendar li {font-size:12px;}
+.calendar .th span span {display:none;}
+.calendar th span {display:none;}
+.calendar th {font-size:13px;}
+.calendar td {font-size:12px;}
+.schedule a {background:none; padding-left:0; background:#f3f3f3;}
+}
+
+/* 행사일정 */
+.reservationList td{line-height: 1.5em;}
+.reservationList a{font-weight: 500;}
+.reservationList a:hover{text-decoration: underline;}
+
+/* 캘린더 뷰 */
+.exeSchedule_view {border: 1px solid #ddd; padding-left: 243px; padding-top: 3rem; padding-bottom: 3rem;border-radius: 10px;position: relative;transition: 0.3s;}
+.exeSchedule_view:hover {border: 1px solid #bbb; box-shadow: 5px 5px 7px 0px rgba(0,0,0,0.18);}
+.exeSchedule_view:before {content: '';width: 148px;height: 148px;background: #eaf0f9 url('img/spr_calendar.png') 22px -124px no-repeat;border-radius: 50%;position: absolute;left: 5rem;top: 4rem;}
+.exeSchedule_view dl {width: 90%;}
+.exeSchedule_view dt {width: 85px;float: left;font-weight: 500;background: #f1f1f1; border-radius: 10px; text-align: center; margin-right: 2rem;border-radius: 20px;}
+.exeSchedule_view dt, .exeSchedule_view dd {padding: 1rem 0;}
+.exeSchedule_view dt:not(:last-of-type), .exeSchedule_view dd:not(:last-of-type) {margin-bottom: 1rem;}
+.exeSchedule_view dd:not(:last-of-type) {border-bottom: 1px dashed #ddd;}
+.exeSchedule_view dd {margin-left: 96px;color: #666;line-height: 130%;}
+.exeSchedule_view dt:first-of-type {display: none;width: 0;}
+.exeSchedule_view dd:first-of-type {width: 100%;font-size: 24px;font-weight: 500;color: #333;border-bottom: none;line-height: 30px; margin: 0 0 2rem 0;}
+
+@media screen and (max-width:640px){
+	.exeSchedule_view{background: url('img/bg_schedule_view.png') no-repeat center 30px; padding: 2rem; padding-top: 180px;}
+	.exeSchedule_view:before {left: 50%;top: 3rem;transform: translateX(-50%);}
+	.exeSchedule_view dl{width: 100%;}
+	.exeSchedule_view dd:first-of-type {margin-bottom: 1rem;font-size: 2.2rem;}
+	.exeSchedule_view dt, .exeSchedule_view dd {font-size: 1.4rem;}
+	.exeSchedule_view dt:not(:last-of-type), .exeSchedule_view dd:not(:last-of-type) {margin-bottom: 0.5rem;}
+}
+@media screen and (max-width:375px){
+	.exeSchedule_view dt {width: 100%;float:none;margin-bottom: 0;}
+	.exeSchedule_view dd {margin-left: 0;border-bottom: none !important;}
+	.exeSchedule_view dd:first-of-type {margin:1rem 0 0 0;font-size: 1.8rem;}
+	.exeSchedule_view dt:not(:last-of-type), .exeSchedule_view dd:not(:last-of-type) {margin-bottom: 0;}
+}

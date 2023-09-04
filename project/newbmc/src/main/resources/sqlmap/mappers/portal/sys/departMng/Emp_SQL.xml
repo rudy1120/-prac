@@ -1,0 +1,176 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.departMng.emp.mapper.EmpMngMapper">
+
+	<resultMap id="empMap" type="egovframework.portal.sys.departMng.emp.vo.EmpMngVO">
+		<result column="usr_id"						property="usrId"/>
+		<result column="logon_id"					property="logonId"/>
+		<result column="usr_nm"						property="usrNm"/>
+		<result column="usr_work_state_code"		property="usrWorkStateCode"/>
+		<result column="usr_work_state_code_nm"		property="usrWorkStateCodeNm"/>
+		<result column="engm_se"					property="engmSe"/>
+		<result column="org_code_nm"				property="orgCodeNm"/>
+		<result column="real_use_dep_code"			property="realUseDepCode"/>
+		<result column="real_use_dep_nm"			property="realUseDepNm"/>
+		<result column="dep_code_nm"				property="depCodeNm"/>
+		<result column="orgin_blg_dep_code"			property="orginBlgDepCode"/>
+		<result column="orgin_blg_dep_nm"			property="orginBlgDepNm"/>
+		<result column="clss_nm"					property="clssNm"/>
+		<result column="posit_nm"					property="positNm"/>
+		<result column="email_addr"					property="emailAddr"/>
+		<result column="telno"						property="telno"/>
+		<result column="adi_info7"					property="adiInfo7"/>
+		<result column="use_yn"						property="useYn"/>
+		<result column="rduty_name"					property="rdutyName"/>
+		<result column="usr_rank"					property="usrRank"/>
+		<result column="blg_team_nm"				property="blgTeamNm"/>
+		<result column="dt_update"					property="dtUpdate"/>
+		<result column="full_path"					property="fullPath"/>
+		<result column="search_usr_nm"				property="searchUsrNm"/>
+		<result column="search_real_use_dep_code"	property="searchRealUseDepCode"/>
+		<result column="new_order"					property="newOrder"/>
+		<result column="emp_num"					property="empNum"/>
+	</resultMap>
+
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchRealUseDepCode)">
+			AND a.real_use_dep_code = #{searchRealUseDepCode}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND a.usr_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM (
+				SELECT usr_id
+				FROM user_info a left join dept_info b
+				ON a.REAL_USE_DEP_CODE = b.dep_code
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+			) rs
+		) RES
+	</select>
+	<select id="getList" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO" resultMap="empMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT 
+					a.usr_id, a.usr_nm, a.real_use_dep_code, b.dep_code_nm, a.clss_nm, a.email_addr, a.telno, a.adi_info7, a.blg_team_nm, a.use_yn, date_format(a.dt_update, "%Y-%m-%d") as dtUpdate
+					, a.new_order, a.posit_nm
+				FROM user_info a left join dept_info b
+				on a.REAL_USE_DEP_CODE = b.dep_code
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY a.use_yn desc, a.real_use_dep_code asc, a.new_order asc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<!-- ##### 상세 ##### -->
+	<select id="getEntity" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO" resultMap="empMap">
+		SELECT 
+			a.usr_id, a.logon_id, a.usr_nm, a.real_use_dep_code, b.dep_code_nm, a.clss_nm, a.email_addr, a.telno, a.adi_info7, a.blg_team_nm, date_format(a.dt_update, "%Y-%m-%d") as dtUpdate
+			, a.new_order, a.posit_nm, a.emp_num
+		FROM user_info a left join dept_info b
+		on a.REAL_USE_DEP_CODE = b.dep_code
+		where a.usr_id = #{usrId}
+	</select>
+	
+	<!-- ##### 사번, ID사용 체크 ##### -->
+	<select id="getUsrIdCheck" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO" resultType="int">
+		SELECT count(*) cnt
+		FROM user_info
+		WHERE 1=1
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(usrId)"> 
+			AND usr_id = #{usrId}
+		</if>
+		<if test="#fn = isNotBlank, #fn(empNum)">
+			AND emp_num = #{empNum}
+		</if>
+	</select>
+
+	<!-- ##### 등록 ##### -->
+	<insert id="insert" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO">
+		INSERT INTO user_info (
+			usr_id, logon_id, usr_nm, usr_work_state_code, usr_work_state_code_nm, 
+			engm_se, org_code_nm, real_use_dep_code, real_use_dep_nm, orgin_blg_dep_code, orgin_blg_dep_nm,
+			clss_nm, posit_nm, email_addr, telno, adi_info7,
+			use_yn, usr_rank, blg_team_nm, dt_update, full_path, new_order, emp_num
+		) VALUES (
+			#{logonId}, #{logonId}, #{usrNm}, 'AAA', '재직',
+			'1', 'BMC', #{realUseDepCode}, (select dep_code_nm from dept_info where dep_code = #{realUseDepCode}), #{realUseDepCode}, (select dep_code_nm from dept_info where dep_code = #{realUseDepCode}),
+			#{blgTeamNm}, #{positNm}, #{emailAddr}, #{telno}, #{adiInfo7},
+			'Y', '100', #{blgTeamNm}, NOW(), (select dep_code_nm from dept_info where dep_code = #{realUseDepCode}), #{newOrder}, #{empNum}
+		)
+	</insert>
+
+	<!-- ##### 수정 ##### -->
+	<update id="update" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO">
+		UPDATE user_info
+		SET usr_nm = #{usrNm},
+			real_use_dep_code = #{realUseDepCode},
+			real_use_dep_nm = (
+				select dep_code_nm from dept_info where dep_code = #{realUseDepCode}
+			),
+			clss_nm = #{blgTeamNm},
+			email_addr = #{emailAddr},
+			telno = #{telno},
+			adi_info7 = #{adiInfo7},
+			blg_team_nm = #{blgTeamNm},
+			dt_update = now(),
+			new_order = #{newOrder},
+			posit_nm = #{positNm},
+			emp_num = #{empNum}
+		WHERE usr_id = #{usrId}
+	</update>
+
+	<!-- ##### 삭제 ##### -->
+	<update id="delete" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO">
+		UPDATE user_info
+		SET 
+		<if test='useYn.equals("Y")'>use_yn = 'N',</if>
+		<if test='useYn.equals("N")'>use_yn = 'Y',</if>
+			dt_update = NOW()
+		WHERE usr_id = #{usrId}
+	</update>
+	
+	<!-- #### 사용자화면 직원 및 부서 정보 #### -->
+	<select id="getStaffContents" parameterType="String" resultMap="empMap">
+		select real_use_dep_code, usr_nm, blg_team_nm, ADI_INFO7, telno, posit_nm
+			from user_info
+			where use_yn = 'Y' and real_use_dep_code = #{depcode} 
+			order by new_order asc
+	</select>
+	
+	<update id="chargeUpdate" parameterType="egovframework.portal.sys.departMng.emp.vo.EmpMngVO">
+		update menu_charge 
+			set charge_fnm = #{usrNm},
+				charge_dep_code = #{realUseDepCode},
+				charge_dep_nm = (
+					select dep_code_nm from dept_info where dep_code = #{realUseDepCode}
+				),
+				charge_tel = #{telno}
+				where charge_id = #{usrId}
+	</update>
+	
+	<select id="getStaffSearch" parameterType="egovframework.portal.sys.departMng.depart.vo.DepartMngVO" resultMap="empMap">
+		select real_use_dep_code, real_use_dep_nm, usr_nm, blg_team_nm, ADI_INFO7, telno, posit_nm
+			from user_info
+			where use_yn = 'Y'
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+				AND ${searchType} LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			order by real_use_dep_code, new_order asc
+	</select>
+</mapper>

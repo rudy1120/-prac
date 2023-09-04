@@ -1,0 +1,78 @@
+@CHARSET "UTF-8";
+
+.ctltree_wrap {overflow:hidden;  padding:10px 15px 0 0; height:20px;}
+
+.treetaxview, .treetaxview ul { 
+	overflow:hiddne;
+	padding:0;
+	margin:0;
+	list-style: none;
+	width:99.5%;	
+	background:#fff; 
+	border:1px solid #d7d5d6;
+}
+
+.treetaxview ul {
+	background-color: white;
+	margin-top: 4px;
+}
+
+.treetaxview li dt.plus {
+	background: url(../../img/treeView/treetaxview-default.png) -64px -25px no-repeat;
+	height: 16px;	
+	float: left;
+	cursor: pointer;
+	width:24%; border-right:1px solid #d7d5d6;
+	padding:0 0 0 1%;	
+}
+/* fix for IE6 */
+* html dt.plus {
+	display: inline;
+	float:none;
+}
+
+.treetaxview li { 
+	margin: 0;
+	padding:0;	
+}
+
+.treetaxview li dl {margin:0px; padding:0px;}
+.treetaxview li dd {float:left; width:14%; border-right:1px solid #d7d5d6; padding:0 1% 0 0; text-align:right;}
+.treetaxview li dd.end {float:left; width:13%; border-right:none; padding:0; text-align:center;}
+
+.treetaxview a.selected {
+	background-color: #eee;
+}
+
+#treecontrol { margin: 1em 0; display: none; }
+
+.treetaxview .hover { color: red; cursor: pointer; }
+
+.treetaxview li.collapsable, .treetaxview li.expandable { background-position: 0 -176px; border-bottom:1px solid #d7d5d6;}
+
+.treetaxview dt.expandable-plus { background-position: -80px -3px; }
+
+.treetaxview li.base { background: url(../../img/treeView/base.gif) 0 0 no-repeat; }
+.treetaxview li span.base1 { margin-left:-13px;}
+.treetaxview li.last { background-position: 0 -1766px }
+.treetaxview li.flast { background-position: 0 -103px }
+.treetaxview li span.list { margin-left:-13px; padding-left:14px; background: url(../../img/board/list_01.png) 0 0 no-repeat; }
+
+.treetaxview li.lastCollapsable, .treetaxview li.lastExpandable { background-image: url(../../img/treeView/treetaxview-default.png); }  
+.treetaxview li.lastCollapsable { background-position: 0 -111px }
+.treetaxview li.lastExpandable { background-position: -15px -67px }
+
+.treetaxview dt.lastCollapsable-plus, .treetaxview dt.lastExpandable-plus { background-position: 0; }
+
+.treetaxview .placeholder {
+	background: url(../../img/treeView/ajax-loader.gif) 0 0 no-repeat;
+	height: 16px;
+	width: 16px;
+	display: block;
+}
+
+.filetree li { padding: 3px 0 2px 15px; }
+.filetree span.folder, .filetree span.file { padding: 1px 0 1px 16px; display: block; }
+.filetree span.folder { background: url(../../img/treeView/folder.gif) 0 0 no-repeat; }
+.filetree li.expandable span.folder { background: url(../../img/treeView/folder-closed.gif) 0 0 no-repeat; }
+.filetree span.file { background: url(../../img/treeView/file.gif) 0 0 no-repeat; }

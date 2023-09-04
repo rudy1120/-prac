@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.common.mapper.CommonCodeMapper">
+
+	<resultMap id="codeList" type="egovframework.portal.common.vo.CommonCodeVO">
+		<result property="codeId" column="CODE_ID" />
+		<result property="codeNm" column="CODE_NM" />
+	</resultMap>
+
+	<select id="getCodeList" parameterType="egovframework.portal.common.vo.CommonCodeVO"  resultMap="codeList">
+		SELECT 	CODE_ID, CODE_NM
+		FROM 	comm_code
+		WHERE 	IS_DEL = 'N'
+				AND CODE = #{code}
+	</select>
+
+	<update id="deleteCode" parameterType="egovframework.portal.common.vo.CommonCodeVO" >
+		UPDATE comm_code
+		SET
+			IS_DEL = 'Y',
+			DELETE_DATE=NOW()
+		WHERE CODE_IDX=${codeIdx}
+		<!-- CODE = #{code} AND CODE_ID=#{codeId}  -->
+	</update>
+	<update id="updateCode" parameterType="egovframework.portal.common.vo.CommonCodeVO" >
+		UPDATE comm_code
+		SET
+			UPDATE_DATE=NOW(),
+			CODE=#{code},
+			CODE_ID=#{codeId},
+			CODE_NM=#{codeNm},
+			CODE_ORDER=${codeOrder}
+		WHERE CODE_IDX=${codeIdx}
+	</update>
+	<insert id="insertCode" parameterType="egovframework.portal.common.vo.CommonCodeVO" >
+		INSERT INTO comm_code
+		(
+			ODE_IDX,
+			CODE,
+			CODE_ID,
+			CODE_NM,
+			IS_DEL,
+			CREATE_DATE
+		) VALUES (
+			${codeIdx},
+			#{code},
+			#{codeId},
+			#{codeNm},
+			'N',
+			NOW()
+		)
+	</insert>
+
+</mapper>

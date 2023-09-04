@@ -1,0 +1,203 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.dynamic.mapper.DynamicDataMngMapper">
+
+	<!-- 검색 파라미터 조건 추가 조회시 -->
+	<sql id="dynamicSearch">
+		<include refid="s.funcs"/>
+		<if test="searchDefs != null">
+			<foreach collection="searchDefs" item="searchDef">
+				<if test="#fn = isNotBlank, #fn(searchDef.prefix)">
+				${searchDef.prefix}
+				</if>
+				<if test="#fn = isNotBlank, #fn(searchDef.column) and #fn = isNotBlank, #fn(searchDef.operator) and #fn = isNotBlank, #fn(searchDef.value)">
+				${searchDef.column} ${searchDef.operator} #{searchDef.value}
+				</if>
+				<if test="#fn = isNotBlank, #fn(searchDef.suffix)">
+				${searchDef.suffix}
+				</if>
+			</foreach>
+		</if>
+	</sql>
+
+	<!-- 현황관리 목록 카운팅 -->
+	<select id="getTotalCnt" parameterType="HashMap" resultType="int">
+		SELECT COUNT(*)
+		FROM dmt_${tableName}
+		WHERE 1 = 1
+			AND is_del = 'N'
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+				AND col_${searchType} LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(CATEGORY)">
+			AND
+				CATEGORY IN (
+				<foreach item="cate" index="index" collection="CATEGORY" separator=",">
+					#{cate}
+				</foreach>
+				)
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(CATEGORY2)">
+			AND
+				CATEGORY2 IN (
+				<foreach item="cate" index="index" collection="CATEGORY2" separator=",">
+					#{cate}
+				</foreach>
+				)
+			</if>
+			<include refid="dynamicSearch"/>
+<!-- 			<if test="CATEGORY != null">
+				category = #{CATEGORY}
+			</if>
+			<if test="CATEGORY2 != null">
+				category2 = #{CATEGORY2}
+			</if> -->
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(sys)">
+			AND is_secret = 'N'
+			</if>
+	</select>
+	<!-- 현황관리 목록 -->
+	<select id="getList" parameterType="HashMap" resultType="HashMap">
+		<include refid="s.funcs"/>
+		SELECT *
+		FROM (
+			SELECT MA.*, @rownum:=@rownum+1 AS RNUM
+			FROM (
+				SELECT *
+				FROM dmt_${tableName}
+				WHERE 1 = 1
+					AND is_del = 'N'
+					<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+						AND col_${searchType} LIKE CONCAT('%',#{searchTxt},'%')
+					</if>
+					<if test="@egovframework.portal.util.StringUtil@isNotBlank(CATEGORY)">
+						AND
+							CATEGORY IN (
+							<foreach item="cate" index="index" collection="CATEGORY" separator=",">
+								#{cate}
+							</foreach>
+							)
+					</if>
+					<if test="@egovframework.portal.util.StringUtil@isNotBlank(CATEGORY2)">
+						AND
+							CATEGORY2 IN (
+							<foreach item="cate" index="index" collection="CATEGORY2" separator=",">
+								#{cate}
+							</foreach>
+							)
+					</if>
+					<include refid="dynamicSearch"/>
+<!-- 					<if test="CATEGORY != null">
+						category = #{CATEGORY}
+					</if>
+					<if test="CATEGORY2 != null">
+						category2 = #{CATEGORY2}
+					</if> -->
+					<if test="@egovframework.portal.util.StringUtil@isNotBlank(sys)">
+						AND is_secret = 'N'
+					</if>
+				ORDER BY ${orderColName} ${orderType}
+				) MA, (SELECT @rownum :=0) AS R
+			) MB
+		WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- 전체 현황관리 목록 -->
+	<select id="getAllList" resultType="HashMap">
+		SELECT rs.*
+			<if test="userDownloadYn.equals('Y')">
+				, (SELECT category_key FROM dynamic_category_def cd WHERE LOWER(cd.table_name) = LOWER('${tableName}') AND cd.category_value = rs.category AND cd.CATEGORY_IDX = 1) AS col_category_nm
+				, (SELECT category_key FROM dynamic_category_def cd WHERE LOWER(cd.table_name) = LOWER('${tableName}') AND cd.category_value = rs.category2 AND cd.CATEGORY_IDX = 2) AS col_category2_nm
+			</if>
+		FROM dmt_${tableName} rs
+		WHERE is_del = 'N'
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(CATEGORY)">
+				AND
+					CATEGORY IN (
+					<foreach item="cate" index="index" collection="CATEGORY" separator=",">
+						#{cate}
+					</foreach>
+					)
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(CATEGORY2)">
+				AND
+					CATEGORY2 IN (
+					<foreach item="cate" index="index" collection="CATEGORY2" separator=",">
+						#{cate}
+					</foreach>
+					)
+			</if>
+			<if test="userDownloadYn.equals('Y')">
+				AND is_secret = 'N'
+			</if>
+		ORDER BY idx ASC
+	</select>
+	<!-- 현황관리 PK -->
+	<select id="getEntity" parameterType="egovframework.portal.sys.dynamic.vo.DataMngCreatorVO" resultType="HashMap">
+		SELECT *
+		FROM dmt_${tableName}
+		WHERE idx = #{idx}
+			AND is_del = 'N'
+			limit 1
+	</select>
+
+
+	<!-- INSERT -->
+	<insert id="insert" parameterType="HashMap">
+		INSERT INTO dmt_${tableName} (
+			<foreach item="column" index="index" collection="columns" separator=",">
+				${column.name}
+			</foreach>
+		) VALUES (
+			<foreach item="column" index="index" collection="columns" separator=",">
+				#{column.value}
+			</foreach>
+		)
+	</insert>
+
+
+	<!-- UPDATE -->
+	<update id="update" parameterType="HashMap">
+		UPDATE dmt_${tableName}
+		SET
+			<foreach item="column" index="index" collection="columns" separator=",">
+				${column.name} =
+				<if test="!column.type.equals('clob') and !column.type.equals('date')">
+					#{column.value, jdbcType=VARCHAR}
+				</if>
+				<if test="column.type.equals('clob')">
+					#{column.value, jdbcType=CLOB}
+				</if>
+				<if test="column.type.equals('date')">
+					#{column.value, jdbcType=DATE}
+				</if>
+			</foreach>
+			<if test="columns != null">
+			, UPDATE_DATE = NOW()
+			</if>
+		WHERE idx = #{updateVO.IDX}
+	</update>
+
+
+	<!-- DELETE -->
+	<update id="delete" parameterType="HashMap">
+		UPDATE dmt_${tableName}
+		SET is_del = 'Y',
+			delete_date = NOW()
+		WHERE idx = #{IDX}
+	</update>
+	<delete id="perfectlyDeleteAll" parameterType="String">
+		DELETE FROM dmt_${_parameter}
+	</delete>
+	<update id="batchDelete" parameterType="HashMap">
+		UPDATE dmt_${tableName}
+		SET is_del = 'Y',
+			delete_date = NOW()
+		WHERE idx IN (
+			<foreach item="idx" collection="idxs" separator=",">
+				#{idx}
+			</foreach>
+		)
+	</update>
+
+</mapper>

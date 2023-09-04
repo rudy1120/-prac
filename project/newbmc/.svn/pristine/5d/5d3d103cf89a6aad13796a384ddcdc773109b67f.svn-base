@@ -1,0 +1,527 @@
+@charset "utf-8";
+
+#containerWrap:after {content:""; clear:both; display:block;}
+.mainSectionInnr {width:1200px; height:100%; margin:0 auto;}
+.mainSectionInnr:after {content:""; clear:both; display:block;}
+.mainSectionInnr h2 {font-weight:normal; font-size:3rem; margin-bottom:50px;}
+
+
+/* 메인 비주얼 */
+#main_visualWrap {width:100%; position:relative; margin-top:140px; background:#1565b0;}
+#main_visualWrap:after {content:""; clear:both; display:block;}
+.visual_menuWrap {max-width:1650px; height:100%; margin:0 auto;}
+.visual_wrap {width:100%; height:800px; position:relative;}
+.visual {float:left;}
+.visual:after {content:""; clear:both; display:block;} 
+.visual_slide {max-width:1200px; width:100%;}
+.visual_slide img {max-width:100%;}
+.visual_slide .banner {position:relative;} 
+.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;}
+.visual_slideTxt .Ndiv {position:absolute; top:29%; left:25%;}
+.visual_slideTxt h6 { padding: 3px 0px 3px 10px; font-size: 1.3rem; margin-bottom: 5px; font-weight: lighter; color: #394051; letter-spacing: -1px; }
+.visual_slideTxt p { padding-left: 7px; font-size: 1.7rem; white-space: pre-line; margin-top: 30px; font-weight: 100; letter-spacing: -2px; line-height:33px;}
+.visual_slideTxt h1 { font-size: 3rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+.visual_slideTxt .h1f { font-size: 3rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+#main_visualWrap button:focus {border:2px solid #ff0000;}
+.mainP{font-size: 1.7em;}
+
+
+.visual_slide .slick-dots {position:absolute; top:4%; left:45%;}
+.visual_slide .slick-controls {display:none;}
+.visual_slide .slick-dots li {display:inline-block; width:20px; height:20px; margin:0 3px; padding:0; position:relative; cursor:pointer;}
+.visual_slide .slick-dots li button
+{font-size:0; line-height:0; display:block; width:30px; height:30px; padding:5px; cursor:pointer; color:transparent; border:0; outline:none; background:transparent;margin-top:-5px;margin-left:-5px;}
+.visual_slide .slick-dots li button:hover,
+.visual_slide .slick-dots li button:focus {outline:none;}
+.visual_slide .slick-dots li button:hover:before,
+.visual_slide .slick-dots li button:focus:before {opacity:1;}
+.visual_slide .slick-dots li button:before
+{background:url('../images/main/rolling_off.png') no-repeat; font-size:1.875rem; line-height:20px; position:absolute; top:0; left:0; width:20px;
+height:20px; content:''; text-align:center; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;}
+
+.visual_slide .slick-dots li.slick-active button:before {background:url('../images/main/rolling_on.png') no-repeat;}
+
+
+/* 자주찾는 서비스 */
+.visual_menu {padding-top:60px; color:#fff; box-sizing:border-box; margin-left:50px;}
+.menu_title {position:relative; margin-bottom:40px;}
+.menu_title p {font-size:1.875rem;}
+
+.menu_contentWrap {float:right;}
+.menu_content {width:500px;}
+.menu_box {width:500px; height:470px; overflow:hidden;}
+.menu_box ul:after {content:""; display:block; clear:both;}
+.menu_box ul li:hover {background:#11599C;}
+.menu_box ul li {width:242px; height:150px; background:#4b8fce; float:left; margin-right:10px; margin-bottom:10px; text-align:center;}
+.menu_box ul li .icon {text-indent:-9999px; display:block; width:60px; height:60px; margin:0 auto; margin-bottom:20px;}
+.menu_box ul li:nth-child(2n) {margin-right:0;}
+.menu_box ul li a {display:block; width:100%; height:100%; font-size:1.125rem; color:#fff; box-sizing:border-box; padding:30px;}
+.menu_box ul li a:focus {outline: 2px solid rgb(204,051,051);}
+.menu_box .page1 {float:left; width:502px; height:478px; margin-right:5px; padding: 3px;}
+.menu_box .page2 {float:left; width:502px; height:478px; margin-right:5px; padding: 3px;}
+.menu_box .page3 {float:left; width:502px; height:478px; margin-right:5px; padding: 3px;}
+.menu_box .page1 li:nth-child(1) .icon {background:url('../images/main/main_serviceBtn_ico1.png') no-repeat center center;}
+.menu_box .page1 li:nth-child(2) .icon {background:url('../images/main/main_serviceBtn_ico2.png') no-repeat center center;}
+.menu_box .page1 li:nth-child(3) .icon {background:url('../images/main/main_serviceBtn_ico3.png') no-repeat center center;}
+.menu_box .page1 li:nth-child(4) .icon {background:url('../images/main/main_serviceBtn_ico4.png') no-repeat center center;}
+.menu_box .page1 li:nth-child(5) .icon {background:url('../images/main/main_serviceBtn_ico14.png') no-repeat center center;}
+.menu_box .page1 li:nth-child(6) .icon {background:url('../images/main/main_serviceBtn_ico6.png') no-repeat center center;}
+
+.menu_box .page2 li:nth-child(1) .icon {background:url('../images/main/main_serviceBtn_ico7.png') no-repeat center center;}
+.menu_box .page2 li:nth-child(2) .icon {background:url('../images/main/main_serviceBtn_ico13.png') no-repeat center center;}
+.menu_box .page2 li:nth-child(3) .icon {background:url('../images/main/main_serviceBtn_ico8.png') no-repeat center center;}
+.menu_box .page2 li:nth-child(4) .icon {background:url('../images/main/main_serviceBtn_ico9.png') no-repeat center center;}
+.menu_box .page2 li:nth-child(5) .icon {background:url('../images/main/main_serviceBtn_ico10.png') no-repeat center center;}
+.menu_box .page2 li:nth-child(6) .icon {background:url('../images/main/main_serviceBtn_ico11.png') no-repeat center center;}
+
+.menu_box .page3 li:nth-child(1) .icon {background:url('../images/main/main_serviceBtn_ico12.png') no-repeat center center;}
+
+.menu_content .slick-controls {margin-top:30px; text-align:center;}
+.menu_content .slick-controls button {width:60px; height:55px; font-size:0; line-height:60px; border:1px solid #4b8fce; background-color:transparent;}
+.menu_content .slick-controls button:hover {width:60px; height:55px; background-color:#4b8fce;}
+.menu_content .slick-prev {background:url(../images/main/main_service_arrowLeft.png) no-repeat center center; margin-right:30px;}
+.menu_content .slick-next {background:url(../images/main/main_service_arrowRight.png) no-repeat center center; margin-left:30px;} 
+
+
+
+
+/*BMC 소식*/
+.mainSection1 {width:100%; height:100%; margin-bottom:80px; padding-top:80px; background: url(../images/bg_content1_02.png) no-repeat right top;}
+.mainSection1:after {content:""; clear:both; display:block;}
+
+.mainNotice {width:100%; height:430px;}
+.noticeTab > li > ul > li {width:calc( ( 100% - 24px ) / 4); height:180px; float:left; margin-right:8px; margin-bottom:10px; position:relative; padding:20px 20px; border:1px solid #d2d2d2; box-sizing:border-box;}
+.noticeTab > li > ul > li:hover {border:1px solid #087588;}
+.noticeTab > li > ul > li:focus {border:2px solid #ff0000;}
+.noticeTab > li > ul > li:nth-child(4n) {margin-right:0;}
+.noticeTab > li > ul > li:nth-child(5) {margin-bottom:0;}
+.noticeTab > li > ul > li:nth-child(6) {margin-bottom:0;}
+.noticeTab > li > ul > li:nth-child(7) {margin-bottom:0;}
+.noticeTab > li > ul > li:nth-child(8) {margin-bottom:0;}
+.noticeTab > li > ul > li .subject {margin-bottom:12px; height:24px;}
+.noticeTab > li > ul > li .subject span {width:44px; height:24px; color:#fff; font-size:0.813rem; line-height:24px; display:block; text-align:center;}
+.noticeTab > li > ul > li .subject > .notice {background:#C51D3C;}
+.noticeTab > li > ul > li .subject > .distribution {background:#087588;}
+.noticeTab > li > ul > li .subject > .lease {background:#485E68;}
+.noticeTab > li > ul > li .subject > .recruit {background:#0082BA;}
+.noticeTab > li > ul > li .subject > .reward {background:#028711;}
+.noticeTab > li > ul > li .subject > .report {background:#7A766F;}
+.noticeTab > li > ul > li .title {font-size:1.125rem; margin-bottom:20px; overflow:hidden; line-height:1.2em; overflow:hidden; word-wrap: break-word;
+-webkit-line-clamp:2; text-overflow:ellipsis; display:-webkit-box; -webkit-box-orient:vertical;}
+.noticeTab > li > ul > li .writer {color:#888; position:absolute; bottom:20px; left:20px;}
+.noticeTab > li > ul > li .date {color:#888; position:absolute; bottom:20px; right:20px; font-size:0.875rem;}
+
+.noticeTab {position:relative;}
+.noticeTab:after {content:""; clear:both; display:block;}
+.noticeTab > li {float:left; width:14.28%;}
+.noticeTab > li > button {display:inline-block; width:100%; height:50px; font-size: 1.2em; font-weight:lighter; background:#fff; border:1px solid #c9c9c9; border-right:0; line-height:1; word-break:keep-all; line-height:1.2;}
+/* .noticeTab > li > button:focus {border:2px solid #ff0000;} */
+.noticeTab > li:last-of-type > button {border-right:1px solid #c9c9c9;}
+.noticeTab > li.active > button {font-weight:bold; font-size:1.111rem; background:#087588; color:#fff; margin-bottom:10px; position:relative;}
+
+.noticeTab > li > ul {position:absolute; left:0; top:120%; width:100%; opacity:0; transition:all 0.3s; display:none;}
+.noticeTab > li > ul:after {content:""; clear:both; display:block;}
+.noticeTab > li.show > ul {opacity: 1; top:100%;}
+.noticeTab > li.active > ul {display: block; background:#fff;}
+
+.mainSection1 .noticeTab > li:hover {background:#f4f4f4;}
+
+
+
+/*BMC 홍보관*/
+.mainSection2 {width:100%; height:100%; background:#f0fbfe; margin-bottom:80px;}
+.mainSection2:after {content:""; clear:both; display:block;}
+.mainSection2 .mainSectionInnr {padding:80px 0;}
+.mainSection2_Lf {width:585px; float:left; }
+.mainSection2_Rt {width:585px; float:right; margin-left:30px; }
+
+.section2_slide button {border:none;}
+
+.section2_slide .banner {position:relative; margin: 8px;}
+.section2_slide .banner img {width:100%; margin-top:50px;}
+.section2_slide .slick-arrow {overflow:hidden; text-indent:-9999px; margin:0 5px; }
+.section2_slide .slick-prev {width:30px; height:30px; background:url(../images/main/main_section2_arrowLF.png) no-repeat center center / cover;}
+.section2_slide .slick-next {width:30px; height:30px; background:url(../images/main/main_section2_arrowRT.png) no-repeat center center / cover;}
+.section2_slide .slick-prev:focus {outline:3px dotted #000;}
+.section2_slide .slick-next:focus {outline:3px dotted #000;}
+.section2_slide .slick-play {overflow:hidden; text-indent:-9999px; width:30px; height:30px; background:url(../images/main/main_section2_play.png) no-repeat center center / cover ;}
+.section2_slide .slick-play.play {width:30px; height:30px; background:url(../images/main/main_section2_stop.png) no-repeat center center / cover;}
+.section2_slide .slick-play.play:focus {outline:3px dotted #000;}
+.section2_slide .slick-controls {position:absolute; top:0; right:0;}
+.section2_slide .slick-controls > span {float:left; margin-right:420px; margin-top:5px;}
+
+.mainPR_tit {height:50px; border-bottom:1px solid #ccc; margin-bottom:20px;}
+.mainPR_tit .h3 {font-size:1.5rem; float:left; }
+.mainPR_tit a {float:right;}
+.mainPR_tit a:focus {outline:3px dotted #000;}
+
+.mainPR_txt li {margin-top:10px;}
+.mainPR_txt li:nth-of-type(10) {margin-top:0;}
+.mainPR_txt .book {width:44px; height:24px; color:#fff; font-size:0.813rem; line-height:24px; display:inline-block; text-align:center; background:#05417a; }
+.mainPR_txt .advertisement {width:44px; height:24px; color:#fff; font-size:0.813rem; line-height:24px; display:inline-block; text-align:center; background:#2383d5; }
+.mainPR_txt .video {width:44px; height:24px; color:#fff; font-size:0.813rem; line-height:24px; display:inline-block; text-align:center; background:#0d61b1; }
+.mainPR_txt .title {margin-left:20px; vertical-align:middle;}
+.mainPR_txt .date {float:right; color:#888; font-size:0.813rem;}
+
+
+.mainSection2_Rt_bottom {margin-top:50px;}
+.mainSection2_Rt_bottom dl {width:calc( 50% - 15px ); float:left; margin-right:30px;}
+.mainSection2_Rt_bottom dl:nth-of-type(2) {float:right; margin-right:0;}
+
+.webzine_img dd { position:relative;}
+.webzine_tit {width:70px; height:70px; background:#333; color:#ccc; position:absolute; bottom:0; right:30px; text-align:center; padding-top:15px; font-size:14px;}
+.webzine_tit p {font-size:1.875rem; color:#fff;}
+.webzine_go a:focus { outline: 3px dotted #000; }
+
+
+/*BMC 사업안내*/
+.mainSection3 {width:100%; height:100%;}
+.mainSection3:after {content:""; clear:both; display:block;}
+
+/* .mainSection3 .osiria_banner {position:relative; background:url(../images/main/main_section3_osiria_banner.jpg) no-repeat 100%; width:100%; height:300px; padding:45px; margin-bottom:50px;}
+.mainSection3 .osiria_banner h3 {font-size:2.813rem;}
+.mainSection3 .osiria_banner h4 {font-size:1.875rem; font-weight:lighter; margin-top:5px;}
+.mainSection3 .osiria_banner p {font-weight:lighter; margin:25px 0; line-height:1.4;}
+.mainSection3 .osiria_banner a {color:#fff;} */
+.mainSection3 .osiria_banner{margin-bottom:50px;}
+.mainSection3 .osiria_banner a:focus { outline: 3px dotted #000; }
+
+/**2022.01.14 BMC 사업안내 베너 슬라이드 추가 =================================================================================*/
+/* .mainSection3 .osiria_banner{width: 111.12%; height: 300px; overflow: hidden; left:-50px} */
+
+/* .mainSection3 .osiria_banner .slick-dots {position:absolute; top:85%; right:10%;} */
+/* .mainSection3 .osiria_banner .slick-controls {display:none;} */
+/* .mainSection3 .osiria_banner .slick-dots li {display:inline-block; width:20px; height:20px; margin:0 3px; padding:0; position:relative; cursor:pointer;} */
+/* .mainSection3 .osiria_banner .slick-dots li button */
+/* {font-size:0; line-height:0; display:block; width:30px; height:30px; padding:5px; cursor:pointer; color:transparent; border:0; outline:none; background:transparent;margin-top:-5px;margin-left:-5px;} */
+/* .mainSection3 .osiria_banner .slick-dots li button:hover, */
+/* .mainSection3 .osiria_banner .slick-dots li button:focus {outline:none;} */
+/* .mainSection3 .osiria_banner .slick-dots li button:hover:before, */
+/* .mainSection3 .osiria_banner .slick-dots li button:focus:before {opacity:1;} */
+/* .mainSection3 .osiria_banner .slick-dots li button:before */
+/* {background:url('../images/main/rolling_white_off.png') no-repeat; font-size:1.875rem; line-height:20px; position:absolute; top:0; left:0; width:20px; */
+/* height:20px; content:''; text-align:center; -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;} */
+
+/* .mainSection3 .osiria_banner .slick-dots li.slick-active button:before {background:url('../images/main/rolling_white_on.png') no-repeat;} */
+/**========================================================================================================================*/
+
+/**2022.01.20 BMC 사업안내 베너 단락으로 변경 =================================================================================*/
+.mainSection3 .osiria_banner{height: 300px;}
+.mainSection3 .osiria_banner a{width: 49.58%; float: left; margin-right: 10px; overflow: hidden; }
+.mainSection3 .osiria_banner a:last-child {margin-right: 0px;}
+.mainSection3 .osiria_banner a > img{width: 100%;}
+
+/**========================================================================================================================*/
+.mainSection3 .businessIcon_slideWrap .businessIcon_slide {margin:0 auto;}
+.mainSection3 .businessIcon_slideWrap .businessIcon_slide p {margin-top:15px; text-align:center;}
+.mainSection3 .businessIcon_slideWrap .slick-slide {padding: 4px;}
+.mainSection3 .businessIcon_slideWrap .slick-slide > img {max-width:100%; margin:0 auto;}
+.mainSection3 .businessIcon_slideWrap .slick-arrow {overflow:hidden; text-indent:-9999px; width:35px; height:62px;}
+.mainSection3 .businessIcon_slideWrap .slick-prev {background:url(../images/main/main_section3_business_arrowLF.png) no-repeat center center / cover; border:none; float:left; position:absolute; top:30px; left:0; }
+.mainSection3 .businessIcon_slideWrap .slick-next {background:url(../images/main/main_section3_business_arrowRT.png) no-repeat center center / cover; border:none; position:absolute; top:30px; right:0;}
+.mainSection3 .slick-slider .slick-list {float:left; width:90%; text-align:center; margin-left:50px; padding: 0px 4px; box-sizing: border-box;}
+.mainSection3 .slick-track {padding: 4px 0px;}
+
+/* .mainPlus {position:absolute; top:380px; right:0px; color:#888; border:1px solid #d2d2d2; 
+	line-height:28px; width:100px;font-weight:0; background-color:#fff; font-size:1rem; height:40px; padding:5px 0 0 18px;}
+	
+.mainPlus:hover {
+	background-color:#087588;
+	
+}
+.mainPlus:focus {border:2px solid #ff0000;}
+ */
+.businessIcon_slideWrap:after {content:""; clear:both; display:block;}
+
+/*footer_new*/
+#footer .footerCenter .footerInnr:nth-of-type(1) {padding-left:0;}
+#footer .footerCenter .btnList > li:last-of-type {display:block;}
+
+#footer .footerContent .footerUtils > li {width:auto; margin-right:20px; line-height:1.8;}
+#footer .footerContent .footerUtils > li:last-child:after {content:none;}
+#footer .footerContent .footerUtils > li:after {content:"|"; display:inline-block; clear:both; color:#888; padding-left:20px;}
+#footer .footerContent .footerUtils > li:last-of-type {display:block;}
+
+#footer .footerCenter .btnList > li {width:20%;}
+.selectLink {margin-top:30px;}
+
+
+@media all and (max-width:1830px){
+	
+	.visual {width:90%;}
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;} 
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:18%;}
+	.visual_slide .slick-dots {position:absolute; top:50%; left:15%;}
+    .visual_slideImg {max-width:100%;}
+    .visual_menuWrap {position:absolute; top: 0; right:30px; background:#1565b0;}
+
+}
+
+@media all and (max-width:1620px){
+	
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;} 
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:6%;}
+	.visual_slide .slick-dots {position:absolute; top:50%; left:10%;}
+	.banner:nth-of-type(5) .visual_slideImg {margin-left:-15%}
+	.visual_innr {margin-right:20px;}
+	.menu_content {width:470px;}
+	.menu_box {width:470px; height:400px; }
+	.menu_box ul li {width:230px;}
+	.visual_slideTxt h1 { font-size: 2.5rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+	.visual_slideTxt .h1f { font-size: 2.5rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+}
+
+
+@media all and (max-width:1300px){
+
+    
+	.mainSectionInnr {padding: 0 2%;}
+
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;} 
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:5%;}
+	.visual_slide .slick-dots {position:absolute; top:50%; left:5%;}
+	.visual_slideImg {margin-left:-10%;}
+	.visual_slideTxt h1 { font-size: 2.25rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+	.visual_slideTxt .h1f { font-size: 2.25rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+	.banner:nth-of-type(4) .visual_slideImg {margin-left:-25%}
+	.banner:nth-of-type(5) .visual_slideImg {margin-left:-35%}
+
+	.mainSection2 .mainSectionInnr {padding:60px 2%;}
+	.mainSection2_Lf {max-width:45%;}
+	.section2_slide .slick-controls > span {margin-right:370px;}
+	
+	#footer .footerCenter .footerInnr:nth-of-type(1) {padding-left:3%;}
+
+	/**2022.01.14 BMC 사업안내 베너 슬라이드 추가 =================================================================================*/
+/* 	.mainSection3 .osiria_banner{width: 1275.82px;} */
+	
+	/**2022.01.20 BMC 사업안내 베너 단락으로 변경 =================================================================================*/
+	.mainSection3 .osiria_banner{width: 105%; position: relative; left: -2%;}
+}
+
+@media all and (max-width:1200px){
+
+	#main_visualWrap {height:100%;}
+	.visual {width: 100%; margin-bottom:30px;}
+	.visual_innr {float:none; margin-right:0; padding-bottom:40px;}
+	.visual_menu {padding-top:0; margin:0 4%; }
+	.visual_slideImg {margin-left:0; transition: .10s;}
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;}
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:20%;}
+	.visual_slideTxt h1 { font-size: 3rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+	.visual_slideTxt .h1f { font-size: 3rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+	.banner:nth-of-type(4) .visual_slideImg {margin-left:0;  transition:.10s;}
+	.banner:nth-of-type(5) .visual_slideImg {margin-left:0;  transition:.10s;}	
+	.visual_menuWrap {position:static;}
+	.menu_title { margin-bottom:25px;}
+	.menu_contentWrap {float:none;}
+	.menu_contentWrap:before {content:""; display:block; clear:both;}
+	.menu_content {width:100%;}
+	.menu_box {width:100%;}
+	.menu_box .page1 {float:left; width:100%; height:100%;}
+	.menu_box .page2 {float:left; width:100%; height:100%;}
+	.menu_box ul li {width:calc( (100% - 21px) / 3 ); height:100%; padding-bottom:10px;  background:#4b8fce; float:left; margin-right:10px; margin-bottom:10px; text-align:center;}
+	.menu_box ul li:nth-child(2n) {margin-right:10px;}
+	.menu_box ul li:nth-child(3n) {margin-right:0;}
+
+	.mainSectionInnr {max-width:100%; transition:.10s;}
+	.mainSection2_Rt {max-width:50%;}
+	
+	/**2022.01.20 BMC 사업안내 베너 단락으로 변경 =================================================================================*/
+	.mainSection3 .osiria_banner a{width: 48.58%; margin-right: 5px;}
+}
+
+
+
+@media all and (max-width:1199px){
+
+	.mainPR_tit h5 {max-width:80%;}
+	.mainPR_tit h5 > img {max-width:60%; margin-left:10px;}
+	.section2_slide .slick-controls > span {margin-right:280px;}
+	.mainSection2_Rt_bottom dd img {max-width:90%;}
+}
+
+/* Tablet */
+@media all and (max-width:1024px){
+
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;}
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:15%;}
+	
+	.noticeTab > li > ul > li {width:calc( ( 100% - 26px ) / 4); }
+
+	.mainSection1 {padding-top:60px; margin-bottom:60px;}
+	
+	.mainSection2 {margin-bottom:60px;}
+	.mainSection2_Lf {float:none; max-width:100%; margin:0 auto;}
+	.mainSection2_Rt {float:none; max-width:100%; width:100%; margin-left:0; margin-top:50px;}
+	.webzine_tit {right:80px;}
+	.mainSection2_Rt dd {text-align:center;}
+	.section2_slide .slick-controls > span {margin-right:420px;}
+	/**2022.01.14 BMC 사업안내 베너 슬라이드 추가 =================================================================================*/
+/* 	.mainSection3 .osiria_banner{width: 120%; left:-80px} */
+
+}
+
+
+@media all and (max-width:960px){
+
+	#main_visualWrap {margin-top:65px;}
+	
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;}
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:12%;}
+	.visual_slideTxt h1 { font-size: 2.5rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+	.visual_slideTxt .h1f { font-size: 2.5rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+
+	.noticeTab > li > ul > li {width:calc( ( 100% - 8px ) / 2); }
+	.noticeTab > li > ul > li:nth-of-type(2n) {margin-right:0;}
+	.noticeTab > li > ul > li:nth-of-type(5), .noticeTab > li > ul > li:nth-of-type(6), 
+	.noticeTab > li > ul > li:nth-of-type(7), .noticeTab > li > ul > li:nth-of-type(8) {display:none;}
+	.noticeTab > li > ul > li .title {word-break:keep-all; line-height:1.4em; font-size:1rem; }
+	
+/* 	.mainSection3 .osiria_banner {background:url(../images/main/main_section3_osiria_banner.jpg) no-repeat 45%;} */
+	.mainSection3 .slick-slider .slick-list {margin-left:3%;}
+	
+	/**2022.01.14 BMC 사업안내 베너 슬라이드 추가 =================================================================================*/
+/* 	.mainSection3 .osiria_banner{width: 120%; left:-70px} */
+	
+	/**2022.01.20 BMC 사업안내 베너 단락으로 변경 =================================================================================*/
+	.mainSection3 .osiria_banner{width: 110%; position: relative; left: -4%; margin-bottom: 0px;}
+	.mainSection3 .osiria_banner a{margin-right: 3px;}
+
+}
+    
+
+/* Tablet & Mobile */
+@media all and (max-width:768px){
+
+	.visual_slide .slick-dots {top:80%;}
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;}
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:10%;}
+	.visual_slideTxt h1 { font-size: 2.125rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+	.visual_slideTxt .h1f { font-size: 2.125rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+
+	.menu_title p {font-size:1.5rem;}
+	.menu_box ul li a {font-size:1rem; word-break:keep-all; padding:10px;}
+	.mainPR_tit h5 {font-size:1.25rem;}
+	.mainSectionInnr h2 {font-size:2.25rem; margin-bottom:30px;}
+
+	.mainSection1 {padding-top:50px; margin-bottom:50px;}
+	.mainSection2 {margin-bottom:50px;}
+	.mainSection2 .mainSectionInnr {padding:50px 4%;}
+	.mainSection3 .slick-slider .slick-list {margin-left:20px;}
+	.mainSection3 .businessIcon_slideWrap .slick-slide > img {max-width:60%;} 
+	.mainSection3 .businessIcon_slideWrap .slick-prev {background: url(../images/main/main_section3_business_arrowLF.png) no-repeat center center / 80%;}
+	.mainSection3 .businessIcon_slideWrap .slick-next {background: url(../images/main/main_section3_business_arrowRT.png) no-repeat center center / 80%;}
+	
+	/**2022.01.14 BMC 사업안내 베너 슬라이드 추가 =================================================================================*/
+/*     .mainSection3 .osiria_banner{width: 120%; left:-60px} */
+
+	/**2022.01.20 BMC 사업안내 베너 단락으로 변경 =================================================================================*/
+	.mainSection3 .osiria_banner{height: 250px;}
+}
+
+
+
+/* Mobile */
+@media all and (max-width:640px){
+	
+	.visual_slideTxt .Ydiv {position:absolute; top:27%; left:10%;}
+	.visual_slideTxt .Ndiv {position:absolute; top:29%; left:8%;}
+	.visual_slideTxt h1 { font-size: 2rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+	.visual_slideTxt .h1f { font-size: 2rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+
+	.mainSectionInnr {padding: 0 4%;}
+
+	.menu_box ul li {width: calc( (100% - 10px) / 2 );}
+	.menu_box ul li:nth-child(2n) {margin-right:0;}
+	.menu_box ul li:nth-child(3n) {margin-right:10px;}
+	.menu_box ul li:nth-child(6) {margin-right:0;}
+	
+	.mainSection1 {background:none;}
+	.mainNotice {width:100%; height:800px;}
+	.noticeTab > li > button {font-size:0.938rem;}
+	.noticeTab > li.active > button {font-size:0.938rem;}
+	.noticeTab > li > ul > li {width:100%;}
+
+	.mainSection2 .mainSectionInnr {padding:40px 4%;}
+	.section2_slide .slick-controls > span {margin-right:20px;}
+	.mainSection2_Rt_bottom dl {float:none; width:100%;}
+	.webzine_img {margin-bottom:50px;}
+	.webzine_tit {right:0px;}
+	
+	.mainSection3 .osiria_banner h3 {font-size:2.5rem;}
+	.mainSection3 .businessIcon_slideWrap .businessIcon_slide p {font-size:0.875rem;}
+	.mainSection3 .osiria_banner{width: 130%; left:-70px}
+	.mainPR_tit h5 img {margin-left:20px;}
+/* 	.mainPlus {
+		top:760px;
+	} */
+	#footer .footerCenter .btnList > li {width:50%;}
+	.footCont .btnList .li_cle {clear:both;}
+	.footCont .btnList .li_mar {margin-top:20px;}
+	
+	/**2022.01.20 BMC 사업안내 베너 단락으로 변경 =================================================================================*/
+	.mainSection3 .osiria_banner{width: 100%; position: relative; left: 0%; height: 600px;}
+	.mainSection3 .osiria_banner a{width: 100%; float: left; margin-right: 0px; margin-bottom: 5px; overflow: hidden; }
+	  
+
+}
+
+@media all and (max-width:480px){
+	.visual_slide img {min-height:300px;}
+	.visual_slideTxt .Ydiv {position:absolute; top:35%; left:10%;}
+	.visual_slideTxt .Ndiv {position:absolute; top:35%; left:8%;}
+	.visual_slideTxt h1 { font-size: 1.3rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; margin-bottom:10px;}
+	.visual_slideTxt .h1f { font-size: 1.3rem; font-weight: 700; color: #FDFFFE;  text-shadow: 2px 2px 1px black;  letter-spacing: -3px; text-align:right;}
+	.noticeTab > li > button {word-break:break-word;}
+	.mainSection3 .osiria_banner{width: 100%; position: relative; left: 0%; height:500px;}
+}
+@media all and (max-width:370px){
+		.mainSection3 .osiria_banner{width: 100%; position: relative; left: 0%; height:400px;}
+	
+}
+
+	
+	/**2022.01.14 BMC 사업안내 베너 슬라이드 추가 =================================================================================*/
+/* 	.mainSection3 .osiria_banner {padding:30px;} */
+
+
+/*웹호환성 수정 20.09.09*/
+/* .notice-more-link */
+.noticeTab .active .notice-more-link {clear:both; width: 100%; height: 50px; margin-right: 0; margin-top: 20px; border: none; text-align: right; padding: 0;}
+.noticeTab .active .notice-more-link a {display: inline-block; padding: 10px 22px; background: #fff; border: 1px solid #d2d2d2; color: #888; text-align: center; transition: 0.5s;}
+.noticeTab .active .notice-more-link a:hover, .noticeTab .active .notice-more-link a:active {background: #087588; color: #fff; border-color: #087588;}
+.noticeTab .active .notice-more-link a:focus {background: #087588; color: #fff; border-color: #087588; outline: 2px dotted #000; }
+@media screen and (max-width: 768px) {
+	.mainSection2 {margin-top: 125px;}
+}
+
+/* 20230411 메인페이지 팝업 스타일 추가 */
+.mainPopupDiv { display: flex; }
+.mainPopup { cursor: pointer; width: 100%; }
+.mainPopFoot { text-align: right; margin: 0; background: #333; padding: 8px; font-size: 13px; font-weight: 300; margin-top: -1px; }
+.mainPopFoot button { padding: 2px 6px; margin-left: 12px; }
+.mainPopFoot .popTxt { color: white; }
+.mainPopFoot .popTxt label { margin-left: 8px; }
+.mainPopFoot a:focus-visible { outline: 2px solid #c91c1c }
+
+.layer_pop a { display: inline-block; width: fit-content; height: fit-content; }
+
+.main_layer_pop { 
+    position: fixed; 
+    top: 140px;
+    left: 1%;
+    z-index: 999999;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+}
+
+@media all and (max-width: 960px){
+	.main_layer_pop { top: 90px; }
+}
+
+@media all and (max-width: 480px){
+    .main_layer_pop .layer_pop { width: 90%; margin: 0 3%; }
+    .main_layer_pop .layer_pop a img { width: 100%; } 
+}

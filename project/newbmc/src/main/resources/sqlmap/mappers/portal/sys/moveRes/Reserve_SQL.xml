@@ -1,0 +1,315 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.sys.moveRes.mapper.ReserveMapper">
+
+	<resultMap id="resMap"   type="egovframework.portal.sys.moveRes.vo.ReserveVO" >
+	    <result property="cust_id"		column="cust_id"/>
+		<result property="name"			column="name"/>
+		<result property="tel"			column="tel"/>
+		<result property="addr1"		column="addr1"/>
+		<result property="addr2"		column="addr2"/>
+		<result property="use_yn"		column="use_yn"/>
+		<result property="gbn1"			column="gbn1"/>
+		<result property="gbn2"			column="gbn2"/>
+		<result property="period"		column="period"/>
+		
+		<result property="idx"			column="idx"/>
+		<result property="move_date"	column="move_date"/>
+		<result property="move_time"	column="move_time"/>
+		<result property="regdate"		column="regdate"/>
+		<result property="uptdate"		column="uptdate"/>
+		<result property="updt_yn"		column="updt_yn"/>   
+	</resultMap>
+	
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<choose>		
+			<when test="#fn = isNotBlank, #fn(searchTxt)">
+				<if test="searchType.equals('name')">
+					AND a.name LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+				<if test="searchType.equals('addr1')">
+					AND a.addr1 LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+				<if test="searchType.equals('m_date')">
+					AND b.move_date LIKE CONCAT('%',#{searchTxt},'%')
+				</if>
+			</when>
+			<otherwise>
+				<if test="searchType.equals('yRes')">
+					AND b.updt_yn = 'Y' OR b.updt_yn = 'N'
+				</if>
+				<if test="searchType.equals('nRes')">
+					AND b.idx IS NULL
+				</if>
+				<if test="searchType.equals('oList')">
+					AND a.gbn1 = 'Y'
+				</if>
+				<if test="searchType.equals('nList')">
+					AND a.gbn1 = 'N'
+				</if>
+				<if test="searchType.equals('tList')">
+					AND a.gbn1 = 'T'
+				</if>
+			</otherwise>
+		</choose>
+	</sql>
+	
+	<select id ="getTCnt" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultType="int">
+		SELECT		IFNULL(COUNT(a.cust_id),0) AS cnt
+		FROM		happyhouse_cust a 
+		WHERE		a.use_yn = 'Y'
+		AND 		a.dept = 0
+		<include refid="listSearcher"/>
+	</select>
+
+	<select id ="getTotalCnt" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultType="int">
+		SELECT		IFNULL(COUNT(a.cust_id),0) AS cnt
+		FROM		happyhouse_cust a 
+			LEFT JOIN happyhouse_res b
+		ON a.cust_id = b.cust_id
+		WHERE		a.use_yn = 'Y'
+		AND			a.gbn2 = #{gbn2}
+		AND 		a.dept = 1
+		<include refid="listSearcher"/>
+	</select>
+	
+	<select id ="getList" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM 
+			(
+				SELECT name, gbn2, period
+				FROM happyhouse_cust
+				WHERE dept = 0
+			) rs
+			WHERE (@rownum:=0)=0
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id ="getDetailList" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM 
+			(
+				SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn, a.gbn1, a.gbn2,
+					b.idx, b.move_date, 
+					CASE 
+					    WHEN b.move_time = 'T1' THEN '09:00 ~ 12:00'
+					    WHEN b.move_time = 'T2' THEN '12:00 ~ 15:00'
+					    WHEN b.move_time = 'T3' THEN '15:00 ~ 18:00'
+					    WHEN b.move_time = 'T4' THEN '07:00 ~ 09:00'
+					    WHEN b.move_time = 'T5' THEN '09:00 ~ 11:00'
+					    WHEN b.move_time = 'T6' THEN '11:00 ~ 13:00'
+					    WHEN b.move_time = 'T7' THEN '12:00 ~ 14:00'
+					    WHEN b.move_time = 'T8' THEN '13:00 ~ 15:00'
+					    WHEN b.move_time = 'T9' THEN '14:00 ~ 16:00'
+					    WHEN b.move_time = 'T10' THEN '15:00 ~ 17:00'
+					    WHEN b.move_time = 'T11' THEN '16:00 ~ 18:00'
+					    WHEN b.move_time = 'T12' THEN '17:00 ~ 19:00'
+					    WHEN b.move_time = 'T13' THEN '18:00 ~ 20:00'
+					    WHEN b.move_time = 'T14' THEN '19:00 ~ 21:00'
+					    ELSE b.move_time
+					END as m_time,
+					b.move_time, b.regdate, b.uptdate, b.updt_yn
+				FROM happyhouse_cust a 
+					LEFT OUTER JOIN happyhouse_res b
+				ON a.cust_id = b.cust_id
+				WHERE a.use_yn = 'Y'
+				AND a.gbn2 = #{gbn2}
+				AND a.dept = 1
+				<include refid="listSearcher"/>
+			) rs
+			WHERE (@rownum:=0)=0
+			ORDER BY rs.addr1 ASC, CAST(rs.addr2 AS signed)
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	
+	</select>
+	
+	<select id ="getExcelList" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn,
+			CASE
+				WHEN a.gbn1 = 'Y' THEN '기계약자'
+				WHEN a.gbn1 = 'N' THEN '추가계약자'
+			END AS gbn1, 
+			a.gbn2, b.idx, b.move_date,
+			CASE 
+			    WHEN b.move_time = 'T1' THEN '09:00 ~ 12:00'
+			    WHEN b.move_time = 'T2' THEN '12:00 ~ 15:00'
+			    WHEN b.move_time = 'T3' THEN '15:00 ~ 18:00'
+			    WHEN b.move_time = 'T4' THEN '07:00 ~ 09:00'
+			    WHEN b.move_time = 'T5' THEN '09:00 ~ 11:00'
+			    WHEN b.move_time = 'T6' THEN '11:00 ~ 13:00'
+			    WHEN b.move_time = 'T7' THEN '12:00 ~ 14:00'
+			    WHEN b.move_time = 'T8' THEN '13:00 ~ 15:00'
+			    WHEN b.move_time = 'T9' THEN '14:00 ~ 16:00'
+			    WHEN b.move_time = 'T10' THEN '15:00 ~ 17:00'
+			    WHEN b.move_time = 'T11' THEN '16:00 ~ 18:00'
+			    WHEN b.move_time = 'T12' THEN '17:00 ~ 19:00'
+			    WHEN b.move_time = 'T13' THEN '18:00 ~ 20:00'
+			    WHEN b.move_time = 'T14' THEN '19:00 ~ 21:00'
+			    ELSE b.move_time
+			END as m_time,
+			b.move_time, b.regdate, b.uptdate, b.updt_yn
+		FROM happyhouse_cust a 
+			LEFT OUTER JOIN happyhouse_res b
+		ON a.cust_id = b.cust_id
+		WHERE a.use_yn = 'Y' AND 1 = 1
+		AND a.gbn2 = #{gbn2}
+		AND a.dept = 1
+		<include refid="listSearcher"/>
+		ORDER BY a.addr1 ASC, a.cust_id ASC 
+	
+	</select>
+	
+	<select id="getEntity" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT a.cust_id, a.name, a.tel, a.addr1, a.addr2, a.use_yn, a.gbn1, a.gbn2,
+			IFNULL(b.idx, '') AS idx
+			, IFNULL(b.move_date, '') AS move_date
+			, IFNULL(b.move_time, '') AS move_time
+			, IFNULL(b.regdate, '') AS regdate
+			, IFNULL(b.uptdate, '') AS uptdate
+			, IFNULL(b.updt_yn, '') AS updt_yn
+			, CASE 
+			    WHEN b.move_time = 'T1' THEN '09:00 ~ 12:00'
+			    WHEN b.move_time = 'T2' THEN '12:00 ~ 15:00'
+			    WHEN b.move_time = 'T3' THEN '15:00 ~ 18:00'
+			    WHEN b.move_time = 'T4' THEN '07:00 ~ 09:00'
+			    WHEN b.move_time = 'T5' THEN '09:00 ~ 11:00'
+			    WHEN b.move_time = 'T6' THEN '11:00 ~ 13:00'
+			    WHEN b.move_time = 'T7' THEN '12:00 ~ 14:00'
+			    WHEN b.move_time = 'T8' THEN '13:00 ~ 15:00'
+			    WHEN b.move_time = 'T9' THEN '14:00 ~ 16:00'
+			    WHEN b.move_time = 'T10' THEN '15:00 ~ 17:00'
+			    WHEN b.move_time = 'T11' THEN '16:00 ~ 18:00'
+			    WHEN b.move_time = 'T12' THEN '17:00 ~ 19:00'
+			    WHEN b.move_time = 'T13' THEN '18:00 ~ 20:00'
+			    WHEN b.move_time = 'T14' THEN '19:00 ~ 21:00'
+			    ELSE b.move_time
+			END as m_time
+		FROM happyhouse_cust a 
+			LEFT OUTER JOIN happyhouse_res b
+		ON a.cust_id = b.cust_id
+		WHERE a.cust_id = #{cust_id}
+		AND a.dept = 1
+		AND a.gbn2 = #{gbn2}
+	</select>
+	
+	<select id="chkTime" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT b.move_date, b.move_time 
+		FROM happyhouse_cust a, happyhouse_res b
+		WHERE a.cust_id = b.cust_id
+		AND a.addr1 = #{addr1} and b.move_date = #{dateSel}
+		ORDER BY b.move_time ASC
+	</select>
+	
+	<select id="chkReserve" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT cust_id, move_date
+		FROM happyhouse_res
+		WHERE cust_id = #{cust_id}
+	</select>
+	
+	<select id="getTitle" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT name
+		FROM happyhouse_cust
+		WHERE gbn2 = #{gbn2}
+		AND dept = 0
+	</select>
+	
+	<select id="chkRes" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultType="int">
+		<![CDATA[
+			select count(*) as cnt
+			from happyhouse_cust a, happyhouse_res b
+			where a.cust_id = b.cust_id
+			and a.addr1 = #{addr1}
+			and b.move_date = #{dateSel}
+			and b.move_time = #{timeSel}
+		]]>
+	</select>
+	
+	<select id="chkCust" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO" resultMap="resMap">
+		SELECT cust_id
+		FROM happyhouse_cust
+		WHERE addr1 = #{addr1}
+		AND addr2 = #{addr2}
+		AND gbn2 = #{gbn2}
+		AND dept = 1
+	</select>
+	
+	<insert id="resInsert" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO">
+		INSERT INTO happyhouse_res
+		(
+			idx
+			, cust_id
+			, move_date
+			, move_time
+		)
+		VALUES
+		(
+			(SELECT * FROM (SELECT IFNULL(MAX(IDX),0)+1 FROM happyhouse_res) AS idx)
+			, #{cust_id}
+			, #{move_date}
+			, #{move_time}
+		)
+	</insert>
+	
+	<insert id="regiInsert" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO">
+		INSERT INTO happyhouse_cust
+		(
+			cust_id
+			, name
+			, tel
+			, addr1
+			, addr2
+			, gbn1
+			, gbn2
+			, dept
+		)
+		VALUES
+		(
+			(SELECT * FROM (SELECT IFNULL(MAX(cust_id),0)+1 FROM happyhouse_cust) AS cust_id)
+			, #{name}
+			, #{tel}
+			, #{addr1}
+			, #{addr2}
+			, #{gbn1}
+			, #{gbn2}
+			, 1
+		)
+	</insert>
+	
+	<update id="resUp" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO">
+		UPDATE happyhouse_cust a 
+			LEFT JOIN happyhouse_res b
+		ON (a.cust_id = b.cust_id) 
+		SET a.name = #{name}
+			, a.tel = #{tel}
+			, a.addr1 = #{addr1}
+			, a.addr2 = #{addr2}
+			, a.use_yn = #{use_yn}
+			, a.gbn1 = #{gbn1}
+			, b.move_date = #{dateSel}
+			, b.move_time = #{timeSel}
+			, b.updt_yn = #{updt_yn}
+			, b.uptdate = CURRENT_TIMESTAMP
+		WHERE a.cust_id = #{cust_id}
+		AND a.dept = 1
+	</update>
+	
+	<delete id="deleteRes" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO">
+		DELETE FROM happyhouse_res WHERE cust_id = #{cust_id}
+	</delete>
+	
+	<delete id="deleteCust" parameterType="egovframework.portal.sys.moveRes.vo.ReserveVO">
+		DELETE FROM happyhouse_cust WHERE cust_id = #{cust_id}
+	</delete>
+	
+</mapper>

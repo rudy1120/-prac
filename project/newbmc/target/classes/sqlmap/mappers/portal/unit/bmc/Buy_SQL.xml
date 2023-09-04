@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.buy.mapper.BuyMapper">
+
+	<resultMap id="saleMap" type="egovframework.portal.unit.bmc.buy.vo.SaleVO">
+		<result column="name"		property="name"/>
+		<result column="dnum"		property="dnum"/>
+		<result column="price1"		property="price1"/>
+		<result column="price2"		property="price2"/>
+		<result column="uses"		property="uses"/>
+		<result column="space"		property="space"/>
+		<result column="height"		property="height"/>
+		<result column="location"	property="location"/>
+		<result column="codename"	property="codename"/>
+		
+	</resultMap>
+	
+	
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchArea)">
+			AND c.idx = #{searchArea}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchPurpose)">
+			AND c.uses LIKE CONCAT('%',#{searchPurpose},'%')
+		</if>
+		<if test="#fn = isNotBlank, #fn(startSpace)">
+			<![CDATA[
+			AND c.space2 >= #{startSpace}
+			]]>
+		</if>
+		<if test="#fn = isNotBlank, #fn(endSpace)">
+			<![CDATA[
+			AND c.space2 <= #{endSpace}
+			]]>
+		</if>
+		<if test="#fn = isNotBlank, #fn(startPrice)">
+			<![CDATA[
+			AND c.price >= #{startPrice}
+			]]>
+		</if>
+		<if test="#fn = isNotBlank, #fn(endPrice)">
+			<![CDATA[
+			AND c.price <= #{endPrice}
+			]]>
+		</if>
+	</sql>
+	
+	<!-- ##### 분양매물목록 개수 조회 ##### -->
+	<select id="getTotalCnt" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="int">
+		SELECT IFNULL(COUNT(*),0) AS cnt
+		FROM
+		(
+			SELECT  a.idx, a.name, b.dnum, b.uses, b.price1, CAST(replace(b.price2,',','')AS UNSIGNED) as price, b.price2,
+					ROUND(REPLACE(b.space,',',''),0) as space2, b.space, b.height, b.location
+			FROM 
+		 		bmc_sell a
+				,bmc_sale b
+			WHERE a.IDX = b.PIDX
+			AND b.ISTRASH != 1
+			AND a.ISTRASH !=1
+			AND a.STATE !=4
+		)c
+		WHERE 1=1
+		<include refid="listSearcher"/>
+	</select>
+
+	<!-- ##### 분양매물목록 데이터 조회 #####   -->
+	<select id="getList" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultMap="saleMap">
+		SELECT rs2.*
+		FROM 
+		(
+			SELECT
+				rs.*, @rownum:=@rownum+1 AS rn
+			FROM
+			(
+				SELECT c.*
+				FROM
+				(
+					SELECT	
+						a.idx, a.name, a.link, b.dnum, b.uses, b.price1, CAST(replace(b.price2,',','')AS UNSIGNED) as price, b.price2,
+						ROUND(REPLACE(b.space,',',''),0) as space2, b.space, b.height, b.location
+					FROM 
+				 		bmc_sell a
+						,bmc_sale b
+					WHERE a.idx = b.pidx
+					AND b.istrash != 1
+					AND a.istrash !=1
+					AND a.state !=4
+				)c
+				WHERE 1=1
+				<include refid="listSearcher"/>
+				ORDER BY c.name asc , c.dnum asc
+			)rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<!-- #### 분양중 지역 데이터 리스트 조회 #### -->
+	<select id="getAreaList" resultMap="saleMap">
+		<![CDATA[
+		SELECT 	idx, substring_index(substring_index(substring_index(name,",",1),"-",1),"[",1) as name
+		FROM 	bmc_sell 
+		WHERE	istrash !=1 and state = 1
+		ORDER BY sellorder
+	 	]]>
+	</select>
+	
+	<!-- ### 전체 공급용도 데이터 조회 #### -->
+	<select id="getAllPurposerList" resultMap="saleMap" >
+		<![CDATA[
+		SELECT	
+				idx
+		,		codename
+		FROM	sellcode
+		WHERE	grpcode = 'GRP001'
+		 ]]>
+	</select>
+	<select id="getMapInfo" parameterType="egovframework.portal.unit.bmc.buy.vo.SaleVO" resultType="string">
+		select map_info from bmc_sell where idx = #{searchArea}
+	</select>
+	
+</mapper>

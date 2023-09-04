@@ -1,0 +1,117 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.log.mapper.LoggingMapper">
+
+	<sql id="listSearcher">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('menu_id')">
+				AND log.mid LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('ip')">
+				AND log.host_ip LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('id')">
+				AND log.admin_id LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt) and searchType.equals('url')">
+				AND log.full_url LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchSday)">
+			AND log.access_date >= DATE_FORMAT(#{searchSday}, '%Y-%m-%d')
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchEday)">
+			AND DATE_FORMAT(CONCAT(#{searchEday} , ' 23:59:59'), '%Y-%m-%d %H:%i:%s') >= log.access_date
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchProcType)">
+			AND ${logTypeSearcher}
+		</if>
+		<if test="config != null and @egovframework.portal.util.StringUtil@isNotBlank(config.logPeriod)">
+			AND NOW() > DATE_ADD(log.access_date, , INTERVAL 12 * #{config.logPeriod MONTH})
+		</if>
+	</sql>
+	<select id="getTotalCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM logging log
+		LEFT JOIN sys_menu sm ON sm.mid = log.mid
+		WHERE 1 = 1
+			<include refid="listSearcher" />
+	</select>
+	<select id="getList" parameterType="egovframework.portal.sys.log.vo.LoggingVO" resultType="egovframework.portal.sys.log.vo.LoggingVO">
+		SELECT
+			rs2.*,
+			(SELECT menu_name FROM sys_menu sm WHERE sm.mid = rs2.mid limit 1) AS menu_name,
+			(CASE WHEN INSTR(full_url, 'writeProc') > 0 THEN '등록'
+				WHEN INSTR(full_url, 'applyProc') > 0 THEN '신청'
+				WHEN INSTR(full_url, 'modifyProc') > 0 THEN '수정'
+				WHEN INSTR(full_url, 'updateProc') > 0 THEN '수정'
+				WHEN INSTR(full_url, 'deleteProc') > 0 THEN '삭제'
+				WHEN INSTR(full_url, 'list') > 0 THEN '조회'
+				WHEN INSTR(full_url, 'List') > 0 THEN '조회'
+				WHEN INSTR(full_url, 'login') > 0 THEN '로그인'
+				WHEN INSTR(full_url, 'Login') > 0 THEN '로그인'
+				ELSE '기타' END
+			) AS proc_name
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT log.*, sm.menu_name
+				FROM logging log
+				LEFT JOIN sys_menu sm ON sm.mid = log.mid
+				WHERE 1 = 1
+					<include refid="listSearcher" />
+				ORDER BY log.idx DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<select id="getTotalListAsMap" resultType="HashMap">
+		SELECT
+			log.full_url, log.mid, sm.menu_name, (
+				case when INSTR(log.full_url, 'write.do') > 0 THEN '등록 화면'
+					when INSTR(log.full_url, 'modify.do') > 0 THEN '수정 화면'
+					when INSTR(log.full_url, 'modifyView.do') > 0 THEN '수정 화면'
+					when INSTR(log.full_url, 'update.do') > 0 THEN '등록 화면'
+					when INSTR(log.full_url, 'writeProc.do') > 0 THEN '등록'
+					when INSTR(log.full_url, 'insertProc.do') > 0 THEN '등록'
+					when INSTR(log.full_url, 'modifyProc.do') > 0 THEN '수정'
+					when INSTR(log.full_url, 'updateProc.do') > 0 THEN '수정'
+					when INSTR(log.full_url, 'deleteProc.do') > 0 THEN '삭제'
+					when INSTR(log.full_url, 'list.do') > 0 THEN '목록'
+					when INSTR(log.full_url, 'List.do') > 0 THEN '목록'
+					when INSTR(log.full_url, 'view.do') > 0 THEN '상세 열람'
+					when INSTR(log.full_url, '/adminlogin/login.do') > 0 THEN '로그인'
+					when INSTR(log.full_url, 'superLoginProc.do') > 0 THEN '로그인'
+					when INSTR(log.full_url, 'loginProc.do') > 0 THEN '로그인'
+					when INSTR(log.full_url, 'login.do') > 0 THEN '로그인 화면'
+					when INSTR(log.full_url, 'logout.do') > 0 THEN '로그아웃'
+					else '기타' end
+			) AS proc_name,
+			log.host_ip, log.admin_id, log.admin_name, log.dept_name, date_format(log.access_date, '%Y-%m-%d %H:%i:%s') AS access_date
+		FROM logging log
+		LEFT JOIN sys_menu sm ON sm.mid = log.mid
+		WHERE 1 = 1
+			<include refid="listSearcher" />
+		ORDER BY log.idx DESC
+	</select>
+
+
+
+	<insert id="adminLogInsert" parameterType="egovframework.portal.sys.log.vo.LoggingVO">
+		INSERT INTO logging (
+			mid, host_ip, full_url, admin_id, admin_name, dept_name, params
+		) VALUES (
+			#{mid}, #{host_ip}, #{full_url}, #{admin_id}, #{admin_name}, #{dept_name}, #{params}
+		)
+	</insert>
+	<delete id="deleteExpiredLogs" parameterType="HashMap">
+		DELETE FROM logging
+		WHERE idx IN (
+			<foreach item="target" index="index" collection="targets" separator=",">
+				#{target.idx}
+			</foreach>
+		)
+	</delete>
+
+</mapper>

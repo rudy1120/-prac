@@ -1,0 +1,90 @@
+@charset "utf-8";
+
+@media screen and (max-width:1024px) {
+	/* common */
+	/* #innerHead {border-bottom: 1px solid #838e95;}
+	#innerHead .open_kw {background: #f80 url('/common/img/common/spr_common.png') -48px 9px;}
+	#innerHead .open_kw.close {background-position: -82px 9px !important;}
+	.open_mn {background: #335cd9;}
+	.open_mn .bar {background:#fff;}
+	#lnbWrap {background: #0244af;background: -webkit-linear-gradient(89deg, #3753d4, #1c91f5, #20a9f3, #4dd0d0);background: linear-gradient(89deg, #3753d4, #1c91f5, #20a9f3, #4dd0d0);}
+	#lnb >li >a {text-shadow:-1px -1px 0 #3753d4, 1px -1px 0 #3753d4, -1px 1px 0 #3753d4,1px 1px 0 #3753d4;}
+	.lnb_sub .depth02 >li >a, .lnb_sub .depth02 >li >a:hover, .lnb_sub .depth02 >li >a:focus {color: #333; }
+	.lnb_sub .depth02 >li >a:before {background: #000;}
+	.lnb_sub .depth02 >li >a.on {color: #3753d4;}
+	.lnb_sub .depth02 >li >a.on:before {background: #3753d4;}
+	.lnb_sub .depth03 {border: 1px solid #ddd;}
+	.lnb_sub .depth03 >li >a:not(:only-child) {border-bottom: 1px solid #ddd !important;}
+	#searchWrap {background: #fff;}
+	.total_search {border-bottom: 2px solid #f80;}
+	.total_search input[type="submit"] {background: #fff;color: transparent;background: url('/common/img/common/spr_common.png') -42px -19px no-repeat;}
+	.familysite >li {border-bottom: 1px solid #838e95;} */
+
+	/* portal main  */
+	.cont_wrap {padding: 2rem 1.6rem;}
+	.cont_wrap:first-of-type {padding: 1.6rem;}
+	#popupWrap {width: 100%;margin: 0 0 1.6rem 0;}
+	.direct_link, .notice {width: 48.5%;margin-right: 3%;}
+	.notice, .photo_news {width: 48.5%;}
+	.quick_link >li {width: 17.92%;margin-bottom: 1.6rem;}
+	.quick_link >li:nth-child(5n) {margin-right: 0;}
+	.quick_link li a {width: 117px;height: 117px;background-position: 50% -3%;}
+	.quick_link .tit {margin-top: 6.6rem;}
+	.quick_link li:nth-child(2) a {background-position: 50% 10.6%;}
+	.quick_link li:nth-child(3) a {background-position: 50% 24.5%;}
+	.quick_link li:nth-child(4) a {background-position: 50% 38%;}
+	.quick_link li:nth-child(7) a {background-position: 50% 80.1%;}
+	.quick_link li:nth-child(8) a {background-position: 50% 93.9%;}
+}
+
+@media screen and (max-width:768px) {
+	/* portal main  */
+	.notice, .photo_news {width: 100%;}
+	.notice {margin-bottom: 3.6rem;}
+}
+
+@media screen and (max-width:640px) {
+	/* common */
+	/* .familysite >li:nth-child(3) {border-right: 1px solid #838e95;} */
+
+	/* portal main */
+	.gnb_option {display: none;}
+	.direct_link {width: 100%;margin-right: 0;padding: 2rem;}
+	.direct_link:last-child {margin-top: 1.6rem;}
+	.direct_link dd a {padding: 1rem 0;margin-top: 2rem;}
+	.quick_link >li {width: 31.6%;}
+	.quick_link >li:nth-child(3n) {margin-right: 0;}
+	.quick_link >li:nth-child(5n) {margin-right: 2.6%;}
+	.quick_link .tit {font-size: 1.4rem /* 14px */;}
+}
+
+@media screen and (max-width:375px) {
+	/* common */
+	/* .total_search input[type="submit"] {background-position: -46px -26px;} */
+
+	/* portal main */
+	.cont_wrap, .cont_wrap:first-of-type {padding: 1.6rem 0.8rem;}
+	.photo_news {margin-bottom: 1.6rem;}
+	.photo_news figcaption, .notice ul li a {font-size: 1.3rem /* 13px */}
+	.notice ul span {font-size: 1.1rem;padding: 0.3rem 0;}
+	.notice h4:after, .photo_news h4:after {margin-right: 7.5%;}
+	.quick_link li a {width: 98px;height: 98px;background-position: 50% -2.5%;}
+	.quick_link li:nth-child(2) a {background-position: 50% 11%;}
+	.quick_link li:nth-child(5) a {background-position: 50% 51.6%;}
+	.quick_link li:nth-child(6) a {background-position: 50% 65.1%;}
+	.quick_link li:nth-child(7) a {background-position: 50% 79%;}
+	.quick_link li:nth-child(8) a {background-position: 50% 92.3%;}
+	.quick_link .tit {font-size: 1.3rem /* 13px */; margin-top: 5.6rem;}
+}
+
+@media screen and (max-width:320px) {
+	/* portal main */
+	.direct_link, .notice, .photo_news {width: 100%;margin-right: 0;}
+	.photo_news li {width: 49%;}
+	.photo_news li:nth-child(2n) {margin-right: 0;}
+	.photo_news li:nth-child(n+3) {display: none;} 
+	.notice ul span {display: none;}
+	.quick_link >li {width: 48.7%;}
+	.quick_link >li:nth-child(3n) {margin-right: 2.6%;}
+	.quick_link >li:nth-child(2n) {margin-right: 0;}
+}

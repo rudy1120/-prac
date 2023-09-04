@@ -1,0 +1,325 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.contract.mapper.ContractMapper">
+
+	<resultMap id="contractMap" type="egovframework.portal.unit.bmc.contract.vo.ContractVO">
+		<result property="cntrNo"         column="cntr_no" />
+		<result property="cntrGb"         column="cntr_gb" />
+		<result property="dept"           column="dept" />
+		<result property="cntrNm"         column="cntr_nm" />
+		<result property="compNm"         column="comp_nm" />
+		<result property="cntrYrmd"       column="cntr_yrmd" />
+		<result property="estimatedAmt"   column="estimated_amt" />
+		<result property="cntrAmt"        column="cntr_amt" />
+		<result property="succbidRate"    column="succbid_rate" />
+		<result property="finalcntrAmt"   column="finalcntr_amt" />
+		<result property="beginYrmd"      column="begin_yrmd" />
+		<result property="finishYrmd"     column="finish_yrmd" />
+		<result property="cntrWay"        column="cntr_way" />
+		<result property="cntrReason"     column="cntr_reason" />
+		<result property="totalAmt"       column="total_amt" />
+		<result property="prepayAmt"      column="prepay_amt" />
+		<result property="prepayYrmd"     column="prepay_yrmd" />
+		<result property="readymadeAmt"   column="readymade_amt" />
+		<result property="readymadeYrmd"  column="readymade_yrmd" />
+		<result property="completionAmt"  column="completion_amt" />
+		<result property="completionYrmd" column="completion_yrmd" />
+		<result property="supervision"    column="supervision" />
+		<result property="extSupervision" column="ext_supervision" />
+		<result property="frstInsYrmd"   column="frst_ins_yrmd" />
+		<result property="frstInsEno"    column="frst_ins_eno" />
+		<result property="prgsGb"    	  column="prgs_gb" />
+		<result property="succBidder"     column="succ_bidder" />
+		<result property="rltdStatute"    column="rltd_statute" />
+		<result property="businessSite"    column="business_site" />
+		<result property="workKind"      column="work_kind" />
+		<result property="subcompNm"     column="subcomp_nm" />
+		<result property="cntrYrmd"      column="cntr_yrmd" />
+		<result property="hcntrAmt"      column="hcntr_amt" />
+		<result property="contractRate"  column="contract_rate" />
+		<result property="sconstAmt"  column="sconst_amt" />
+		<result property="subcontractNo"  column="subcontract_no" />
+	</resultMap>
+	
+	<resultMap id="ctChangeMap" type="egovframework.portal.unit.bmc.contract.vo.CtChangeVO">
+		<result property="cntrNo"        column="cntr_no" />
+		<result property="chgNo"         column="chg_no" />
+		<result property="plchangeYrmd"  column="plchange_yrmd" />
+		<result property="plchangeAmt"   column="plchange_amt" />
+		<result property="contractAmt"   column="contract_amt" />
+		<result property="chgResn"       column="chg_resn" />
+		<result property="frstInsYrmd"  column="frst_ins_yrmd" />
+		<result property="frstInsEno"   column="frst_ins_eno" />
+	</resultMap>
+	
+	<resultMap id="ctInspectMap" type="egovframework.portal.unit.bmc.contract.vo.CtInspectVO">
+		<result property="cntrNo"        column="cntr_no" />
+		<result property="inspectNo"     column="inspect_no" />
+		<result property="inspectYrmd"   column="inspect_yrmd" />
+		<result property="inspectAmt"    column="inspect_amt" />
+		<result property="inspectStff"   column="inspect_stff" />
+		<result property="readymadeYrmd" column="readymade_yrmd" />
+		<result property="frstInsYrmd"   column="frst_ins_yrmd" />
+		<result property="frstInsEno"    column="frst_ins_eno" />
+	</resultMap>
+	
+	<resultMap id="ctSubcontractMap" type="egovframework.portal.unit.bmc.contract.vo.CtSubContractVO">
+		<result property="cntrNo"        column="cntr_no" />
+		<result property="subcontractNo" column="subcontract_no" />
+		<result property="workKind"      column="work_kind" />
+		<result property="subcompNm"     column="subcomp_nm" />
+		<result property="cntrYrmd"      column="cntr_yrmd" />
+		<result property="hcntrAmt"      column="hcntr_amt" />
+		<result property="contractRate"  column="contract_rate" />
+		<result property="frstInsYrmd"   column="frst_ins_yrmd" />
+		<result property="frstInsEno"    column="frst_ins_eno" />
+	</resultMap>
+	
+	<resultMap id="paymentMap" type="egovframework.portal.unit.bmc.contract.vo.PaymentVO">
+		<result property="cntrNo"      column="cntr_no" />
+		<result property="payNo"       column="pay_no" />
+		<result property="payYrmd"     column="pay_yrmd" />
+		<result property="payGb"       column="pay_gb" />
+		<result property="payAmt"      column="pay_amt" />
+		<result property="cntrNm"      column="cntr_nm" />
+		<result property="compNm"      column="comp_nm" />
+		<result property="frstInsYrmd" column="frst_ins_yrmd" />
+		<result property="frstInsEno"  column="frst_ins_eno" />
+	</resultMap>
+	
+	
+	<!-- 검색기능 sql -->
+	<sql id="listSearcher">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(firstDay)">
+		<![CDATA[
+		
+			AND date_format(cntr_yrmd, '%Y-%m-%d') >= #{firstDay}
+		]]>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(lastDay)">
+		<![CDATA[	
+			
+			AND date_format(cntr_yrmd, '%Y-%m-%d') <= #{lastDay}
+		]]>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			<if test="cntrNm.equals('cntr_nm')">
+				AND cntr_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="cntrNm.equals('comp_nm')">
+				AND comp_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="listSearcher2">	
+		<if test="cntrWay == 1">
+			and ifnull(cntr_way, '') != '수의계약' 
+		</if>
+		
+		<if test="cntrWay != 1">
+			and cntr_way = '수의계약'
+		</if>
+		
+		<if test="cntrGb != null">
+			and cntr_gb LIKE CONCAT('%',#{cntrGb},'%')
+		</if>
+		
+		<if test="dept != null">
+			and ifnull(dept, '') LIKE CONCAT('%',#{dept},'%')
+		</if>
+	</sql>
+	
+	<sql id="listSearcher3">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			<if test="cntrNm.equals('cntr_nm')">
+				AND cntr_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="cntrNm.equals('comp_nm')">
+				AND comp_nm LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+		
+		
+	</sql>
+	<sql id="listSearcher4">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt1)">
+			<if test="workKind.equals('work_kind')">
+				AND work_kind LIKE CONCAT('%',#{searchTxt1},'%')
+			</if>
+			<if test="workKind.equals('subcomp_nm')">
+				AND subcomp_nm LIKE CONCAT('%',#{searchTxt1},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<!-- 리스트 조회 -->
+ 	<select id="getList" resultMap="contractMap" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO">
+		SELECT rs2.cntr_no, rs2.cntr_gb, rs2.dept, rs2.cntr_nm, rs2.comp_nm
+			, date_format(rs2.cntr_yrmd, '%Y-%m-%d') as cntr_yrmd, cast(rs2.finalcntr_amt as unsigned) as finalcntr_amt, rs2.cntr_way
+			, rs2.estimated_amt, rs2.cntr_amt, rs2.succbid_rate
+			, date_format(rs2.begin_yrmd, '%Y-%m-%d') as begin_yrmd
+			, date_format(rs2.finish_yrmd, '%Y-%m-%d') as finish_yrmd
+			, cntr_reason, total_amt, prepay_amt
+			, date_format(prepay_yrmd, '%Y-%m-%d') prepay_yrmd, readymade_amt
+			, date_format(readymade_yrmd, '%Y-%m-%d') readymade_yrmd, completion_amt
+			, date_format(completion_yrmd, '%Y-%m-%d') completion_yrmd, supervision
+			, ext_supervision
+			, date_format(frst_ins_yrmd, '%Y-%m-%d') frst_ins_yrmd, frst_ins_eno
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.*
+				from wp_ex_contract t
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+					<include refid="listSearcher2"/>
+				ORDER BY cntr_yrmd desc, frst_ins_yrmd desc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}	
+		
+	</select>
+	
+	<select id="getTotalCnt" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM wp_ex_contract t
+			WHERE 1 = 1
+				<include refid="listSearcher"/>
+				<include refid="listSearcher2"/>
+		) RES
+	</select>
+	<select id="getTotalCnt2" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			select COUNT(*) AS cnt
+			from wp_ex_contract as a join wp_ex_ctsubcontract as b
+			where a.cntr_no = b.cntr_no
+			AND 1 = 1 
+			<include refid="listSearcher3"/>
+			<include refid="listSearcher4"/>
+		) RES
+	</select>
+	
+	<select id="getList2" resultMap="contractMap" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO">
+		SELECT rs2.cntr_no,rs2.cntr_nm, rs2.comp_nm, rs2.finalcntr_amt, rs2.subcontract_no,rs2.succbid_rate , rs2.work_kind, rs2.subcomp_nm, rs2.hcntr_amt, rs2.sconst_amt, rs2.contract_rate
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				select a.cntr_no,a.cntr_nm, a.comp_nm, a.finalcntr_amt, a.succbid_rate ,b.subcontract_no ,b.work_kind, b.subcomp_nm, b.hcntr_amt, b.sconst_amt, b.contract_rate
+				from wp_ex_contract as a join wp_ex_ctsubcontract as b
+				where a.cntr_no = b.cntr_no
+				<include refid="listSearcher3"/>
+				<include refid="listSearcher4"/>
+				order by a.cntr_no desc
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}	
+		
+		
+	</select>
+	
+	<select id="getContent" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO" resultMap="contractMap">
+		SELECT 
+			cntr_no, cntr_gb, dept, cntr_nm, comp_nm
+		 	, date_format(cntr_yrmd, '%Y-%m-%d') cntr_yrmd, estimated_amt, cntr_amt, succbid_rate
+		 	, finalcntr_amt
+		 	, date_format(begin_yrmd, '%Y-%m-%d') begin_yrmd
+		 	, date_format(finish_yrmd, '%Y-%m-%d') finish_yrmd
+			, cntr_way, cntr_reason, total_amt, prepay_amt
+			, date_format(prepay_yrmd, '%Y-%m-%d') prepay_yrmd, readymade_amt
+			, date_format(readymade_yrmd, '%Y-%m-%d') readymade_yrmd, completion_amt
+			, date_format(completion_yrmd, '%Y-%m-%d') completion_yrmd, supervision
+			, ext_supervision
+			, date_format(frst_ins_yrmd, '%Y-%m-%d') frst_ins_yrmd, frst_ins_eno
+			, prgs_gb, succ_bidder, rltd_statute, business_site
+		FROM wp_ex_contract t
+		where cntr_no = #{cntrNo}
+	</select>
+	
+	<select id="getChangeInfo" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO" resultMap="ctChangeMap">
+		SELECT 
+			cntr_no, chg_no
+		 	, date_format(plchange_yrmd, '%Y-%m-%d') plchange_yrmd
+		 	, plchange_amt
+		 	, contract_amt
+		 	, chg_resn
+		 	, date_format(frst_ins_yrmd, '%Y-%m-%d') frst_ins_yrmd, frst_ins_eno
+		FROM wp_ex_ctchange t
+		where cntr_no = #{cntrNo}
+		order by chg_no asc
+	</select>  
+	
+	<select id="getInspectInfo" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO" resultMap="ctInspectMap">
+		SELECT 
+			cntr_no, inspect_no
+		 	, date_format(inspect_yrmd, '%Y-%m-%d') inspect_yrmd
+		 	, inspect_amt
+		 	, inspect_stff
+		 	, date_format(readymade_yrmd, '%Y-%m-%d') readymade_yrmd
+		 	, date_format(frst_ins_yrmd, '%Y-%m-%d') frst_ins_yrmd, frst_ins_eno
+		FROM wp_ex_ctinspect t
+		where cntr_no = #{cntrNo}
+		order by inspect_no asc
+	</select>  
+	
+	<select id="getSubcontractInfo" parameterType="egovframework.portal.unit.bmc.contract.vo.ContractVO" resultMap="ctSubcontractMap">
+		SELECT 
+			cntr_no, subcontract_no, work_kind, subcomp_nm
+		 	, date_format(cntr_yrmd, '%Y-%m-%d') cntr_yrmd
+		 	, hcntr_amt
+		 	, contract_rate
+		 	, date_format(frst_ins_yrmd, '%Y-%m-%d') frst_ins_yrmd, frst_ins_eno
+		FROM wp_ex_ctsubcontract t
+		where cntr_no = #{cntrNo}
+		order by subcontract_no asc
+	</select>  
+	
+	<select id="getDeptList" resultType="hashMap">
+		SELECT 
+			ifnull(dept, '부서없음') as dept
+		FROM wp_ex_contract t
+		group by dept
+	</select> 
+	
+	<select id="getPmList" parameterType="egovframework.portal.unit.bmc.contract.vo.PaymentVO" resultMap="paymentMap">
+		SELECT rs2.*
+			FROM (
+				SELECT rs.*, @rownum:=@rownum+1 AS rn
+				FROM (
+					SELECT t.cntr_no, t.pay_no
+					, case when t.pay_gb = '1' then '선금'
+						when t.pay_gb = '2' then '기성금'
+						when t.pay_gb = '3' then '준공금'
+						when t.pay_gb = '4' then '노무비'
+					 	else '' end as pay_gb
+					
+					, t.frst_ins_eno
+					, date_format(t.pay_yrmd, '%Y-%m-%d') pay_yrmd
+					, cast(t.pay_amt as unsigned) as pay_amt
+					, date_format(t.frst_ins_yrmd, '%Y-%m-%d') frst_ins_yrmd  
+					, t2.cntr_nm, t2.comp_nm
+					from wp_ex_payment t join wp_ex_contract t2 on t.cntr_no = t2.cntr_no
+					WHERE 1 = 1
+					<include refid="listSearcher"/>
+					ORDER BY t.PAY_YRMD DESC, t.pay_no asc
+					) rs, (SELECT @rownum :=0) AS R
+			) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}	
+	</select> 
+	
+	<select id="getPmTotalCnt" parameterType="egovframework.portal.unit.bmc.contract.vo.PaymentVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			from wp_ex_payment t join wp_ex_contract t2 on t.cntr_no = t2.cntr_no
+			WHERE 1 = 1
+				<include refid="listSearcher"/>
+		) RES
+	</select> 
+	
+	
+</mapper> 

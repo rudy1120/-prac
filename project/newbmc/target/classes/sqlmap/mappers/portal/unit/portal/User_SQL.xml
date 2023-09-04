@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.portal.user.mapper.UserMapper">
+
+	<resultMap id="userMap" type="egovframework.portal.unit.portal.user.vo.UserVO">
+		<result property="privatecode"       column="privatecode"/>
+		<result property="parentPrivatecode" column="parent_privatecode"/>
+		<result property="parentName"        column="parent_name"/>
+		<result property="userId"            column="user_id"/>
+		<result property="userName"          column="user_name"/>
+		<result property="password"          column="password"/>
+		<result property="tel1"              column="tel1"/>
+		<result property="tel2"              column="tel2"/>
+		<result property="tel3"              column="tel3"/>
+		<result property="birthday"          column="birthday"/>
+		<result property="loginCount"        column="login_count"/>
+		<result property="lastestLoginDt"    column="lastest_login_dt"/>
+		<result property="lastPwChangeDate"  column="last_pw_change_date"/>
+		<result property="createDate"        column="create_date"/>
+		<result property="updateDate"        column="update_date"/>
+		<result property="isDormant"         column="is_dormant"/>
+		<result property="gender"            column="gender"/>
+		<association property="confirm"      resultMap="confirmMap"/>
+	</resultMap>
+	<resultMap id="confirmMap" type="egovframework.portal.unit.portal.user.vo.ConfirmVO">
+		<result property="confirm1Yn" column="confirm1_yn"/>
+		<result property="confirm2Yn" column="confirm2_yn"/>
+		<result property="confirm3Yn" column="confirm3_yn"/>
+	</resultMap>
+
+
+<!-- ================================================ SELECT ================================================ -->
+
+	<!-- ##### 단일 회원 정보 ##### -->
+	<select id="getUser" resultMap="userMap">
+		<include refid="s.funcs"/>
+		SELECT *
+		FROM (
+			SELECT * FROM user
+			UNION ALL
+			SELECT * FROM user_dormant
+		) rs
+		WHERE 1 = 1
+			<if test="#fn = isNotBlank, #fn(userId)">
+				AND user_id = #{userId}
+			</if>
+			<if test="#fn = isNotBlank, #fn(privatecode)">
+				AND privatecode = #{privatecode}
+			</if>
+	</select>
+	<!-- ##### 같은 DI값을 가지는 회원수 ##### -->
+	<select id="getAppliedUserCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM (
+			SELECT * FROM user
+			UNION ALL
+			SELECT * FROM user_dormant
+		) rs
+		WHERE privatecode = #{privatecode}
+	</select>
+	<!-- ##### 1년 이상 장기 미로그인 회원 목록 FETCH ##### -->
+	<select id="getDormantiateTargetUserList" resultMap="userMap">
+		SELECT *
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn FROM (
+				SELECT *
+				FROM user
+				WHERE 1 = 1
+					AND is_dormant = 'N'
+					AND NOW() > DATE_ADD(lastest_login_dt, INTERVAL 12 MONTH)
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- ##### 휴면 회원 목록 FETCH ##### -->
+	<select id="getDeleteTargetUserList" resultMap="userMap">
+		SELECT *
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn FROM (
+				SELECT *
+				FROM user_dormant
+				WHERE 1 = 1
+					AND is_dormant = 'Y'
+					AND NOW() > DATE_ADD(lastest_login_dt, INTERVAL 24 MONTH)
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+<!-- ================================================ INSERT ================================================ -->
+
+	<!-- ##### 회원 등록 ##### -->
+	<insert id="insert" parameterType="egovframework.portal.unit.portal.user.vo.UserVO">
+		INSERT INTO user (
+			privatecode, parent_privatecode, parent_name, user_id, user_name, password, tel1, tel2, tel3, birthday,
+			confirm1_yn, confirm2_yn, confirm3_yn, gender
+		) VALUES (
+			#{privatecode}, #{parentPrivatecode}, #{parentName}, #{userId}, #{userName}, #{encryptedPw}, #{tel1}, #{tel2}, #{tel3}, #{birthday},
+			#{confirm.confirm1Yn}, #{confirm.confirm2Yn}, #{confirm.confirm3Yn}, #{gender}
+		)
+	</insert>
+	<!-- ##### 회원 로그 @author 김장섭 ##### -->
+	<insert id="insertUserLog" parameterType="egovframework.portal.unit.portal.user.vo.UserLogVO">
+		INSERT INTO user_log (
+			user_id, ip, user_action, log_date
+		) VALUES (
+			#{userId}, #{ip}, #{userAction}, NOW()
+		)
+	</insert>
+	<!-- ##### 회원 휴면 등록 ##### -->
+	<insert id="dormantiate">
+		INSERT INTO user_dormant (
+			SELECT
+				privatecode,
+				user_id,
+				user_name,
+				password,
+				tel1,
+				tel2,
+				tel3,
+				birthday,
+				login_count,
+				lastest_login_dt,
+				create_date,
+				NOW() AS update_date,
+				parent_privatecode,
+				confirm1_yn,
+				confirm2_yn,
+				confirm3_yn,
+				last_pw_change_date,
+				'Y' AS is_dormant,
+				parent_name,
+				gender
+			FROM user
+			WHERE user_id = #{userId}
+		)
+	</insert>
+
+<!-- ================================================ UPDATE ================================================ -->
+
+	<!-- ##### 로그인 정보 갱신 ##### -->
+	<update id="updateLoginInfo" parameterType="egovframework.portal.unit.portal.user.vo.UserVO">
+		UPDATE user
+		SET
+			login_count = login_count + 1,
+			lastest_login_dt = NOW()
+		WHERE user_id = #{userId}
+	</update>
+	<!-- ##### 회원 정보 수정 ##### -->
+	<update id="update" parameterType="egovframework.portal.unit.portal.user.vo.UserVO">
+		<include refid="s.funcs"/>
+		UPDATE user
+		SET
+			<if test="#fn = isNotBlank, #fn(newPassword)">
+				password = #{encryptedNewPw},
+				last_pw_change_date = NOW(),
+			</if>
+			tel1 = #{tel1},
+			tel2 = #{tel2},
+			tel3 = #{tel3},
+			update_date = NOW()
+		WHERE user_id = #{userId}
+	</update>
+	<!-- ##### 임시 비밀번호 발급 ##### -->
+	<update id="updatePassword" parameterType="egovframework.portal.unit.portal.user.vo.UserVO">
+		UPDATE user
+		SET
+			password = #{encryptedPw},
+			update_date = NOW(),
+			last_pw_change_date = NOW()
+		WHERE privatecode = #{privatecode}
+	</update>
+	<update id="updateDormantUserPassword" parameterType="egovframework.portal.unit.portal.user.vo.UserVO">
+		UPDATE user_dormant
+		SET
+			password = #{encryptedPw},
+			update_date = NOW(),
+			last_pw_change_date = NOW()
+		WHERE privatecode = #{privatecode}
+	</update>
+	<!-- ##### 인증 정보 갱신 ##### -->
+	<update id="updateUserPrivatecode">
+		UPDATE user
+		SET
+			privatecode = #{privatecode},
+			is_dormant = 'N'
+		WHERE user_id = #{userId}
+	</update>
+	<!-- ##### 휴면 회원 활성화 ##### -->
+	<insert id="activate">
+		INSERT INTO user (
+			SELECT
+				privatecode,
+				user_id,
+				user_name,
+				password,
+				tel1,
+				tel2,
+				tel3,
+				birthday,
+				login_count,
+				lastest_login_dt,
+				create_date,
+				NOW() AS update_date,
+				parent_privatecode,
+				confirm1_yn,
+				confirm2_yn,
+				confirm3_yn,
+				last_pw_change_date,
+				'N' AS is_dormant,
+				parent_name,
+				gender
+			FROM user_dormant
+			WHERE user_id = #{userId}
+		)
+	</insert>
+
+<!-- ================================================ DELETE ================================================ -->
+
+	<!-- ##### 백업 테이블로 이동 후 회원 정보 삭제 ##### -->
+	<insert id="insertDeleteUser">
+		INSERT INTO user_deleted (
+			user_id, lastest_login_dt, create_date, update_date, delete_code, delete_reason
+		) VALUES (
+			#{entity.userId}, #{entity.lastestLoginDt}, #{entity.createDate}, #{entity.updateDate}, #{deleteCode}, #{deleteReason}
+		)
+	</insert>
+	<delete id="delete">
+		DELETE user
+		WHERE user_id = #{userId}
+	</delete>
+	<!-- ##### 휴면 정보 삭제 ##### -->
+	<delete id="deleteDormant">
+		DELETE user_dormant
+		WHERE user_id = #{userId}
+	</delete>
+
+</mapper>

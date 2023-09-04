@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.bbs.mapper.CommentMapper">
+
+	<resultMap id="commentMap" type="egovframework.portal.bbs.vo.CommentVO">
+		<result property="idx" column="idx" />
+		<result property="ptIdx" column="pt_idx" />
+		<result property="bIdx" column="b_idx" />
+		<result property="cContent" column="c_content" />
+		<result property="cWriter" column="c_writer" />
+		<result property="writerId" column="writer_id" />
+		<result property="privatecode" column="privatecode" />
+		<result property="hostIp" column="host_ip" />
+		<result property="isDel" column="is_del" />
+		<result property="isPublic" column="is_public" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="deleteDate" column="delete_date" />
+		<result property="userType" column="user_type" />
+	</resultMap>
+
+<!-- SELECT -->
+	<select id="getCommentCnt" parameterType="String" resultType="int">
+		SELECT COUNT(*) FROM bbs_comment WHERE b_idx = #{bIdx} AND is_del = 'N'
+	</select>
+
+	<select id="getCommentList" parameterType="java.util.Map" resultMap="commentMap">
+		SELECT *
+		FROM (
+			SELECT @rownum:=@rownum+1 AS rnum, c.*
+			FROM (
+				SELECT *
+				FROM bbs_comment
+				WHERE
+					b_idx = #{bIdx}
+					AND is_del = 'N'
+				ORDER BY idx DESC
+			) c, (SELECT @rownum :=0) AS R
+		) RES
+		WHERE rnum BETWEEN #{firstIndex} AND #{lastIndex}
+		ORDER BY idx ASC
+	</select>
+
+	<select id="getComment" parameterType="egovframework.portal.bbs.vo.CommentVO"  resultMap="commentMap">
+		SELECT *
+		FROM bbs_comment
+		WHERE idx = #{idx} AND is_del = 'N'
+	</select>
+
+
+
+<!-- INSERT -->
+	<insert id="insertComment" parameterType="egovframework.portal.bbs.vo.CommentVO">
+		INSERT INTO bbs_comment (
+			pt_idx, b_idx, c_content, c_writer, writer_id, privatecode, host_ip, user_type
+		)
+		VALUES (
+			#{ptIdx}, #{bIdx}, #{cContent}, #{cWriter}, #{writerId}, #{privatecode}, #{hostIp}, #{userType}
+		)
+	</insert>
+
+
+
+<!-- UPDATE -->
+	<update id="updateComment" parameterType="egovframework.portal.bbs.vo.CommentVO">
+		UPDATE bbs_comment
+		SET
+			c_content = #{cContent},
+			<!--
+			c_writer = #{cWriter},
+			writer_id = #{writerId},
+			host_ip = #{hostIp},
+			-->
+			update_date = NOW()
+		WHERE idx = #{idx} AND is_del = 'N' AND privatecode = #{privatecode}
+	</update>
+
+
+
+<!-- DELETE -->
+	<update id="deleteComment" parameterType="egovframework.portal.bbs.vo.CommentVO">
+		UPDATE bbs_comment
+		SET
+			<!--
+			c_writer = #{cWriter},
+			writer_id = #{writerId},
+			host_ip = #{hostIp},
+			-->
+			is_del = 'Y',
+			delete_date = NOW()
+		WHERE idx = #{idx} AND is_del = 'N'
+			<if test="userType.equals('M'.toString())">
+				AND privatecode = #{privatecode}
+			</if>
+			<if test="!userType.equals('M'.toString())">
+				AND writer_id = #{writerId}
+			</if>
+	</update>
+
+
+</mapper>

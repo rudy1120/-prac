@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.smsService.mapper.SmsServiceMapper">
+
+	<resultMap id="smsMap" type="egovframework.portal.sys.smsService.vo.SmsServiceVO">
+		<result property="idx"				column="idx"/>
+		<result property="grpcode"			column="grpcode"/>
+		<result property="codename"			column="codename"/>
+		<result property="usescode"			column="usescode"/>
+		<result property="phone"			column="phone"/>
+		<result property="name"				column="name"/>
+		<result property="usesname"			column="usesname"/>
+		<result property="housingtype"		column="housingtype"/>
+		<result property="subject"		    column="subject"/>
+		<result property="msg"				column="msg"/>
+		<result property="termcode"			column="termcode"/>
+	</resultMap>
+
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchGbn)">
+			AND a.usescode = #{searchGbn}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('name')">
+				AND a.name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('phone')">
+				AND a.phone LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="listSearcher2">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchGbn)">
+			AND a.housingtype = #{searchGbn}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('name')">
+				AND a.name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('phone')">
+				AND a.phone LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<sql id="listSearcher3">
+		<include refid="s.funcs"/>
+		
+		<if test="#fn = isNotBlank, #fn(searchGbn)">
+			AND date_format(SENTDATE,'%Y') = #{searchGbn}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchType)">
+			AND date_format(SENTDATE,'%c') = #{searchType}
+		</if>
+		
+	</sql>
+
+	<!-- ##### 분양알림 신청 총 개수 ##### -->
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultType="int">
+		SELECT		IFNULL(COUNT(*),0) AS cnt
+		FROM		sms_sale a
+		WHERE		1 = 1
+		<include refid="listSearcher"/>
+	</select>
+	
+	<!-- ##### 모집공고 신청 총 개수 ##### -->
+	<select id="getTotalCnt2" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultType="int">
+		SELECT		IFNULL(COUNT(*),0) AS cnt
+		FROM		sms_housing a
+		WHERE		1 = 1
+		<include refid="listSearcher2"/>
+	</select>
+	
+	<select id="getTotalCnt3" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultType="int">
+		SELECT		IFNULL(COUNT(*),0) AS cnt
+		FROM		TOTAL_MMS a
+		WHERE		1 = 1
+	<include refid="listSearcher3"/>
+		
+		
+	</select>
+	
+	<!-- ##### 분양알림 신청자 목록 조회 ##### -->
+	<select id="getList" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultMap="smsMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM 
+			(
+				SELECT 
+					idx
+				,	name
+				,	phone
+				,	(
+						SELECT	codename
+						FROM	sellcode c
+						WHERE	grpcode = 'GRP003'
+						AND		a.usescode = idx
+					) as usesname
+				,	(
+						SELECT	codename
+						FROM	sellcode c
+						WHERE	grpcode = 'GRP004'
+						AND		a.termcode = idx
+					) as termcode
+				,	regdate
+				FROM sms_sale a
+				WHERE 1 = 1
+				<include refid="listSearcher"/>
+			) rs
+			WHERE (@rownum:=0)=0
+			ORDER BY rs.regdate DESC
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<!-- ##### 모집공고 신청자 목록 조회 ##### -->
+	<select id="getList2" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultMap="smsMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM
+			(
+				SELECT
+						idx
+				,		name
+				,		phone
+				,		housingtype
+				,		(
+							SELECT	codename
+							FROM	sellcode
+							WHERE	grpcode = 'GRP002'
+							AND		idx = a.housingtype
+						) as codename
+				,		(
+							SELECT	codename
+							FROM	sellcode
+							WHERE	grpcode = 'GRP004'
+							AND		idx = a.termcode
+						) as termcode
+				,		regdate
+				FROM	sms_housing a
+				WHERE	1=1
+				<include refid="listSearcher2"/>
+			) rs
+			WHERE (@rownum:=0)=0
+			ORDER BY rs.regdate DESC
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	
+	<select id="getList3" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultMap="smsMap">
+		select re.*
+		from
+		(SELECT  @rownum:=@rownum+1 AS rn,SUBJECT,PHONE,MSG,SENTDATE
+		FROM TOTAL_MMS
+		WHERE (@rownum:=0)=0
+			<include refid="listSearcher3"/>
+		) re
+		where rn BETWEEN #{firstIndex} AND #{lastIndex}
+	
+	</select>
+	<!-- ##### 분양공고 엑셀리스트 조회 ##### -->
+	<select id="getExcelList" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultMap="smsMap">
+		SELECT
+			Q.idx, Q.regdate, name, phone, termcode, group_concat(usesname separator ',') as usesname
+		FROM
+	
+			(
+			SELECT 
+				idx
+			,	name
+			,	phone
+			,
+			(
+				select codename
+				from sellcode c
+				where grpcode = 'GRP003'
+				and a.usescode = idx
+			) as usesname
+			,regdate
+			,
+			(
+				select codename
+				from sellcode c
+				where grpcode = 'GRP004'
+				and a.termcode = idx
+			) as termcode
+			FROM sms_sale a
+			WHERE 1 = 1
+			<include refid="listSearcher"/>
+			) Q
+		group by name, phone
+	</select>
+
+	<!-- ##### 모집공고 엑셀리스트 조회 ##### -->
+	<select id="getExcelList2" parameterType="egovframework.portal.sys.smsService.vo.SmsServiceVO" resultMap="smsMap">
+		SELECT
+			Q.idx, Q.regdate, name, phone, termcode, group_concat(codename separator ',') as codename
+		FROM
+	
+			(
+			SELECT 
+				idx
+			,	name
+			,	phone
+			,
+			(
+				select codename
+				from sellcode c
+				where grpcode = 'GRP002'
+				and idx = a.housingtype
+			) as codename
+			,regdate
+			,
+			(
+				select codename
+				from sellcode c
+				where grpcode = 'GRP004'
+				and a.termcode = idx
+			) as termcode
+			FROM sms_housing a
+			WHERE 1 = 1
+			<include refid="listSearcher2"/>
+			) Q
+		group by name, phone
+	</select>
+	
+</mapper>

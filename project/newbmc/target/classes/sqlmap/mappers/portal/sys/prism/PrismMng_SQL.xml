@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.prism.mapper.PrismMngMapper">
+
+	<resultMap id="prismMap" type="egovframework.portal.sys.prism.vo.PrismMngVO">
+		<result property="idx"				column="idx"/>
+		<result property="projectNm"		column="project_nm"/>
+		<result property="orgnNm"			column="orgn_nm"/>
+		<result property="depNm"			column="dep_nm"/>
+		<result property="phoneNb"			column="phone_nb"/>
+		<result property="rSdate"			column="r_sdate"/>
+		<result property="rEdate"			column="r_edate"/>
+		<result property="rField"			column="r_field"/>
+		<result property="summary"			column="summary"/>
+		<result property="executeNm"		column="execute_nm"/>
+		<result property="researcher"		column="researcher"/>
+		<result property="contDt"			column="cont_dt"/>
+		<result property="contMethod"		column="cont_method"/>
+		<result property="contPrice"		column="cont_price"/>
+		<result property="title"			column="title"/>
+		<result property="eTitle"			column="e_title"/>
+		<result property="subtitle"			column="subtitle"/>
+		<result property="resReport"		column="res_report"/>
+		<result property="topic"			column="topic"/>
+		<result property="prdtDt"			column="prdt_dt"/>
+		<result property="contributor"		column="contributor"/>
+		<result property="issYear"			column="iss_year"/>
+		<result property="subDt"			column="sub_dt"/>
+		<result property="contents"			column="contents"/>
+		<result property="evalResult"		column="eval_result"/>
+		<result property="applReport"		column="appl_report"/>
+		<result property="createDate"		column="create_date"/>
+		<result property="updateDate"		column="update_date"/>
+		<result property="cnt"				column="cnt"/>
+		<result property="isDel"			column="is_del"/>
+		<result property="bWrite"			column="b_write"/>
+		<result property="writeId"			column="write_id"/>
+		<result property="hostIp"			column="b_host_ip"/>
+	</resultMap>
+	<!-- ##### 검색조건 조건 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchType)">
+			AND iss_year = #{searchType}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			AND project_nm LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+	</sql>
+
+	<!-- ##### 목록 개수 ##### -->
+	<select id="getTotalCnt"  parameterType="egovframework.portal.sys.prism.vo.PrismMngVO" resultType="int">
+		SELECT
+				COUNT(*) AS cnt
+		FROM	prism_board 
+		WHERE	is_del = 'N'
+		<include refid="listSearcher"/>
+	</select>
+	
+	<!-- ##### 목록 리스트 ##### -->
+	<select id="getList"  parameterType="egovframework.portal.sys.prism.vo.PrismMngVO" resultMap="prismMap">
+		SELECT rs2.*
+		FROM 
+		(
+			SELECT
+				rs.*, @rownum:=@rownum+1 AS rn
+			FROM
+			(
+				SELECT	A.*
+				FROM	prism_board  A
+				WHERE	is_del = 'N'
+				<include refid="listSearcher"/>
+				ORDER BY idx DESC
+			)rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+
+	<select id="getEntity" parameterType="egovframework.portal.sys.prism.vo.PrismMngVO" resultMap="prismMap">
+		SELECT	*
+		FROM	prism_board
+		WHERE	idx = #{idx}
+	</select>
+	
+	<!-- ##### 관리자 정책연구보고서 게시물 등록 ###### -->
+	<insert id="insert" parameterType="egovframework.portal.sys.prism.vo.PrismMngVO" >
+		INSERT	INTO	prism_board
+		(
+			IDX
+		,	PROJECT_NM
+		,	ORGN_NM
+		,	DEP_NM
+		,	PHONE_NB
+		,	R_SDATE
+		,	R_EDATE
+		,	R_FIELD
+		,	SUMMARY
+		,	EXECUTE_NM
+		,	RESEARCHER
+		,	CONT_DT
+		,	CONT_METHOD
+		,	CONT_PRICE
+		,	TITLE
+		,	E_TITLE
+		,	SUBTITLE
+		,	RES_REPORT
+		,	TOPIC
+		,	PRDT_DT
+		,	CONTRIBUTOR
+		,	ISS_YEAR
+		,	SUB_DT
+		,	CONTENTS
+		,	EVAL_RESULT
+		,	APPL_REPORT
+		,	CREATE_DATE
+		,	B_WRITE
+		,	WRITE_ID
+		,	B_HOST_IP
+		)
+		VALUES
+		(
+			(
+				SELECT
+					*
+				FROM
+				(
+				SELECT
+					IFNULL(MAX(idx),0)+1
+				FROM	prism_board
+				)AS idx
+			)
+		,	#{projectNm}
+		,	#{orgnNm}
+		,	#{depNm}
+		,	#{phoneNb}
+		,	#{rSdate}
+		,	#{rEdate}
+		,	#{rField}
+		,	#{summary}
+		,	#{executeNm}
+		,	#{researcher}
+		,	#{contDt}
+		,	#{contMethod}
+		,	#{contPrice}
+		,	#{title}
+		,	#{eTitle}
+		,	#{subtitle}
+		,	#{resReport}
+		,	#{topic}
+		,	#{prdtDt}
+		,	#{contributor}
+		,	#{issYear}
+		,	#{subDt}
+		,	#{contents}
+		,	#{evalResult}
+		,	#{applReport}
+		,	NOW()
+		,	#{bWrite}
+		,	#{writeId}
+		,	#{hostIp}
+		)
+	</insert>
+
+	<!-- ##### 관리자 정책연구보고서 게시물 수정 ###### -->
+	<update id="modify" parameterType="egovframework.portal.sys.prism.vo.PrismMngVO" >
+		UPDATE
+			prism_board
+		SET
+			PROJECT_NM		=		#{projectNm}
+		,	ORGN_NM			=		#{orgnNm}
+		,	PHONE_NB		=		#{phoneNb}
+		,	R_SDATE			=		#{rSdate}
+		,	R_EDATE			=		#{rEdate}
+		,	R_FIELD			=		#{rField}
+		,	SUMMARY			=		#{summary}
+		,	EXECUTE_NM		=		#{executeNm}
+		,	RESEARCHER		=		#{researcher}
+		,	CONT_DT			=		#{contDt}
+		,	CONT_METHOD		=		#{contMethod}
+		,	CONT_PRICE		=		#{contPrice}
+		,	TITLE			=		#{title}
+		,	E_TITLE			=		#{eTitle}
+		,	SUBTITLE		=		#{subtitle}
+		,	RES_REPORT		=		#{resReport}
+		,	TOPIC			=		#{topic}
+		,	PRDT_DT			=		#{prdtDt}
+		,	CONTRIBUTOR		=		#{contributor}
+		,	ISS_YEAR		=		#{issYear}
+		,	SUB_DT			=		#{subDt}
+		,	CONTENTS		=		#{contents}
+		,	EVAL_RESULT		=		#{evalResult}
+		,	APPL_REPORT		=		#{applReport}
+		,	UPDATE_DATE		=		NOW()
+		,   DEP_NM          =       #{depNm}
+		WHERE 
+			IDX 			=		#{idx}
+	</update>
+	
+	<!-- ##### 관리자 정책연구보고서 삭제 ###### -->
+	<update id="delete" parameterType="egovframework.portal.sys.prism.vo.PrismMngVO" >
+		UPDATE
+			prism_board
+		SET
+			IS_DEL	=	'Y'
+		WHERE 
+			IDX 	=	#{idx}
+	</update>
+	
+	<!-- ##### 조회수 업데이트 ##### -->
+	<update id="updateCnt" parameterType="egovframework.portal.sys.prism.vo.PrismMngVO" >
+		UPDATE
+			prism_board
+		SET
+			CNT	=	CNT+1
+		WHERE 
+			IDX 	=	#{idx}	
+	</update>
+</mapper>

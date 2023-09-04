@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<!-- 2DEPTH 목록/등록/수정 -->
+	<definition name="/*/*/bbs/*/" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/bbs/{3}.jsp" />
+	</definition>
+
+	<!-- 1DEPTH 목록/등록/수정 -->
+	<definition name="/*/bbs/*/" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/bbs/{2}.jsp" />
+	</definition>
+
+</tiles-definitions>

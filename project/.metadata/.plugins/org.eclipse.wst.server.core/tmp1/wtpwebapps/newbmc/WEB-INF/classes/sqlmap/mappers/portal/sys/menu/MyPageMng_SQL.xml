@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.MenuMng.mapper.MyPageMngMapper">
+
+	<select id="getMyMenuCnt" parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO" resultType="int">
+		SELECT
+			COUNT(pm.idx) AS CNT
+		FROM
+			pt_v_menus pm , menu_charge pmc
+		WHERE pm.site_code = pmc.site_code
+		  and pm.MID = pmc.MID
+		  and pmc.charge_id = #{chargeId}
+	</select>
+
+
+	<select id="getMyMenuList" parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO" resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+		SELECT
+			pm.*,
+			pmc.*,
+			(SELECT REQ_STATE FROM menus_charge_info PMCI WHERE PMCI.SITE_CODE = pm.SITE_CODE AND PMCI.MID = pm.MID AND PMCI.REQ_CHARGE_ID = pmc.CHARGE_ID AND PMCI.REQ_STATE!='A' ) AS REQ_STATE,
+			(SELECT IDX FROM menus_charge_info PMCI WHERE PMCI.SITE_CODE = pm.SITE_CODE AND PMCI.MID = pm.MID AND PMCI.REQ_CHARGE_ID = pmc.CHARGE_ID AND PMCI.REQ_STATE!='A') AS REQ_IDX
+		FROM
+			pt_v_menus pm , menu_charge pmc
+		WHERE pm.site_code = pmc.site_code
+		  and pm.MID = pmc.MID
+		  and pmc.charge_id = #{chargeId}
+		ORDER BY
+		        MENU_ORDER_CODE , MENU_ORDER
+	</select>
+
+
+
+	<select id="getMyMenuAckList" parameterType="egovframework.portal.sys.MenuMng.vo.MenuVO" resultType="egovframework.rte.psl.dataaccess.util.EgovMap">
+	SELECT
+	    PM.*,
+        PMCI.*
+	FROM
+	        menus_charge_info PMCI LEFT JOIN pt_v_menus PM ON PMCI.SITE_CODE = PM.SITE_CODE AND PMCI.MID = PM.MID
+	WHERE
+	        REQ_CHARGE_ID = #{chargeId}
+	     AND REQ_STATE = 'A'
+	ORDER BY ACK_DT DESC
+	</select>
+
+	<insert id="reqMenuChargeMove">
+		INSERT INTO menus_charge_info (
+			SITE_CODE, MID, REQ_CHARGE_ID, REQ_CHARGE_FNM, REQ_CHARGE_DEP_CODE, REQ_CHARGE_DEP_NM, REQ_CHARGE_TEL,
+			REQ_DT, REQ_STATE, MOVE_CHARGE_ID, MOVE_CHARGE_FNM, MOVE_CHARGE_DEP_CODE, MOVE_CHARGE_DEP_NM, MOVE_CHARGE_TEL, ACK_DT
+		) VALUES (
+			#{site_code}, #{mid}, #{req_charge_id}, #{req_charge_fnm}, #{req_charge_dep_code}, #{req_charge_dep_nm}, #{req_charge_tel},
+			NOW(), 'R', #{move_charge_id}, #{move_charge_fnm}, #{move_charge_dep_code}, #{move_charge_dep_nm}, #{move_charge_tel}, NULL
+		)
+	</insert>
+
+
+	<select id="getMyMenuReq" parameterType="egovframework.portal.sys.MenuMng.vo.MenuChargeReqVO" resultType="egovframework.portal.sys.MenuMng.vo.MenuChargeReqVO">
+		select
+			*
+        FROM menus_charge_info
+         WHERE IDX = #{idx}
+	</select>
+
+
+
+
+	<update id="reqMenuChargeCancel">
+		UPDATE menus_charge_info
+		SET REQ_STATE = 'C'
+		WHERE IDX=#{idx}
+	</update>
+
+	<update id="reqMenuChargeAck">
+		UPDATE menus_charge_info
+		SET
+			REQ_STATE = 'A',
+			ACK_DT = NOW()
+		WHERE IDX=#{idx}
+	</update>
+
+	<delete id="deleteReqMenuCharge">
+		DELETE menus_charge_info where IDX = #{idx}
+	</delete>
+
+
+</mapper>

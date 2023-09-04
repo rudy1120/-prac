@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.MenuMng.mapper.SiteMngMapper">
+
+	<resultMap id="basicMap" type="egovframework.portal.sys.MenuMng.vo.MenusMngVO">
+		<result property="idx" column="IDX"/>
+		<result property="siteCode" column="SITE_CODE"/>
+		<result property="siteGroup" column="site_group"/>
+		<result property="siteName" column="SITE_NAME"/>
+		<result property="isUse" column="IS_USE"/>
+		<result property="siteOrder" column="SITE_ORDER"/>
+		<result property="orderInfo" column="ORDER_INFO"/>
+		<result property="ptIdx" column="PT_IDX"/>
+		<result property="tmIdx" column="TM_IDX"/>
+		<result property="siteDeptCode" column="SITE_DEPT_CODE"/>
+		<result property="siteGubun" column="SITE_GUBUN"/>
+	</resultMap>
+	<resultMap id="siteMap" extends="basicMap" type="egovframework.portal.sys.MenuMng.vo.MenusMngVO">
+		<result property="rnum" column="RNUM"/>
+	</resultMap>
+
+	<select id="getSiteListCnt" parameterType="egovframework.portal.sys.MenuMng.vo.MenusMngVO" resultType="int">
+		SELECT COUNT(*) AS cnt
+		FROM site_mapping
+		${searchQuery}
+	</select>
+	<select id="getSiteList" parameterType="egovframework.portal.sys.MenuMng.vo.MenusMngVO"  resultMap="siteMap">
+		SELECT * FROM (
+			SELECT MA.*, @rownum:=@rownum+1 AS rnum
+			FROM (
+				SELECT *
+				FROM site_mapping
+					${searchQuery}
+				ORDER BY site_order ,site_code
+			) MA, (SELECT @rownum :=0) AS R
+		) RES
+		WHERE rnum BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<select id="getSite" parameterType="egovframework.portal.sys.MenuMng.vo.MenusMngVO" resultMap="basicMap">
+		SELECT *
+		FROM site_mapping
+		WHERE idx = #{idx}
+	</select>
+	<select id="getSiteIdx" resultType="int">
+		SELECT idx
+		FROM site_mapping
+		WHERE site_code = #{siteCode}
+	</select>
+	<select id="getSiteSeq" resultType="int">
+		select max(idx+1) from site_mapping
+	</select>
+	<select id="getSiteCodeList"  resultMap="basicMap">
+		SELECT *
+		FROM site_mapping
+		WHERE is_use = 'Y'
+			${value}
+		ORDER BY site_order ASC, site_code ASC
+	</select>
+	<select id="getSiteCodeListWhere"  resultMap="basicMap" parameterType="egovframework.portal.sys.MenuMng.vo.MenusMngVO">
+		SELECT *
+		FROM site_mapping
+		WHERE is_use = 'Y'
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(siteCode)">
+			AND SITE_GUBUN = #{siteCode}
+		</if>
+		${searchQuery}
+		ORDER BY site_order ASC, site_code ASC
+	</select>
+	<select id="getSiteBySiteCode" resultMap="basicMap">
+		SELECT * FROM (
+			SELECT RS.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT *
+				FROM site_mapping
+				WHERE site_code = #{value} AND is_use = 'Y'
+			) RS, (SELECT @rownum :=0) AS R
+		) RES
+		WHERE rn = 1
+	</select>
+	<select id="getListByPrmtType" resultMap="basicMap">
+		SELECT *
+		FROM site_mapping
+		WHERE 1 = 1 AND is_use = 'Y'
+		ORDER BY site_order ASC
+	</select>
+
+
+	<insert id="insertSite">
+		insert into site_mapping (
+			idx, site_group, site_code, site_name, is_use, order_info, pt_idx, tm_idx, site_order, reg_dt, site_dept_code, site_gubun
+		) values (
+			#{idx}, #{siteGroup}, #{siteCode}, #{siteName}, #{isUse}, #{orderInfo}, #{ptIdx}, #{tmIdx}, #{siteOrder}, NOW(), #{siteDeptCode}, #{siteGubun}
+		)
+	</insert>
+	<update id="updateSite">
+		UPDATE site_mapping
+		SET site_code      = #{siteCode},
+			site_group     = #{siteGroup},
+			site_name      = #{siteName},
+			is_use         = #{isUse},
+			pt_idx         = #{ptIdx},
+			tm_idx         = #{tmIdx},
+			site_order     = #{siteOrder},
+			order_info     = #{orderInfo},
+			site_dept_code = #{siteDeptCode},
+			site_gubun     = #{siteGubun},
+			mod_dt         = NOW()
+		WHERE idx = #{idx}
+	</update>
+	<delete id="deleteSite">
+		DELETE FROM site_mapping WHERE idx = #{idx}
+	</delete>
+
+</mapper>

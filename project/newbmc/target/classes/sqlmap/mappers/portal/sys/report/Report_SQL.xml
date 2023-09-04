@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.sys.report.mapper.SysReportMapper">
+
+	<resultMap id="hrReportMap" type="egovframework.portal.unit.bmc.report.vo.ReportVO">
+		<result column="idx"         property="idx"/>
+		<result column="uname"       property="uname"/>
+		<result column="dupinfo"	 property="dupinfo"/>
+		<result column="tel"         property="tel"/>
+		<result column="email"   	 property="email"/>
+		<result column="title"       property="title"/>
+		<result column="cont"        property="cont"/>
+		<result column="attachId"    property="attachId"/>
+		<result column="creatDate"   property="creatDate"/>
+		<result column="orignl_file_nm" property="orignl_file_nm"/>
+	</resultMap>
+
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>		
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('name')">
+				AND a.uname LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('tel')">
+				AND a.tel LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('email')">
+				AND a.email LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('title')">
+				AND a.title LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+
+	<select id ="getTotalCnt" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultType="int">
+		SELECT		IFNULL(COUNT(*),0) AS cnt
+		FROM		hr_report a
+		WHERE		1 = 1
+		<include refid="listSearcher"/>
+	</select>
+	
+	<select id ="getList" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultMap="hrReportMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM 
+			(
+				SELECT 
+					idx
+				,	uname
+				,	tel
+				,	email
+				,	title
+				,	attachId
+				,	creatDate
+				FROM hr_report a
+				WHERE 1 = 1
+				<include refid="listSearcher"/>
+			) rs
+			WHERE (@rownum:=0)=0
+			ORDER BY rs.creatDate DESC
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	
+	</select>
+	
+	<select id ="getDetail" parameterType="egovframework.portal.unit.bmc.report.vo.ReportVO" resultMap="hrReportMap">
+		SELECT *
+		FROM hr_report
+		WHERE idx = #{idx}
+	</select>
+
+</mapper>

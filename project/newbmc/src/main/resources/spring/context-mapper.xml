@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-4.0.xsd">
+
+	<bean id="lobHandler" class="org.springframework.jdbc.support.lob.DefaultLobHandler" lazy-init="true" />
+
+	<!-- SqlSession setup for MyBatis Database Layer -->
+	<!-- <bean id="sqlSession" class="org.mybatis.spring.SqlSessionFactoryBean"> -->
+	<!--
+		개발 환경에서 xml 수정시 서버를 재시작하지 않아도 되도록 RefreshableSqlSessionFactoryBean으로 대체하여 적용했습니다.
+		운영 환경에서는 org.mybatis.spring.SqlSessionFactoryBean를 사용하기 바랍니다. 2017.05.17 권태성
+	-->
+	<bean id="sqlSession" class="egovframework.portal.common.RefreshableSqlSessionFactoryBean">
+		<property name="dataSource" ref="dataSource" />
+		<property name="configLocation" value="classpath:/sqlmap/config/sql-mapper-config.xml" />
+		<property name="mapperLocations">
+			<list>
+				<value>classpath:/sqlmap/mappers/**/*_SQL.xml</value>
+				<value>classpath:/sqlmap/mappers/**/*_Oracle.xml</value>
+			</list>
+		</property>
+		<!-- RefreshableSqlSessionFactoryBean의 갱신 주기 (defualt : 500ms)
+		<property name="interval">1000</property>
+		 -->
+		<!--
+		<property name="plugins">
+			<bean id="queryInterceptor" class="egovframework.portal.interceptor.QueryInterceptor" />
+				 <property name="dataSource" ref="dataSource" />
+			</bean>
+		</property>
+		-->
+	</bean>
+
+	<!-- MapperConfigurer setup for MyBatis Database Layer with @Mapper("deptMapper") in DeptMapper Interface
+	JAVA Mapper를 사용하지 않으므로 주석처리 2017/04/13 권태성	-->
+ 	<bean class="egovframework.rte.psl.dataaccess.mapper.MapperConfigurer">
+		<property name="basePackage" value="egovframework.**.mapper" />
+	</bean>
+
+</beans>

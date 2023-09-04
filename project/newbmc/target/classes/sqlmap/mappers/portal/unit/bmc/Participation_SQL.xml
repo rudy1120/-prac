@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.participation.mapper.ParticipationMapper">
+
+	<resultMap id="partContMap" type="egovframework.portal.unit.bmc.participation.vo.PartContVO">
+		<result property="idx"        column="idx" />
+		<result property="title"      column="title" />
+		<result property="cont"       column="cont" />
+		<result property="thumbnail"  column="thumbnail" />
+		<result property="sdate"      column="sdate" />
+		<result property="edate"      column="edate" />
+		<result property="etc1"       column="etc1" />
+		<result property="etc2"       column="etc2" />
+		<result property="etc3"       column="etc3" />
+		<result property="etc4"       column="etc4" />
+		<result property="etc5"       column="etc5" />
+		<result property="cnt"        column="cnt" />
+		<result property="gbn"        column="gbn" />
+		<result property="isDel"      column="is_del" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+	</resultMap>
+	
+	<resultMap id="participantMap" type="egovframework.portal.unit.bmc.participation.vo.ParticipantVO">
+		<result property="ptidx"      column="ptidx" />
+		<result property="idx"        column="idx" />
+		<result property="usernm"     column="usernm" />
+		<result property="email"      column="email" />
+		<result property="tel"        column="tel" />
+		<result property="addr1"      column="addr1" />
+		<result property="addr2"      column="addr2" />
+		<result property="dupinfo"    column="dupinfo" />
+		<result property="attachId"   column="attach_id" />
+		<result property="createDate" column="create_date" />
+		<result property="updateDate" column="update_date" />
+		<result property="isDel"      column="is_del" />
+		<result property="title"      column="title" />
+		<result property="gbn"        column="gbn" />
+		<result property="edate"      column="edate" />
+	</resultMap>
+	
+	<!-- 검색기능 sql -->
+	<sql id="listSearcher">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			AND ${searchType} LIKE CONCAT('%',#{searchTxt},'%')
+		</if>
+	</sql>
+	
+	<sql id="participantSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('nm')">
+				AND t2.title LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+	<!-- 리스트 조회 -->
+	<select id="getList" resultMap="partContMap" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO">
+		select rs2.idx, rs2.title, rs2.cont, rs2.thumbnail
+			, date_format(rs2.sdate, '%Y-%m-%d') sdate 
+			, date_format(rs2.edate, '%Y-%m-%d') edate
+			, rs2.etc1, rs2.etc2, rs2.etc3, rs2.etc4, rs2.etc5
+			, rs2.cnt, rs2.gbn, rs2.is_del, rs2.create_date, rs2.update_date  
+		from
+			(SELECT rs.*, @rownum:=@rownum+1 AS rn
+		FROM (
+			SELECT t.*
+			FROM partcont t
+		) rs, (SELECT @rownum :=0) AS R
+    		WHERE 1 = 1
+    		and is_del = 'N'
+    			<include refid="listSearcher"/>
+    		ORDER BY IDX DESC
+    	) rs2
+    	WHERE 1 = 1
+		<choose>
+			<when test="begin > 0">
+				and rn between #{begin} and #{end}
+			</when>
+			<otherwise>
+				and rn between #{firstIndex} and #{lastIndex}
+			</otherwise>
+		</choose>
+	</select>
+	
+	<select id="getTotalCnt" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM partcont t
+			WHERE 1 = 1
+			and gbn = #{gbn}
+			and is_del = 'N'
+				<include refid="listSearcher"/>
+		) RES
+	</select>
+	
+	<!-- 상세보기 -->
+	<select id="getContent" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO" resultMap="partContMap">
+		SELECT idx, title, cont, thumbnail
+			, date_format(sdate, '%Y-%m-%d') sdate 
+			, date_format(edate, '%Y-%m-%d') edate
+			, etc1, etc2, etc3, etc4, etc5
+			, cnt, gbn, is_del, create_date, update_date  FROM partcont 
+		WHERE idx = #{idx}
+	</select>
+	
+	<!-- 조회수 -->
+	<update id="setViewCount" parameterType="egovframework.portal.unit.bmc.participation.vo.PartContVO">
+		UPDATE partcont SET cnt = cnt + 1 WHERE IDX = #{idx}
+	</update>
+	
+	<!-- 참가자 등록 -->
+	<insert id="insert" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO">
+		INSERT INTO participant (
+			idx, usernm, email, tel, addr1, addr2, dupinfo, attach_id
+		) VALUES (
+			#{idx}, #{usernm}, #{email}, #{tel}, #{addr1}, #{addr2}, #{dupinfo}, #{attachId}
+		)
+		<selectKey resultType="int" keyProperty="ptidx" order="AFTER">
+			select max(ptidx) as ptidx from participant
+		</selectKey>
+	</insert>
+	
+	<!-- 참가자 조회 -->
+	<select id="read" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO" resultMap="participantMap">
+		SELECT rs2.*
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT t.*, t2.title, t2.gbn, date_format(t2.edate, '%Y-%m-%d') edate 
+				FROM participant t join partcont t2 on t.idx = t2.idx
+				WHERE 1 = 1
+				and t.is_del = 'N'
+				and t.tel = #{tel}
+				and t.usernm = #{usernm}
+				<include refid="participantSearcher"/>
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	
+	<select id="getParticipantCnt" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO" resultType="int">
+		SELECT ifnull(SUM(cnt), 0)
+		FROM (
+			SELECT COUNT(*) AS cnt
+			FROM participant t join partcont t2 on t.idx = t2.idx
+			WHERE 1 = 1
+			and t.tel = #{tel}
+			and t.usernm = #{usernm}
+			and t.is_del = 'N'
+				<include refid="participantSearcher"/>
+		) RES
+	</select>
+	
+	<!-- 참가 등록 삭제 -->
+	<update id="delete" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO">
+		UPDATE participant
+		SET is_del = 'Y',
+			update_date = NOW()
+		WHERE ptidx = #{ptidx}
+	</update> 
+	
+	<select id="getCheck" parameterType="egovframework.portal.unit.bmc.participation.vo.ParticipantVO" resultType="int">
+		select count(*) from participant where idx = #{idx} and dupinfo = #{dupinfo} and is_del = 'N'
+	</select>
+	
+</mapper>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+	- DispatcherServlet application context for Application's web tier.
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xmlns:security="http://www.springframework.org/schema/security"
+	xmlns:task="http://www.springframework.org/schema/task"
+	xsi:schemaLocation="
+		http://www.springframework.org/schema/aop
+		http://www.springframework.org/schema/aop/spring-aop-3.1.xsd
+		http://www.springframework.org/schema/mvc
+		http://www.springframework.org/schema/mvc/spring-mvc-3.1.xsd
+		http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/context
+		http://www.springframework.org/schema/context/spring-context-2.5.xsd
+		http://www.springframework.org/schema/security
+		http://www.springframework.org/schema/security/spring-security.xsd
+		http://www.springframework.org/schema/task
+		http://www.springframework.org/schema/task/spring-task-4.3.xsd"
+	>
+
+	<security:global-method-security secured-annotations="enabled">
+
+	</security:global-method-security>
+
+	<!--
+		- The controllers are autodetected POJOs labeled with the @Controller annotation.
+	-->
+	<context:component-scan base-package="egovframework">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Service"/>
+		<context:exclude-filter type="annotation" expression="org.springframework.stereotype.Repository"/>
+	</context:component-scan>
+	
+	<!-- 스케줄러 파일이 존재하는 패키지 설정 2023.01.17 >> 2023.06.13 quartz와 중복으로 돌고 있어서 주석처리함 -->
+<!--     <context:component-scan base-package="egovframework.scheduler" /> -->
+    <!-- 해당 태그들은 크론탭을 설정에 필요한 태그들 -->
+<!--     <task:scheduler id="jobScheduler" pool-size="10" /> -->
+<!--     <task:annotation-driven scheduler="jobScheduler" /> -->
+
+	<!--
+		- The form-based controllers within this application provide @RequestMapping
+		- annotations at the type level for path mapping URLs and @RequestMapping
+		- at the method level for request type mappings (e.g., GET and POST).
+		- In contrast, ClinicController - which is not form-based - provides
+		- @RequestMapping only at the method level for path mapping URLs.
+		-
+		- DefaultAnnotationHandlerMapping is driven by these annotations and is
+		- enabled by default with Java 5+.
+	-->
+
+	<!--
+		- This bean processes annotated handler methods, applying Application-specific PropertyEditors
+		- for request parameter binding. It overrides the default AnnotationMethodHandlerAdapter.
+	-->
+
+	<!-- 20160526 J.Ryeon Lee mvc:annotation driven 태그 사용 불가하므로 validator 설정을 위해 다른 처리 추가
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<property name="webBindingInitializer">
+			<bean class="egovframework.com.cmm.web.EgovBindingInitializer"/>
+		</property>
+		<property name="customArgumentResolvers">
+			<list>
+				<bean class="egovframework.rte.ptl.mvc.bind.CommandMapArgumentResolver"/>
+			</list>
+		</property>
+	</bean>
+	-->
+	<bean class="org.springframework.web.servlet.mvc.annotation.AnnotationMethodHandlerAdapter">
+		<!-- 2017.02.13 권태성
+			HTTP POST에서 캐시 속성 변경을 위해 추가
+			cacheSeconds 기본 값은 -1 (아무런 캐시 관련 헤더 반환x)
+			0일 때는 no-cache, 양수일 때는 지정한 시간만큼 캐시
+		-->
+		<property name="cacheSeconds" value="1" />
+		<property name="webBindingInitializer">
+			<bean class="org.springframework.web.bind.support.ConfigurableWebBindingInitializer">
+				<property name="validator" ref="validator"/>
+			</bean>
+		</property>
+		<property name="customArgumentResolvers">
+			<list>
+				<bean class="egovframework.rte.ptl.mvc.bind.CommandMapArgumentResolver"/>
+			</list>
+		</property>
+	</bean>
+	<bean id="validator" class="org.springframework.validation.beanvalidation.LocalValidatorFactoryBean">
+		<property name="validationMessageSource" ref="messageSource" />
+	</bean>
+
+	<!-- - This bean resolves specific types of exceptions
+		to corresponding logical - view names for error views. The default behaviour
+		of DispatcherServlet - is to propagate all exceptions to the servlet container:
+		this will happen - here with all other types of exceptions. -->
+	<!-- bean class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+		<property name="defaultErrorView" value="cmm/egovError"/>
+		<property name="exceptionMappings">
+			<props>
+				<prop key="org.springframework.dao.DataAccessException">cmm/dataAccessFailure</prop>
+				<prop key="org.springframework.transaction.TransactionException">cmm/dataAccessFailure</prop>
+				<prop key="egovframework.rte.fdl.cmmn.exception.EgovBizException">cmm/egovBizException</prop>
+				<prop key="org.springframework.web.HttpSessionRequiredException">cmm/uat/uia/EgovLoginUsr</prop>
+			</props>
+		</property>
+	</bean-->
+
+	<!--
+		- This bean configures the 'prefix' and 'suffix' properties of
+		- InternalResourceViewResolver, which resolves logical view names
+		- returned by Controllers. For example, a logical view name of "vets"
+		- will be mapped to "/jsp/vets.jsp".
+	-->
+	<bean class="org.springframework.web.servlet.view.UrlBasedViewResolver" p:order="1"
+	p:viewClass="org.springframework.web.servlet.view.JstlView"
+	p:prefix="/jsp/" p:suffix=".jsp"/>
+
+	<!-- Tiles 사용 설정 (JSP만 사용할 경우 주석 처리 - 아래 tilesConfigurer와 같이 주석) -->
+	<bean id="tilesViewResolver" class="org.springframework.web.servlet.view.UrlBasedViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.tiles2.TilesView" />
+		<property name="order" value="0" />
+	</bean>
+
+	<bean id="tilesConfigurer" class="org.springframework.web.servlet.view.tiles2.TilesConfigurer">
+		<property name="definitions">
+			<list>
+				<value>/WEB-INF/config/tiles2def/**/*.xml</value>
+				<value>/WEB-INF/config/tiles2def/**/**/*.xml</value>
+			</list>
+		</property>
+	</bean>
+
+	<!--
+		- Message source for this context, loaded from localized "messages_xx" files.
+		- Could also reside in the root application context, as it is generic,
+		- but is currently just used within Application's web tier.
+	-->
+	<bean id="messageSource" class="org.springframework.context.support.ResourceBundleMessageSource" p:basename="messages" />
+
+
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/sys/**/*.*"/>
+			<bean class="egovframework.portal.sys.log.web.LoggingInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/sys/**/*.*"/>
+			<bean class="egovframework.portal.sys.interceptor.AdminLoginInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/sys/**/*.*"/>
+			<bean class="egovframework.portal.sys.interceptor.AdminAuthCheckerInterceptor" />
+		</mvc:interceptor>
+		<mvc:interceptor>
+			<mvc:mapping path="/sys/**/bbs/bbsMng/**/*.*"/>
+			<bean class="egovframework.portal.sys.interceptor.BbsAuthCheckInterceptor" />
+		</mvc:interceptor>
+	</mvc:interceptors>
+
+<!-- 	<mvc:annotation-driven/> -->
+
+	<!-- ===================================== 엑셀 다운로드 기능 ===================================== -->
+		<!-- 관리자 -->
+			<!-- 통계정보 -->
+			<bean id="statDownloader" class="egovframework.portal.sys.basic.stateMng.web.StatDownloader" />
+	<!-- =============================================================================================== -->
+
+	<bean class="org.springframework.web.servlet.view.BeanNameViewResolver">
+		<property name="order" value="0" />
+	</bean>
+
+	<bean id="loggingAspect" class="egovframework.portal.common.aop.Logger" />
+	<bean id="userBbsAccessValidator" class="egovframework.portal.bbs.aop.UserBbsAccessValidator" />
+	<bean id="methodTracker" class="egovframework.portal.aop.MethodTracker" />
+	<bean id="menuFetcher" class="egovframework.portal.aop.MenuFetcher" />
+
+	<aop:config proxy-target-class="true">
+		<aop:aspect ref="loggingAspect">
+			<aop:pointcut id="pointcutController" expression="execution(* egovframework.portal..web.*Controller.*(..))" />
+			<aop:before pointcut-ref="pointcutController" method="log" />
+		</aop:aspect>
+
+		<aop:aspect ref="userBbsAccessValidator">
+			<aop:pointcut id="pointcutBbsController" expression="execution(* egovframework.portal..web.BbsController.*(..))
+				&amp;&amp; !execution(* egovframework.portal..web.BbsController.inRealName(..))" />
+			<aop:around pointcut-ref="pointcutBbsController" method="isAccessable" />
+		</aop:aspect>
+		<!--
+		<aop:aspect ref="methodTracker">
+			<aop:pointcut id="methodTrackerPointcut" expression="within(egovframework.portal..*)" />
+			<aop:around pointcut-ref="methodTrackerPointcut" method="print" />
+		</aop:aspect>
+		-->
+
+		<aop:aspect ref="menuFetcher">
+			<aop:pointcut id="menuFetcherController" expression="execution(* egovframework.portal..web.*Controller.*(..))
+				&amp;&amp; !execution(* egovframework.portal..web.ContentsController.*(..))" />
+			<aop:before pointcut-ref="menuFetcherController" method="menuSetting" />
+		</aop:aspect>
+
+	</aop:config>
+
+</beans>

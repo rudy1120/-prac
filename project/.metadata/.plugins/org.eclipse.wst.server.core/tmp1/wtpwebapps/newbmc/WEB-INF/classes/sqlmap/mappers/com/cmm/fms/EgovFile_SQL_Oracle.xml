@@ -1,0 +1,265 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="FileManage">
+
+	<resultMap id="fileList" type="egovframework.com.cmm.service.FileVO">
+		<result property="atchFileId" column="ATCH_FILE_ID"/>
+		<result property="fileCn" column="FILE_CN"/>
+		<result property="fileExtsn" column="FILE_EXTSN"/>
+		<result property="fileMg" column="FILE_MG"/>
+		<result property="fileSn" column="FILE_SN"/>
+		<result property="fileStreCours" column="FILE_STRE_COURS"/>
+		<result property="orignlFileNm" column="ORIGNL_FILE_NM"/>
+		<result property="streFileNm" column="STRE_FILE_NM"/>
+		<result property="creatDt" column="CREAT_DT"/>
+	</resultMap>
+
+	<resultMap id="fileDetail" type="egovframework.com.cmm.service.FileVO">
+		<result property="atchFileId" column="ATCH_FILE_ID"/>
+		<result property="fileCn" column="FILE_CN"/>
+		<result property="fileExtsn" column="FILE_EXTSN"/>
+		<result property="fileMg" column="FILE_MG"/>
+		<result property="fileSn" column="FILE_SN"/>
+		<result property="fileStreCours" column="FILE_STRE_COURS"/>
+		<result property="orignlFileNm" column="ORIGNL_FILE_NM"/>
+		<result property="streFileNm" column="STRE_FILE_NM"/>
+		<association property="master" javaType="egovframework.com.cmm.service.FileMasterVO">
+			<result property="atchFileId" column="atch_file_id"/>
+			<result property="authYn" column="auth_yn"/>
+			<result property="tableName" column="table_name"/>
+			<result property="idxKey" column="idx_key"/>
+			<result property="idxValue" column="idx_value"/>
+			<result property="diKey" column="di_key"/>
+	  	</association>
+	</resultMap>
+
+
+ 	<select id="selectFileList" parameterType="egovframework.com.cmm.service.FileVO" resultMap="fileList" >
+ 		<![CDATA[
+			SELECT
+				a.ATCH_FILE_ID, b.FILE_CN, b.FILE_SN, b.FILE_STRE_COURS, b.STRE_FILE_NM,
+				b.FILE_EXTSN, b.ORIGNL_FILE_NM, b.FILE_MG, a.CREAT_DT
+			FROM
+				comtnfile a, comtnfile_detail b
+			WHERE
+				a.ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+			AND
+				a.ATCH_FILE_ID = b.ATCH_FILE_ID
+			AND
+				a.USE_AT = 'Y'
+			ORDER BY b.FILE_SORT ASC, cast(b.FILE_SN AS UNSIGNED) ASC
+ 		]]>
+ 	</select>
+
+	<select id="isFileMaster" parameterType="egovframework.com.cmm.service.FileVO" resultType="java.lang.Integer">
+		<![CDATA[
+			SELECT COUNT(ATCH_FILE_ID)
+			FROM comtnfile
+			WHERE ATCH_FILE_ID =  #{atchFileId, jdbcType=VARCHAR}
+		]]>
+	</select>
+
+	<insert id="insertFileDetail" parameterType="egovframework.com.cmm.service.FileVO" >
+		<![CDATA[
+			INSERT INTO comtnfile_detail
+			( ATCH_FILE_ID, FILE_SN, FILE_STRE_COURS, STRE_FILE_NM,
+			  ORIGNL_FILE_NM, FILE_EXTSN, FILE_MG, FILE_CN )
+			VALUES
+			( #{atchFileId, jdbcType=VARCHAR}, #{fileSn}, #{fileStreCours}, #{streFileNm},
+			  #{orignlFileNm}, #{fileExtsn}, #{fileMg}, #{fileCn} )
+		]]>
+	</insert>
+
+	<delete id="deleteFileDetail" parameterType="egovframework.com.cmm.service.FileVO" >
+		<![CDATA[
+			DELETE FROM comtnfile_detail
+			WHERE
+				ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+			AND
+				FILE_SN = #{fileSn}
+		]]>
+	</delete>
+
+	<select id="getMaxFileSN" parameterType="egovframework.com.cmm.service.FileVO" resultType="java.lang.Integer">
+		<![CDATA[
+			SELECT ifnull(MAX(cast(FILE_SN AS UNSIGNED)),0)+1 AS FILE_SN
+			FROM comtnfile_detail
+			WHERE ATCH_FILE_ID =  #{atchFileId, jdbcType=VARCHAR}
+		]]>
+	</select>
+
+
+ 	<select id="selectFileInf" parameterType="egovframework.com.cmm.service.FileVO" resultMap="fileDetail">
+ 		<![CDATA[
+			SELECT f.*,
+				master.auth_yn, master.table_name, master.idx_key, master.idx_value, master.di_key
+			FROM comtnfile_detail f
+			INNER JOIN comtnfile master ON master.atch_file_id = f.atch_file_id
+			WHERE f.atch_file_id = #{atchFileId, jdbcType=VARCHAR}
+				AND f.file_sn = #{fileSn}
+ 		]]>
+ 	</select>
+
+ 	<select id="selectFileInfSort" parameterType="egovframework.com.cmm.service.FileVO" resultMap="fileDetail">
+ 		<![CDATA[
+			SELECT ATCH_FILE_ID, FILE_CN, FILE_SN, FILE_STRE_COURS, STRE_FILE_NM,
+                FILE_EXTSN, ORIGNL_FILE_NM, FILE_MG FROM (
+			SELECT ATCH_FILE_ID, FILE_CN, FILE_SN, FILE_STRE_COURS, STRE_FILE_NM,
+                FILE_EXTSN, ORIGNL_FILE_NM, FILE_MG, @rownum:=@rownum+1 AS rnum FROM (
+			SELECT
+				ATCH_FILE_ID, FILE_CN, FILE_SN, FILE_STRE_COURS, STRE_FILE_NM,
+				FILE_EXTSN, ORIGNL_FILE_NM, FILE_MG
+			FROM
+				comtnfile_detail
+			WHERE
+				ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+			ORDER BY cast(FILE_SN AS UNSIGNED)
+			), (SELECT @rownum :=0) AS R ) RES	WHERE RNUM = #{fileSort}
+ 		]]>
+ 	</select>
+
+	<update id="deleteCOMTNFILE" parameterType="egovframework.com.cmm.service.FileVO" >
+		<![CDATA[
+			UPDATE comtnfile
+			SET USE_AT = 'N'
+			WHERE ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+		]]>
+	</update>
+
+ 	<select id="selectFileListByFileNm" parameterType="egovframework.com.cmm.service.FileVO" resultMap="fileList" >
+ 		<![CDATA[
+ 		SELECT * FROM ( SELECT @rownum:=@rownum+1 AS rn, TB.* FROM (
+			SELECT
+				a.ATCH_FILE_ID, b.FILE_CN, b.FILE_SN, b.FILE_STRE_COURS, b.STRE_FILE_NM,
+				b.FILE_EXTSN, b.ORIGNL_FILE_NM, b.FILE_MG, a.CREAT_DT
+			FROM
+				comtnfile a, comtnfile_detail b
+			WHERE
+				a.ATCH_FILE_ID = b.ATCH_FILE_ID
+			AND
+				a.USE_AT = 'Y'
+		]]>
+			<if test="searchCnd.equals('streFileNm')">
+				<![CDATA[	AND b.STRE_FILE_NM LIKE CONCAT('%',#{searchWrd},'%') 		]]>
+			</if>
+			<if test="searchCnd.equals('orignlFileNm')">
+				<![CDATA[	AND b.ORIGNL_FILE_NM LIKE CONCAT('%',#{searchWrd},'%') 		]]>
+			</if>
+		<![CDATA[
+			ORDER BY a.ATCH_FILE_ID, cast(b.FILE_SN AS UNSIGNED)
+			) TB, (SELECT @rownum :=0) AS R ) RES WHERE rn BETWEEN #{firstIndex} + 1 AND #{firstIndex} + #{recordCountPerPage}
+		]]>
+ 	</select>
+
+ 	<select id="selectFileListCntByFileNm" parameterType="egovframework.com.cmm.service.FileVO" resultType="java.lang.Integer" >
+ 		<![CDATA[
+			SELECT
+				COUNT(a.ATCH_FILE_ID)
+			FROM
+				comtnfile a, comtnfile_detail b
+			WHERE
+				a.ATCH_FILE_ID = b.ATCH_FILE_ID
+			AND
+				a.USE_AT = 'Y'
+ 		]]>
+			<if test="searchCnd.equals('streFileNm')">
+				<![CDATA[	AND b.STRE_FILE_NM LIKE CONCAT('%',#{searchWrd},'%') 		]]>
+			</if>
+			<if test="searchCnd.equals('orignlFileNm')">
+				<![CDATA[	AND b.ORIGNL_FILE_NM LIKE CONCAT('%',#{searchWrd},'%') 		]]>
+			</if>
+ 	</select>
+
+  	<select id="selectImageFileList" parameterType="egovframework.com.cmm.service.FileVO" resultMap="fileList" >
+ 		<![CDATA[
+			SELECT
+				a.ATCH_FILE_ID, b.FILE_CN, b.FILE_SN, b.FILE_STRE_COURS, b.STRE_FILE_NM,
+				b.FILE_EXTSN, b.ORIGNL_FILE_NM, b.FILE_MG, a.CREAT_DT
+			FROM
+				comtnfile a, comtnfile_detail b
+			WHERE
+				a.ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+			AND
+				a.ATCH_FILE_ID = b.ATCH_FILE_ID
+			AND
+				UPPER(b.FILE_EXTSN) IN ('GIF','JPG','BMP','PNG')
+			AND
+				a.USE_AT = 'Y'
+			ORDER BY b.FILE_SORT ASC, cast(b.FILE_SN AS UNSIGNED) ASC
+ 		]]>
+ 	</select>
+
+ 	<update id="updateFileSort">
+ 		UPDATE comtnfile_detail
+ 			SET FILE_SORT = #{fileSort}
+		 WHERE ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+			AND FILE_SN = #{fileSn}
+ 	</update>
+
+ 	<update id="updateFileCn" parameterType="egovframework.com.cmm.service.FileVO">
+ 		UPDATE comtnfile_detail
+ 			SET FILE_CN = #{fileCn}
+		 WHERE ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+			AND FILE_SN = #{fileSn}
+ 	</update>
+
+	<!-- fileSN 값 변경 -->
+	<update id="updateFileSn" parameterType="egovframework.com.cmm.service.FileVO">
+ 		UPDATE comtnfile_detail
+ 			SET FILE_SN = #{fileSn}
+		 WHERE ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+			AND STRE_FILE_NM = #{streFileNm}
+	</update>
+
+
+ 	<select id="selectFileInfMovie" parameterType="egovframework.com.cmm.service.FileVO" resultMap="fileDetail" >
+ 		<![CDATA[
+			SELECT
+				ATCH_FILE_ID, FILE_CN, FILE_SN, FILE_STRE_COURS, STRE_FILE_NM,
+				FILE_EXTSN, ORIGNL_FILE_NM, FILE_MG
+			FROM
+				comtnfile_detail
+			WHERE
+				ATCH_FILE_ID = #{atchFileId, jdbcType=VARCHAR}
+		]]>
+			<if test="fileExtsn.equals('0')">
+				<![CDATA[ AND FILE_EXTSN IN ( 'mkv','avi','mp4','wmv' ) ]]>
+			</if>
+			<if test="fileExtsn.equals('1')">
+				<![CDATA[ AND FILE_EXTSN IN ( 'bmp','jpeg','jpg','gif','png' ) ]]>
+			</if>
+ 	</select>
+
+
+
+
+
+	<!--==================================== MASTER ==================================== -->
+
+	<select id="getFileAuthInfo" parameterType="egovframework.com.cmm.service.FileMasterVO" resultType="String">
+		SELECT ${diKey}
+		FROM ${tableName}
+		WHERE ${idxKey} = #{idxValue}
+	</select>
+	<insert id="insertFileMaster" parameterType="egovframework.com.cmm.service.FileMasterVO">
+		<![CDATA[
+			INSERT INTO comtnfile (
+				atch_file_id, creat_dt, use_at
+			) VALUES (
+				#{atchFileId, jdbcType=VARCHAR}, NOW(), 'Y'
+			)
+		]]>
+	</insert>
+	<update id="updateFileMaster" parameterType="egovframework.com.cmm.service.FileMasterVO">
+		UPDATE comtnfile
+		SET auth_yn = #{authYn},
+			table_name = UPPER(#{tableName}),
+			idx_key = UPPER(#{idxKey}),
+			idx_value = #{idxValue},
+			di_key = UPPER(#{diKey}),
+			update_dt = NOW()
+		WHERE atch_file_id = #{atchFileId}
+	</update>
+
+</mapper>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.bmc.look.mapper.LookMapper">
+
+	<resultMap id="lookCustomPayMap" type="egovframework.portal.unit.bmc.look.vo.LookCustomPayVO">
+		<result column="serno"      			property="serno"/>
+		<result column="subject"    			property="subject"/>
+		<result column="cntr_no"    			property="cntrNo"/>
+		<result column="cust_no"    			property="custNo"/>
+		<result column="name"       			property="name"/>
+		<result column="jumin_id"   			property="juminId"/>
+		<result column="juso"       			property="juso"/>
+		<result column="geyak_date" 			property="geyakDate"/>
+		<result column="tot_money"  			property="totMoney"/>
+		<result column="su_money"   			property="suMoney"/>
+		<result column="che_money"  			property="cheMoney"/>
+		<result column="midore_money"  			property="midoreMoney"/>
+		<result column="tel"        			property="tel"/>
+		<result column="birth"      			property="birth"/>
+		<result column="movein_yrmd"      		property="moveinYrmd"/>
+		<result column="cntr_stus_nm"      		property="cntrStusNm"/>
+		<result column="fst_rease_amt"      	property="fstReaseAmt"/>
+		<result column="secd_rease_cls_yrmd"	property="secdReaseClsYrmd"/>
+		<result column="due_date"				property="dueDate"/>
+		<result column="overdue_interest"		property="overdueInterest"/>
+		<result column="reparations"			property="reparations"/>
+		<result column="noti_amt"				property="notiAmt2"/>
+		<result column="dwelling_money"			property="dwellingMoney"/>
+		<result column="working_date"			property="workingDate"/>
+		<result column="virtual_account"		property="virtualAccount"/>
+		<result column="house_name"				property="houseName"/>
+		<result column="rental_deposit"			property="rentalDeposit"/>
+		
+	</resultMap>
+	
+	<resultMap id="lookCustomReceiptMap" type="egovframework.portal.unit.bmc.look.vo.LookCustomPayVO">
+		<result column="house_nm"      			property="houseNm"/>
+		<result column="cntr_no"    			property="cntrNo"/>
+		<result column="cust_no"    			property="custNo"/>
+		<result column="cust_nm"    			property="custNm"/>
+		<result column="resi_no"       			property="resiNo"/>
+		<result column="tim"   					property="tim"/>
+		<result column="no"       				property="no"/>
+		<result column="rent_regno" 			property="rentRegno"/>
+		<result column="prog_yymm"  			property="progYymm"/>
+		<result column="paym_dead_yrmd"   		property="paymDeadYrmd"/>
+		<result column="rect_yrmd"  			property="rectYrmd"/>
+		<result column="prin"  					property="prin"/>
+		<result column="indem"        			property="indem"/>
+		<result column="noti_amt"      			property="notiAmt"/>
+		<result column="arr_sta_yrmd"      		property="arrStaYrmd"/>
+		<result column="arr_cls_yrmd"      		property="arrClsYrmd"/>
+		<result column="arr_inte"      			property="arrInte"/>
+		<result column="rect_amt"				property="rectAmt"/>
+		<result column="phon_no"				property="phonNo"/>
+	</resultMap>
+		
+	<!-- 납부금 조회 -->
+	<select id="getList" parameterType="egovframework.portal.unit.bmc.look.vo.LookCustomPayVO" resultMap="lookCustomPayMap">
+		<![CDATA[
+		SELECT 
+			serno, case when subject = '62' then '연부대지매각' 
+				when subject = '31' then '영구임대료'
+			    when subject = '32' then '공공임대료'
+			    when subject = '34' then '상가임대료'
+			    when subject = '36' then '사옥임대료'
+			    when subject = '71' then '사옥관리비'
+			    when subject = '38' then '매입임대료'
+			    when subject = '39' then '전세임대료'
+			    when subject = '40' then '재개발임대료'
+			    end as subject, cntr_no, cust_no, name, jumin_id, juso, tot_money
+			, su_money, case when che_money = '' then 0 else ifnull(che_money, 0) end as che_money, midore_money, tel, birth
+			, date_format(geyak_date, '%Y-%m-%d') as geyak_date 
+			, ifnull(date_format(movein_yrmd, '%Y-%m-%d'), movein_yrmd) as movein_yrmd, cntr_stus_nm, fst_rease_amt
+			, ifnull(date_format(secd_rease_cls_yrmd, '%Y-%m-%d'), secd_rease_cls_yrmd) as secd_rease_cls_yrmd
+			, ifnull(date_format(due_date, '%Y-%m-%d'), due_date) as due_date, 
+			
+			case when overdue_interest = '' then 0 else ifnull(overdue_interest, 0) end as overdue_interest
+			, reparations, noti_amt, dwelling_money, working_date, virtual_account
+			, house_name, rental_deposit
+		FROM custom_pay 
+		WHERE NAME = #{name} 
+		AND JUMIN_ID = #{juminId}
+		AND replace(TEL, '-', '') = replace(#{tel}, '-', '')
+		and subject in ('62', '31', '32', '34', '36', '71', '38', '39', '40')
+		ORDER BY geyak_date, CNTR_NO
+		]]>
+	</select>
+	
+	<select id="getList2" parameterType="egovframework.portal.unit.bmc.look.vo.LookCustomPayVO" resultMap="lookCustomPayMap">
+		<![CDATA[
+		SELECT 
+			serno, case when subject = '01' then '용지분양' 
+				when subject = '02' then '주택분양'
+			    when subject = '06' then '상가분양'
+			    end as subject, cntr_no, cust_no, name, jumin_id, juso, tot_money
+			, su_money, case when che_money = '' then 0 else ifnull(che_money, 0) end as che_money, midore_money, tel, birth
+			, date_format(geyak_date, '%Y-%m-%d') as geyak_date 
+			, ifnull(date_format(movein_yrmd, '%Y-%m-%d'), movein_yrmd) as movein_yrmd, cntr_stus_nm, fst_rease_amt
+			, ifnull(date_format(secd_rease_cls_yrmd, '%Y-%m-%d'), secd_rease_cls_yrmd) as secd_rease_cls_yrmd
+			, ifnull(date_format(due_date, '%Y-%m-%d'), due_date) as due_date, case when overdue_interest = '' then 0 else ifnull(overdue_interest, 0) end as overdue_interest
+			, reparations, noti_amt, dwelling_money, working_date, virtual_account
+			, house_name, rental_deposit
+		FROM custom_pay 
+		WHERE NAME = #{name} 
+		AND JUMIN_ID = #{juminId}
+		AND replace(TEL, '-', '') = replace(#{tel}, '-', '')
+		and subject in ('01', '02', '06')
+		ORDER BY geyak_date, CNTR_NO
+		]]>
+	</select>
+	
+	
+	<!-- 임대료 수납내역 조회 -->
+	<select id="getReceiptList" parameterType="egovframework.portal.unit.bmc.look.vo.LookCustomPayVO" resultMap="lookCustomReceiptMap">
+		<![CDATA[
+		SELECT 
+			HOUSE_NM, CNTR_NO, CUST_NO, CUST_NM, concat(left(RESI_NO, 8), '******') as RESI_NO, TIM, NO, RENT_REGNO, PROG_YYMM, PAYM_DEAD_YRMD, RECT_YRMD
+			, PRIN, INDEM, NOTI_AMT, ARR_STA_YRMD, ARR_CLS_YRMD, ARR_INTE, RECT_AMT, PHON_NO
+		FROM custom_receipt
+		WHERE cust_nm = #{custNm} 
+		AND resi_no like CONCAT(#{resiNo},'%')
+		AND replace(phon_no,'-','') = replace(#{phonNo},'-','')
+		]]>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(schSdate)">
+		<![CDATA[
+		AND rect_yrmd >= replace(#{schSdate}, '-', '')
+		]]>
+		</if>
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(schEdate)">
+		<![CDATA[
+		AND rect_yrmd <= replace(#{schEdate}, '-', '')
+		]]>
+		</if>
+		<![CDATA[
+		ORDER BY TIM, NO
+		]]>
+	</select>
+	
+</mapper>

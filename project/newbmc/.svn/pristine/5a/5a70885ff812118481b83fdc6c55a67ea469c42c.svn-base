@@ -1,0 +1,2 @@
+* 현재 webzine 폴더는 차후 DNS 세팅이 된 후 도메인을 할당 받으면, Host name ="badaga.bmc.busan.kr" appBase="/home/webzine" 으로 구성하여, newbmc 홈페이지 소스 밖으로 뺄 예정입니다.
+* DNS세팅 전에는 우리 홈페이지쪽에서 구동해줄 방법이 따로 없으므로 소스안에 들어간것이며, 파일상에 /webzine 상단경로를 강제로 박아둠.

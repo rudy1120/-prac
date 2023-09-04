@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<!-- MyPage 계정 정보 수정 -->
+	<definition name="/sys/adminMng/modify" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/myPage/modify.jsp" />
+	</definition>
+
+	<!-- ================================== 외부 관리자 ================================== -->
+	<!-- 목록 -->
+	<definition name="/sys/externalAdminMng/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/external/list.jsp" />
+	</definition>
+	<!-- 등록/수정 -->
+	<definition name="/sys/externalAdminMng/modify" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/external/modify.jsp" />
+	</definition>
+	<!-- 외부 관리자 로그인 -->
+	<definition name="/sys/externalAdminMng/login" extends="sysEmptyLogin">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/external/login.jsp" />
+	</definition>
+	<!-- 메뉴 선택 팝업 -->
+	<definition name="/sys/externalAdminMng/listPop" extends="sysEmpty">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/external/menuListPop.jsp" />
+	</definition>
+
+	<!-- ================================== 권한 관리 ================================== -->
+	<!-- 관리자 목록 -->
+	<definition name="/sys/totalAdminMng/sysMemberMng/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/sysMemberMng/list.jsp" />
+	</definition>
+	<definition name="/sys/totalAdminMng/period/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/period/list.jsp" />
+	</definition>
+	<definition name="/sys/totalAdminMng/period/sessionList" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/period/sessionList.jsp" />
+	</definition>
+	<!-- 관리자 등록/수정 -->
+	<definition name="/sys/totalAdminMng/sysMemberMng/write" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/sysMemberMng/write.jsp" />
+	</definition>
+
+	<!-- ================================== 관리자 로그인 ================================== -->
+	<!-- 로그인 -->
+	<definition name="/admin/login" extends="sysEmptyLogin">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/login.jsp" />
+	</definition>
+	<!-- 인트로 -->
+	<definition name="/admin/intro" extends="sysMain">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/intro/index.jsp" />
+	</definition>
+	<!-- 인트로 (메뉴 선택 팝업) -->
+	<definition name="/sys/intro/menus" extends="sysEmpty">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/intro/menus.jsp" />
+	</definition>
+
+	<!-- ================================== 홈페이지 관리 ================================== -->
+	<!-- 권한 관리 -->
+	<definition name="/sys/sysMemberMng/auth/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/authMng/list.jsp" />
+	</definition>
+	<!-- 권한조회-메뉴별 20160516 손영식 -->
+	<definition name="/sys/sysMemberMng/auth/search/menu" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/authMng/searchMenu.jsp" />
+	</definition>
+	<!-- 권한조회-부서별 20160517 손영식 -->
+	<definition name="/sys/sysMemberMng/auth/search/dept" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/authMng/searchDept.jsp" />
+	</definition>
+	<!-- 권한조회-담당자별 20160517 손영식 -->
+	<definition name="/sys/sysMemberMng/auth/search/member" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/authMng/searchMember.jsp" />
+	</definition>
+	<definition name="/sys/sysMemberMng/auth/menu/listPop" extends="sysEmpty">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/authMng/menuListPop.jsp" />
+	</definition>
+	<definition name="/sys/sysMemberMng/auth/site/listPop" extends="sysEmpty">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/authMng/siteListPop.jsp" />
+	</definition>
+	<!-- 접근 관리 -->
+	<definition name="/sys/totalAdminMng/siteAccessMng/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/accessAllowMng/list.jsp" />
+	</definition>
+	<definition name="/sys/totalAdminMng/siteAccessMng/insert" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/accessAllowMng/insert.jsp" />
+	</definition>
+	<definition name="/sys/totalAdminMng/siteAccessMng/modify" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/sysAuth/accessAllowMng/modify.jsp" />
+	</definition>
+
+</tiles-definitions>

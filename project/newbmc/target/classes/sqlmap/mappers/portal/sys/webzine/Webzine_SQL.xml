@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="egovframework.portal.sys.webzine.mapper.SysWebzineMapper">
+
+	<resultMap id="webzineMap"   type="egovframework.portal.sys.webzine.vo.SysWebzineVO" >
+	     <result property ="idx"      column="idx" />
+	     <result property ="name"     column="name" />
+	     <result property ="email"    column="email" />
+	     <result property ="regdate"  column="regdate" />     
+	</resultMap>
+
+	<!-- ##### 목록 ##### -->
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>		
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('name')">
+				AND a.name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('email')">
+				AND a.email LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	
+
+	<select id ="getTotalCnt" parameterType="egovframework.portal.sys.webzine.vo.SysWebzineVO" resultType="int">
+		SELECT		IFNULL(COUNT(*),0) AS cnt
+		FROM		subscribe a
+		WHERE		1 = 1
+		<include refid="listSearcher"/>
+	</select>
+	
+	<select id ="getList" parameterType="egovframework.portal.sys.webzine.vo.SysWebzineVO" resultMap="webzineMap">
+		SELECT	re.*
+		FROM
+		(
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM 
+			(
+				SELECT 
+					idx
+				,	name
+				,	email
+				,	regdate
+				FROM subscribe a
+				WHERE 1 = 1
+				<include refid="listSearcher"/>
+			) rs
+			WHERE (@rownum:=0)=0
+			ORDER BY rs.regdate DESC
+		) re
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	
+	</select>
+	
+	<select id ="getExcelList" parameterType="egovframework.portal.sys.webzine.vo.SysWebzineVO" resultMap="webzineMap">
+		SELECT idx, name, email, regdate
+		FROM subscribe a 
+	    WHERE 1 =1 
+		<include refid="listSearcher"/>
+	
+	</select>
+</mapper>

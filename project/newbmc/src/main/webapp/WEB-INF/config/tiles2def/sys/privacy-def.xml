@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	 "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	 "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+	<definition name="/sys/privacyPrm/config/list/" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/privacyPrm/config/list.jsp" />
+	</definition>
+
+</tiles-definitions>

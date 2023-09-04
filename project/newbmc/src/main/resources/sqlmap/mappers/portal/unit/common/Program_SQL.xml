@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.unit.common.mapper.ProgramMapper">
+
+	<select id="getAllList" resultType="HashMap">
+		SELECT m.*, s.site_name, s.site_name
+		FROM menus m
+		LEFT JOIN site_mapping s ON s.site_code = m.site_code
+		WHERE m.menu_type = 'P' AND m.is_use = 'Y'
+		ORDER BY m.menu_order_code, m.menu_order
+	</select>
+
+</mapper>

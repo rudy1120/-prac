@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="ko"><head>
+	<meta charset="utf-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no">
+	<title>BMC 오시리아관광단지</title>
+	<!-- css -->
+    
+    <link rel="stylesheet" href="/osiria/css/base.css">
+	<link rel="stylesheet" href="/osiria/css/main.css">
+	<link rel="stylesheet" href="/osiria/css/style.css">
+	<link rel="stylesheet" href="/osiria/css/swiper.css">
+	
+	<link rel="stylesheet" type="text/css" href="/osiria/font/font.css">
+	<link rel="shortcut icon" href="/osiria/img/favicon.ico">
+	<link rel="stylesheet" href="/osiria/css/board2.css">
+	
+	<!-- js -->
+	<script src="/osiria/js/jquery.min.js"></script>
+	<script src="/osiria/js/common.js"></script>
+	<script src="/osiria/js/global.js"></script>
+	<script src="/osiria/js/swiper.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+	
+</head>
+<body>
+	<header id="header">
+		<div class="headerBody">
+			<div class="headerInnr">
+			</div>
+	</div>		
+</header>
+	<div id="container">
+		<section id="subBanner">
+			<div class="sub_visual06">
+       			<div class="sub_title">
+       				<h2 class="subTitle_name">게시판 미리보기</h2>
+      				<p>Osiria Tourism Complex</p>
+      			</div>
+			</div>
+		</section>
+			
+		<div class="nav_wrap">
+			<div class="navbar">
+			</div>
+		</div>
+			<div class="sub_wrap">
+				<div class="subContent_wrap">
+					<div class="subContent_tit">	
+						<h1>미리보기</h1>
+						<p>FOR YOUR LIFE</p>
+					</div>
+<div class="gap40"></div>
+<div id="contents">
+	<div class="content">
+	<h4 class="blind">미리보기</h4>
+
+	<style>
+		.mT10 li {float:none;color:#333;margin-left:30px;}
+		@media all and (max-width:960px) {
+			.mobileTable {overflow-x:scroll;white-space:nowrap;}
+		}
+		@media all and (max-width:900px) {
+			.mT10 p {padding-left:40px!important;}
+			.mT10 li {margin-left:5px;}
+		}
+		
+		@media all and (max-width:640px) {
+			.mT10 h1 {line-height:1;}
+		}
+	</style>
+<div class="bod_wrap">
+	<div class="bod_view">
+		<h4>미리보기</h4>
+
+		<div class="view_info">
+			<ul class="clFix">
+				<li class="view_write">
+					<span>작성자</span> : 000
+				</li>
+				<li class="view_date"><span>등록일</span> : 0000-00-00</li>
+				<li class="view_hit"><span>조회</span> : 0</li>
+			</ul>
+		</div>
+
+		<div class="view_cont">
+			<div class="mT10">
+				미리보기
+			</div>
+		</div>
+		<dl class="view_file clFix">
+			<dt><span>첨부 파일</span></dt>
+			<dd>
+				첨부파일은 미리보기를 지원하지 않습니다.
+			</dd>
+		</dl>
+	
+	</div>
+
+<div class="bod_foot">
+	<div class="btn_wrap taR mT20">
+		<a href="#" onclick="window.close()" title="미리보기 닫기">닫기</a>
+	</div>
+</div>
+
+</div>
+
+<script>
+
+$(function (){
+	$('.bod_view h4').text($(opener.document).find('#bTitle').val());
+	//$('.mT10').html($(opener.document).find('#bContent_ifr').contents().find('#tinymce').html());
+	$('.mT10').html($(opener.document).find('iframe').contents().find('#se2_iframe').contents().find('#editorBody').html());
+	$('.mT10 table').wrap('<div class="mobileTable" />');
+	$('.mT10 ul').addClass('list_style');
+	$('.mT10 ol').addClass('list_style');
+	$('.mT10 li').addClass('list_style');
+});
+
+</script>
+</div>
+</div>
+</div>
+</div>
+</div>
+</body></html>

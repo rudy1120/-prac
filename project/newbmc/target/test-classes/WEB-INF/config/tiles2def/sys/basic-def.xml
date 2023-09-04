@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+	"-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+	"http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+<!-- ================================== 설문조사 ================================== -->
+	<definition name="/sys/basic/poll/*" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/basic/poll/{1}.jsp" />
+	</definition>
+	<definition name="/sys/basic/poll/result/comment" extends="sysEmpty">
+		<put-attribute name="body" value="/sys/jsp/basic/poll/result/comment.jsp" />
+	</definition>
+	<definition name="/sys/basic/poll/*/*" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/basic/poll/{1}/{2}.jsp" />
+	</definition>
+
+<!-- ================================== 만족도 관리 ================================== -->
+	<definition name="/sys/satisfaction/total/list" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/basic/satisfaction/total/list.jsp" />
+	</definition>
+	<definition name="/sys/satisfaction/listSatis" extends="sysSub">
+		<put-attribute name="body" value="/sys/jsp/basic/satisfaction/listSatis.jsp" />
+	</definition>
+
+
+</tiles-definitions>

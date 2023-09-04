@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD Config 3.0//EN" "http://mybatis.org/dtd/mybatis-3-config.dtd">
+
+<configuration>
+	<settings>
+		<setting name="cacheEnabled" value="true" />
+		<setting name="jdbcTypeForNull" value="VARCHAR" />
+		<setting name="defaultStatementTimeout" value="25000"/>
+		<setting name="mapUnderscoreToCamelCase" value="false"/>
+	</settings>
+	<!--
+	typeAliases는 매번 config에 추가해줘야하므로 사용하지말고 패키지 경로를 사용하도록 해주세요.
+	<typeAliases>
+		<typeAlias alias="stringUtil" type="egovframework.portal.util.StringUtil" />
+	</typeAliases>
+	-->
+	<!--
+	Mapper XML경로는 mapperLocations로 지정해두었으므로 사용하지 않습니다.
+	<mappers>
+		<mapper resource="/sqlmap/sql/portal/sys/SysMember_SQL.xml" />
+	</mappers>
+	-->
+</configuration>

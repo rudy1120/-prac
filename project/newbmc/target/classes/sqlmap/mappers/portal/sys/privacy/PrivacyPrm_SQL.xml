@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.privacy.mapper.PrivacyPrmMapper">
+
+	<resultMap id="privacyPrmMap" type="egovframework.portal.sys.privacy.vo.PrivacyPrmVO">
+		<result property="idx"              column="idx"/>
+		<result property="prmType"          column="prm_type"/>
+		<result property="prmSiteCode"      column="prm_site_code"/>
+		<result property="prmSiteName"      column="prm_site_name"/>
+		<result property="prmMid"           column="prm_mid"/>
+		<result property="prmSysMid"        column="prm_sys_mid"/>
+		<result property="prmName"          column="prm_name"/>
+		<result property="prmTableName"     column="prm_table_name"/>
+		<result property="prmTriggerCol"    column="prm_trigger_col"/>
+		<result property="prmParamsMap"     column="prm_params_map"/>
+		<result property="prmColNames"      column="prm_col_names"/>
+		<result property="prmDeveloper"     column="prm_developer"/>
+		<result property="prmPeriod"        column="prm_period"/>
+		<result property="ptIdx"            column="pt_idx"/>
+	</resultMap>
+
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchSiteCode)">
+			AND (prm_site_code = #{searchSiteCode} OR prm_site_code = 'common')
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchPrmType)">
+			AND prm_type = #{searchPrmType}
+		</if>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('p_nm')">
+				AND prm_name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('col_nms')">
+				AND prm_col_names LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('period')">
+				AND prm_period = #{searchTxt}
+			</if>
+		</if>
+	</sql>
+	<select id="getList" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmVO" resultMap="privacyPrmMap">
+		SELECT
+			idx, prm_type, prm_site_code, prm_site_name,
+			(CASE WHEN pt_idx IS NULL THEN prm_mid ELSE (SELECT mid FROM menus WHERE bbs_mst_idx = rs2.pt_idx limit 1) END) AS prm_mid,
+			prm_sys_mid, prm_name, prm_table_name, prm_trigger_col, prm_params_map,
+			prm_col_names, prm_developer, prm_period, pt_idx
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 AS rn
+			FROM (
+				SELECT c.*
+				FROM privacy_prm c
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY c.idx DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs2
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<select id="getTotalCnt" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmVO" resultType="int">
+		SELECT COUNT(*) AS cnt
+		FROM privacy_prm c
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+	</select>
+	<select id="getEntity" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmVO" resultMap="privacyPrmMap">
+		SELECT *
+		FROM privacy_prm
+		WHERE idx = #{idx}
+	</select>
+	<select id="getEntityByPtIdx" parameterType="String" resultMap="privacyPrmMap">
+		SELECT *
+		FROM privacy_prm
+		WHERE pt_idx = #{ptIdx}
+	</select>
+
+
+
+
+
+
+	<insert id="insert" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmVO">
+		INSERT INTO privacy_prm (
+			prm_type, prm_site_code, prm_site_name, prm_mid, prm_sys_mid, prm_name, prm_table_name, prm_trigger_col, prm_params_map, prm_col_names, prm_developer, prm_period, pt_idx
+		) VALUES (
+			#{prmType}, #{prmSiteCode}, #{prmSiteName}, #{prmMid}, #{prmSysMid}, #{prmName}, #{prmTableName}, #{prmTriggerCol}, #{prmParamsMap}, #{prmColNames}, #{prmDeveloper}, #{prmPeriod}, #{ptIdx}
+		)
+		<selectKey resultType="java.lang.String" keyProperty="idx" order="AFTER">
+			select max(idx) as idx from privacy_prm
+		</selectKey>
+	</insert>
+	<update id="update" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmVO">
+		UPDATE privacy_prm
+		SET
+			prm_site_code = #{prmSiteCode},
+			prm_site_name = #{prmSiteName},
+			prm_mid = #{prmMid},
+			prm_sys_mid = #{prmSysMid},
+			prm_name = #{prmName},
+			prm_table_name = #{prmTableName},
+			prm_trigger_col = #{prmTriggerCol},
+			prm_params_map = #{prmParamsMap},
+			prm_col_names = #{prmColNames},
+			prm_developer = #{prmDeveloper},
+			prm_period = #{prmPeriod}
+		WHERE idx = #{idx}
+	</update>
+	<delete id="delete" parameterType="egovframework.portal.sys.privacy.vo.PrivacyPrmVO">
+		DELETE FROM privacy_prm
+		WHERE idx = #{idx}
+	</delete>
+
+
+</mapper>

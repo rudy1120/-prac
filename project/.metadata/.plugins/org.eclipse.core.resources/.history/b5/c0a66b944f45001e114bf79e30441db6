@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+		http://www.springframework.org/schema/beans/spring-beans-2.5.xsd">
+
+	<!-- y-CMSGovPortal Test DB -->
+	<bean id="dataSourceSpied" class="org.apache.commons.dbcp.BasicDataSource" destroy-method="close">
+		<property name="driverClassName" value="com.mysql.cj.jdbc.Driver" />
+		<!-- DEV URL -->
+ 		<!-- <property name="url" value="jdbc:mysql://59.20.218.214:3306/bmc?useUnicode=true&amp;characterEncoding=utf8&amp;globalVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&amp;sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&amp;jdbcCompliantTruncation=false&amp;verifyServerCertificate=false&amp;useSSL=false&amp;serverTimezone=UTC" />
+ 		<property name="url" value="jdbc:mysql://59.20.218.214:3306/newbmc?useUnicode=true&amp;characterEncoding=utf8&amp;globalVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&amp;sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&amp;jdbcCompliantTruncation=false&amp;verifyServerCertificate=false&amp;useSSL=false&amp;serverTimezone=UTC" /> -->
+		
+		<!-- BMC URL-->
+		<property name="url" value="jdbc:mysql://121.144.171.66:3306/bmc?useUnicode=true&amp;characterEncoding=utf8&amp;globalVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&amp;sessionVariables=sql_mode='NO_ENGINE_SUBSTITUTION'&amp;jdbcCompliantTruncation=false&amp;verifyServerCertificate=false&amp;useSSL=false&amp;serverTimezone=UTC" />
+		
+		<!-- DEV USER -->
+		<!-- <property name="username" value="cms_bmc" /> -->
+		<!-- <property name="password" value="1234" /> -->
+		<!-- <property name="username" value="newbmc" />
+		<property name="password" value="ncin1234$$" /> -->
+		
+		<!-- BMC USER -->
+		<property name="username" value="newbmc" />
+		<property name="password" value="%newBMC1$2#" />
+		
+		<property name="initialSize" value="5"/>
+		<property name="maxActive" value="20"/>
+		<property name="minIdle" value="5"/>
+		<property name="maxWait" value="3000"/>
+		<property name="poolPreparedStatements" value="true"/>
+		<property name="maxOpenPreparedStatements" value="50"/>
+		<property name="validationQuery" value="select 1"/>
+		<property name="testWhileIdle" value="true"/>
+		<property name="timeBetweenEvictionRunsMillis" value="7200000"/>
+<!-- 		<property name="defaultAutoCommit" value="false" /> -->
+	</bean>
+	<!-- MyBatis 로그를 사용하기 위해 추가 2017.04.18 권태성 -->
+	<bean id="dataSource" class="net.sf.log4jdbc.Log4jdbcProxyDataSource">
+		<constructor-arg ref="dataSourceSpied" />
+		<property name="logFormatter">
+			<bean class="net.sf.log4jdbc.tools.Log4JdbcCustomFormatter">
+				<property name="loggingType" value="MULTI_LINE" />
+				<property name="sqlPrefix" value="SQL         :  " />
+			</bean>
+		</property>
+	</bean>
+
+	<!-- For test (dataSource와 동일한 DB 지정) -->
+	<alias name="dataSource" alias="dataSource" />
+
+	<bean id="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+		<property name="dataSource" ref="dataSource" />
+	</bean>
+
+	<bean id="transactionTemplate" class="org.springframework.transaction.support.TransactionTemplate">
+		<property name="transactionManager" ref="transactionManager" />
+	</bean>
+
+	<!-- JNDI DataSource 사용 시.. -->
+	<!--
+	1. xml 설정 추가
+		1.1. ns 추가 : xmlns:jee="http://www.springframework.org/schema/jee"
+		1.2. xsi:schemaLocation jee 추가 : http://www.springframework.org/schema/jee/spring-jee-2.5.xsd
+	2. jee:jndi-lookup 추가
+	<jee:jndi-lookup id="dataSource" jndi-name="jdbc/BoardDataSource" resource-ref="true" />
+	-->
+
+</beans>

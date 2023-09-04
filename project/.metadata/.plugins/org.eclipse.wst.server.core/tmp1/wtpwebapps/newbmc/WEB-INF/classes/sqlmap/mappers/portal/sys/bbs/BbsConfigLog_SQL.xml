@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.log.mapper.BbsConfigLogMapper">
+
+	<resultMap id="bbsConfigLogMap" type="egovframework.portal.sys.log.vo.BbsConfigLogVO">
+		<result property="idx" column="idx"/>
+		<result property="ptIdx" column="pt_idx"/>
+		<result property="ptWriter" column="pt_writer"/>
+		<result property="ptWriteId" column="pt_write_id"/>
+		<result property="ptTitle" column="pt_title"/>
+		<result property="ptProc" column="pt_proc"/>
+		<result property="ptHostip" column="pt_hostip"/>
+		<result property="ptDate" column="pt_date"/>
+		<result property="ptDeptName" column="pt_dept_name"/>
+	</resultMap>
+
+
+	<sql id="listSearcher">
+		<include refid="s.funcs"/>
+		<if test="#fn = isNotBlank, #fn(searchTxt)">
+			<if test="searchType.equals('idx')">
+				AND pt_idx = #{searchTxt}
+			</if>
+			<if test="searchType.equals('title')">
+				AND pt_title LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('writer')">
+				AND pt_writer LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	<!-- ##### 게시판 로그 목록 ##### -->
+	<select id="getBbsConfigLogList" parameterType="egovframework.portal.sys.log.vo.BbsConfigLogVO" resultMap="bbsConfigLogMap">
+		SELECT * FROM ( SELECT MA.*, @rownum:=@rownum+1 RNUM FROM (
+			SELECT *
+			FROM bbs_config_log A
+			WHERE 1 = 1
+				<include refid="listSearcher"/>
+			ORDER BY pt_date DESC
+		) MA, (SELECT @rownum :=0) AS R ) RES WHERE RNUM BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- ##### 게시판 로그 전체 건수 ##### -->
+	<select id="getTotalBbsConfigLogCnt" parameterType="egovframework.portal.sys.log.vo.BbsConfigLogVO" resultType="int">
+		SELECT COUNT(*) CNT
+		FROM bbs_config_log
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+	</select>
+	<!-- ##### 게시판 로그 전체 목록 ##### -->
+	<select id="getTotalListAsMap" parameterType="egovframework.portal.sys.log.vo.BbsConfigLogVO" resultType="Map">
+		SELECT pt_idx, pt_title, pt_dept_name, pt_writer, pt_write_id, pt_proc, pt_hostip, date_format(pt_date, '%Y-%m-%d %H:%i') AS pt_date
+		FROM bbs_config_log
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+		ORDER BY pt_date DESC
+	</select>
+
+
+
+	<!-- ##### 게시판 로그 등록 ##### -->
+	<insert id="insertBbsConfigLog" parameterType="egovframework.portal.sys.log.vo.BbsConfigLogVO">
+		INSERT INTO bbs_config_log (
+			pt_idx, pt_writer, pt_write_id, pt_title, pt_proc, pt_hostip, pt_date, pt_dept_name
+		) VALUES (
+			#{ptIdx}, #{ptWriter}, #{ptWriteId}, #{ptTitle}, #{ptProc}, #{ptHostip}, NOW(), #{ptDeptName}
+		)
+	</insert>
+
+</mapper>

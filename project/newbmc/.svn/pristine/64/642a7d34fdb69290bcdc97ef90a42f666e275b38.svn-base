@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE tiles-definitions PUBLIC
+       "-//Apache Software Foundation//DTD Tiles Configuration 2.0//EN"
+       "http://tiles.apache.org/dtds/tiles-config_2_0.dtd">
+<tiles-definitions>
+
+<!-- ================================== 배너 ================================== -->
+	<definition name="/portal/banner/list/" extends="portalSub">
+		<put-attribute name="body" value="/common/jsp/basic/promotion/list.jsp" />
+	</definition>
+
+<!-- ================================== IFRAME ================================== -->
+	<definition name="/portal/frame/*" extends="portalSub">
+		<put-attribute name="body" value="/portal/jsp/frame/{1}.jsp" />
+	</definition>
+
+<!-- ================================== 설문조사 ================================== -->
+	<!-- 1DEPTH -->
+	<definition name="/*/poll/*" extends="{1}Sub">
+		<put-attribute name="body" value="/common/jsp/basic/poll/{2}.jsp" />
+	</definition>
+	
+	
+<!-- ================================== 분양알림신청 ============================== -->
+	<definition name="/*/apply/*/"  template="/{1}/jsp/apply/{2}.jsp">
+	</definition>
+<!-- ================================== 웹진구독신청 ============================== -->
+	<definition name="/*/sub/*/"  template="/{1}/jsp/sub/{2}.jsp">
+	</definition>
+<!-- ================================== 일광행복주택 이사날짜 예약하기 ============================== -->
+	<definition name="/*/moveRes/*/"  template="/{1}/jsp/moveRes/{2}.jsp">
+	</definition>
+<!-- ================================== 일광행복주택 이사날짜 예약하기 ============================== -->
+	<definition name="/*/movetest/*/"  template="/{1}/jsp/movetest/{2}.jsp">
+	</definition>
+<!-- ================================== 테스트 페이지 ============================== -->
+	<definition name="/*/pageTest/*/"  template="/{1}/jsp/pageTest/{2}.jsp">
+	</definition>
+
+	
+	<definition name="/bmc/vr/" template="/bmc/vr/bmc.html" ></definition>
+	
+</tiles-definitions>

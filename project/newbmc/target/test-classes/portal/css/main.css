@@ -1,0 +1,94 @@
+@charset "utf-8";
+/* 대표포털 > 비주얼 */
+#visualWrap {background: #cde4f5;height: 335px;text-align: center;overflow: hidden;}
+#visualWrap >li {position: absolute;float: left;}
+#visualWrap .bx-wrapper {height: 100% !important;margin-bottom: 0;}
+#visualWrap .bx-pager {text-align: center;width: 100%;}
+#visualWrap .bx-pager, #visualWrap .bx-controls-auto {bottom: 24px;}
+#visualWrap .bx-pager.bx-default-pager a {width: 20px;height: 4px;border-radius: 0;background: #fff;}
+#visualWrap .bx-pager.bx-default-pager a.active {background: #ff4e00;}
+#visualWrap .bx-controls-direction a {width: 29px;height: 54px;background:url('/common/img/common/spr_slide_controls.png') 0 0 no-repeat;}
+#visualWrap .bx-next {background-position: -57px 0 !important;}
+#visualWrap .bx-controls-auto {width: 95px;}
+#visualWrap .bx-controls-auto a {width: 21px;height: 21px;background: rgba(255,255,255,0.5) url('/common/img/common/spr_slide_controls.png') 0 0 no-repeat;border-radius: 4px;transition: 0.5s;}
+#visualWrap .bx-controls-auto a:hover {background-color: rgba(39,77,136,0.6);}
+#visualWrap .bx-controls-auto .bx-start {background-position: -92px 0;}
+#visualWrap .bx-controls-auto .bx-start:hover {background-position: -92px -21px;}
+#visualWrap .bx-controls-auto .bx-stop {background-position: -113px 0;}
+#visualWrap .bx-controls-auto .bx-stop:hover {background-position: -113px -21px;}
+
+/* 대표포털 > 콘텐츠영역 */
+.cont_wrap {padding: 4rem 0;}
+.cont_wrap:first-of-type {padding-bottom: 0;}
+.cont_wrap >div {margin: 0 auto;}
+.cont_wrap h4 {font-size: 2.2rem;font-weight: 700;}
+.cont_wrap h4 >span {padding-right: 10px;background: #fff;}
+
+/* 대표포털 > 팝업존 */
+#popupWrap, .direct_link {float: left;}  
+#popupWrap {width: 48%;background: #ececec;border: 1px solid #e4e4e4;border-radius: 5px;margin-right: 3%;}
+#popupWrap .bx-wrapper {height: 225px !important;margin-bottom: 0;}
+#popupWrap .bx-wrapper .bx-pager {left: 10px;bottom: 12px;}
+#popupWrap .bx-pager.bx-default-pager a {width: 12px;height: 4px;border-radius: 0;}
+#popupWrap .bx-controls-auto {width: 58px !important;bottom: 6px;}
+#popupWrap .bx-controls-auto a {width: 21px !important;height: 21px !important;background: url('/common/img/common/spr_slide_controls.png') 0 0 no-repeat;border-radius: 2px;transition: 0.5s;}
+#popupWrap .bx-controls-auto a[class^=bx-] {margin: 0;}
+#popupWrap .bx-controls-auto .bx-start {background-position: -92px -1px;}
+#popupWrap .bx-controls-auto .bx-stop {background-position: -113px -1px;}
+
+/* 대표포털 > 콘텐츠 바로가기 링크 */
+.direct_link {width: 23.5%; border: 1px solid #e4e4e4;border-radius: 5px;padding: 3.5rem;margin-right: 2%;}
+.direct_link:last-child {margin-right: 0%;}
+.direct_link dt {font-size: 2.2rem;font-weight: 700;margin-bottom: 16px;}
+.direct_link dd {font-size: 1.4rem;line-height: 150%;}
+.direct_link dd a {display: block; padding: 1.3rem 0;margin: 26px 0 0;border: 1px solid #c1c1c1;border-radius: 60px;color: #2b2b2b;font-size: 1.5rem;font-weight: 500;text-align: center;transition: 0.2s;}
+.direct_link dd a:hover, .direct_link dd a:focus {border:1px solid #ff4e00; box-shadow:0 2px 8px rgba(0,0,0,0.13);}
+ 
+ /* 대표포털 > 공지사항 + 포토뉴스 */
+.notice, .photo_news {float: left;position: relative;margin-bottom: 2.5rem;overflow: hidden;}
+.notice {width: 48%;margin-right: 3%;}
+.notice h4:after, .photo_news h4:after {content: '';width: 79.5%;height: 1px;display: inline-block; float: right;margin: 11px 6.5% 0 0;background: #d6d6d6;position: absolute;right: 0;z-index: -1;}
+.notice .btn_more, .photo_news .btn_more {position: absolute;right: 0;top: 0;width: 19px;height: 19px;border-radius: 50%;background: #333;color: #fff;font-weight: 700;text-align: center;}
+.notice ul, .photo_news ul {margin-top: 2.5rem;}
+.notice ul li:not(:last-child), .photo_news ul li:not(:last-child) {margin-bottom: 1.9rem;}
+.notice ul li a {display: inline-block;font-size: 1.5rem;}
+.notice ul span {float: right;font-size: 1.3rem;color: #999;}
+.photo_news {width: 49%;}
+.photo_news li {float: left;width: 32%;}
+.photo_news li >a {display: block;}
+.photo_news li:not(:last-child) {margin-right: 2%;}
+.photo_news figure >p {width: 100%;height: 125px;}
+.photo_news figure img {width: 100%;height: 100%;}
+
+ /* 대표포털 > 주요메뉴 */
+.quick_link {clear: left;}
+.quick_link >li {float: left;width: 10.225%;text-align: center;}
+.quick_link >li:not(:last-child) {margin-right: 2.6%;}
+.quick_link li a {width: 140px;height: 140px;display: inline-block;border: 1px solid #c1c1c1;border-radius: 50%;background: url(/portal/images/main/btn_link_bg.png) 50% -5% no-repeat;color: #2b2b2b;
+font-weight: 600;text-align: center;transition: 0.2s;}
+.quick_link li a:hover,
+.quick_link li a:focus {border:1px solid #ff4e00; box-shadow:0 2px 8px rgba(0,0,0,0.13);}
+.quick_link .tit {display: inline-block;margin-top: 8.5rem;font-size:1.5rem;}
+.quick_link li:nth-child(2) a {background-position: 50% 9.3%;}
+.quick_link li:nth-child(3) a {background-position: 50% 23.5%;}
+.quick_link li:nth-child(4) a {background-position: 50% 37.6%;}
+.quick_link li:nth-child(5) a {background-position: 50% 52%;}
+.quick_link li:nth-child(6) a {background-position: 50% 66%;}
+.quick_link li:nth-child(7) a {background-position: 50% 80.7%;}
+.quick_link li:nth-child(8) a {background-position: 50% 94.9%;}
+.quick_link li:nth-child(9) a {background-position: 50% 109.5%;}
+
+/* 대표포털 > 배너모음 */
+#bannerWrap {border-top: 1px solid #838e95;}
+#bannerWrap >div {overflow:hidden; padding:1.6rem 0;}
+#bannerWrap h4 {float:left; padding:0.8rem 30px 0 0;font-weight: 500;}
+#bannerWrap .banner_list {width:77%;margin:0.8rem 0 0 2%;position:relative;float:left;font-size: 1.5rem;overflow:hidden;}
+#bannerWrap .banner_list ul {position:relative; width:5000px; white-space:nowrap;}
+#bannerWrap .banner_list li {display:inline-block; padding:0 20px 0 20px; border-left:1px solid #ccc;}
+#bannerWrap .banner_list li:first-child {border-left:0; padding-left:0;}
+#bannerWrap .btn {float:left; margin:0 10px 0 0; width:30px; height:30px; background:#ccc url(/common/img/common/spr_footer.png) 50% 0 no-repeat;border-radius: 50%;}
+#bannerWrap .btn.pause {background-position:50% -22px;}
+#bannerWrap .btn.more {background-position:50% -53px;}
+#bannerWrap .btn.prev, #bannerWrap .btn.next  {background-color: #1b2f3c;}
+#bannerWrap .btn.prev {float:left; background-position:50% -84px;}
+#bannerWrap .btn.next {float:right; background-position:50% -116px;}

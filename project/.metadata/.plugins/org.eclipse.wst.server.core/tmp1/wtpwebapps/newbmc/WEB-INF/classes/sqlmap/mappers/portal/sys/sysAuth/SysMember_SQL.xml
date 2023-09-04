@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="egovframework.portal.sys.sysAuth.mapper.SysMemberMapper">
+
+	<resultMap id="adminMap" type="egovframework.portal.sys.sysAuth.vo.AdminLoginVO">
+		<result property="id" column="id"/>
+		<result property="adminId" column="id"/>
+		<result property="name" column="name"/>
+		<result property="pwd" column="pwd"/>
+		<result property="adminAccessLevelCode" column="access_level_code"/>
+		<result property="explan" column="explan"/>
+		<result property="deptId" column="dept_id"/>
+		<result property="lastPwChangeDt" column="last_pw_change_dt"/>
+		<result property="loginFailedCnt" column="login_failed_cnt"/>
+		<result property="changePwTarget" column="change_pw_target"/>
+		<result property="lastestLoginDt" column="lastest_login_dt"/>
+	</resultMap>
+	<resultMap id="adminMap2" type="egovframework.portal.sys.sysAuth.vo.AdminLoginVO">
+		<result property="adminId" column="user_id"/>
+		<result property="name" column="user_name"/>
+		<result property="adminName" column="user_name"/>
+		<result property="deptId" column="dept_id"/>
+		<result property="deptName" column="dept_name"/>
+		<result property="email" column="email"/>
+	</resultMap>
+	<resultMap id="deptMngMap" type="egovframework.portal.sys.sysAuth.vo.DeptMngVO">
+		<result property="deptId" column="DEPT_ID"/>
+		<result property="deptName" column="DEPT_NAME"/>
+	</resultMap>
+	<resultMap id="pwChangeMap" type="egovframework.portal.sys.sysAuth.vo.PwChangeVO">
+		<result property="no"         column="no"/>
+		<result property="period"     column="period"/>
+		<result property="id"         column="id"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+	<resultMap id="SiChangeMap" type="egovframework.portal.sys.sysAuth.vo.SessionChangeVO">
+		<result property="no"         column="no"/>
+		<result property="period"     column="period"/>
+		<result property="id"         column="id"/>
+		<result property="createDate" column="create_date"/>
+	</resultMap>
+
+	<sql id="PAGING_HEAD"> SELECT * FROM ( SELECT MA.*, @rownum:=@rownum+1 RNUM FROM ( </sql>
+	<sql id="PAGING_BOTTOM"> ) MA, (SELECT @rownum :=0) AS R ) RES WHERE RNUM BETWEEN ${firstIndex} AND ${lastIndex} </sql>
+	<sql id="FILTER_SSO"> AND USR_RANK IS NOT NULL </sql>
+
+
+	<sql id="changePwTargetSelector">
+		(CASE WHEN NOW() > DATE_ADD(last_pw_change_dt, INTERVAL 3 MONTH) THEN 'Y' ELSE 'N' END) AS change_pw_target
+	</sql>
+	<!-- ##### 관리자 수 조회 ##### -->
+	<sql id="listSearcher">
+		<if test="@egovframework.portal.util.StringUtil@isNotBlank(searchTxt)">
+			<if test="searchType.equals('id')">
+				AND id LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+			<if test="searchType.equals('name')">
+				AND name LIKE CONCAT('%',#{searchTxt},'%')
+			</if>
+		</if>
+	</sql>
+	<select id="getSysMemberListCnt" resultType="int">
+		SELECT COUNT(*)
+		FROM admin
+		WHERE 1 = 1
+			<include refid="listSearcher"/>
+	</select>
+	<!-- ##### 관리자 목록 조회 ##### -->
+	<select id="getSysMemberList" resultMap="adminMap">
+		SELECT rs.*, <include refid="changePwTargetSelector"/>
+		FROM (
+			SELECT rs.*, @rownum:=@rownum+1 as rn
+			FROM (
+				SELECT * FROM admin rs
+				WHERE 1 = 1
+					<include refid="listSearcher"/>
+				ORDER BY create_date DESC
+			) rs, (SELECT @rownum :=0) AS R
+		) rs
+		WHERE rn BETWEEN #{firstIndex} AND #{lastIndex}
+	</select>
+	<!-- ##### 관리자 정보 조회 ##### -->
+	<select id="getSysMember" resultMap="adminMap">
+		SELECT rs.*, <include refid="changePwTargetSelector"/>
+		FROM admin rs
+		WHERE id = #{id}
+	</select>
+	<!-- ##### 관리자 정보 등록 ##### -->
+	<insert id="insertSysMember">
+		INSERT INTO admin (
+			id, pwd, name, access_level_code, explan, dept_id
+		) VALUES (
+			#{id}, #{pwd}, #{name}, #{adminAccessLevelCode}, #{explan}, #{deptId}
+		)
+	</insert>
+
+	<!-- ##### 관리자 정보 수정 ##### -->
+	<update id="modifySysMember">
+		UPDATE admin
+		SET pwd = #{pwd},
+			name = #{name},
+			access_level_code = #{adminAccessLevelCode},
+			explan = #{explan},
+			dept_id = #{deptId},
+			update_date = NOW()
+		WHERE id = #{id}
+	</update>
+
+	<!-- ##### 관리자 정보 삭제 ##### -->
+	<delete id="deleteSysMember">
+		DELETE FROM admin WHERE id = #{id}
+	</delete>
+
+	<!-- ##### 관리자 정보 세부내용 조회 ##### -->
+	<select id="selectSysMemberDataDetail" resultMap="adminMap">
+		SELECT rs.*, <include refid="changePwTargetSelector"/>
+		FROM admin rs
+		WHERE id = #{adminId}
+	</select>
+
+
+
+
+
+
+
+	<!-- 권한 부서 목록 조회 -->
+	<select id="getDeptAllList" resultMap="deptMngMap">
+		SELECT
+			DEPT_ID,
+			DEPT_NAME
+		FROM pt_v_dept
+		WHERE  DEPT_NAME NOT LIKE '%국' AND DEPT_NAME NOT LIKE '%시'
+	</select>
+	<!-- 	, SUBSTR(SYS_CONNECT_BY_PATH(DEPT_NAME, '-'), 2) enames -->
+
+	<!-- 관리자 정보 리스트 조회 -->
+	<select id="selectSysMemberDataList" resultMap="adminMap">
+		SELECT a.*, <include refid="changePwTargetSelector"/>
+		FROM admin a
+		JOIN part b ON a.pt_idx = b.pt_idx AND a.tm_idx = b.tm_idx AND a.ch_idx = b.ch_idx
+		WHERE b.pt_idx = #{ptIdx}
+			AND b.tm_idx = #{tmIdx}
+			AND b.ch_idx = #{chIdx}
+	</select>
+
+	<!--  -->
+	<select id="selectSysMemberDataListByDept" resultMap="adminMap2">
+		SELECT USR_ID AS USER_ID, USR_NM AS USER_NAME,
+		REAL_USE_DEP_CODE AS DEPT_ID, REAL_USE_DEP_NM AS DEPT_NAME, EMAIL_ADDR AS EMAIL
+		FROM user_info WHERE REAL_USE_DEP_CODE = #{deptId}
+		<include refid="FILTER_SSO"/>
+	</select>
+
+	<!--  -->
+	<select id="chkSysMemberSsoId" resultType="int">
+		select count(*) from user_info
+		where LOGON_ID = #{id}
+		<include refid="FILTER_SSO"/>
+	</select>
+
+	<select id="getSsoUser" resultMap="adminMap2">
+		SELECT LOGON_ID AS USER_ID, USR_NM AS USER_NAME,
+			REAL_USE_DEP_CODE AS DEPT_ID, REAL_USE_DEP_NM AS DEPT_NAME , EMAIL_ADDR AS EMAIL
+		from user_info
+		where LOGON_ID = #{id}
+		<include refid="FILTER_SSO"/>
+	</select>
+	
+	<!-- 비밀변호 변경 주기 설정 -->
+	<select id="getPwPeriodInfo" resultMap="pwChangeMap">
+		select no, id, period, create_date from admin_pw_change order by create_date desc 
+	</select>
+	
+	<update id="updatePwPeriod">
+		insert into admin_pw_change (period, id)
+		values (#{period}, #{id}) 
+	</update>
+	
+	<!-- 세션 변경 주기 설정 -->
+	<select id="getSiPeriodInfo" resultMap="SiChangeMap">
+		select no, id, period, create_date from admin_session order by create_date desc 
+	</select>
+	
+	<update id="updateSiPeriod">
+		insert into admin_session (period, id)
+		values (#{period}, #{id}) 
+	</update>
+	
+
+</mapper>
